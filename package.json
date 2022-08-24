@@ -1,0 +1,22 @@
+{
+  "name": "UIBuilder",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/totaljs/uibuilder"
+  },
+  "dependencies": {
+    "total4": "beta"
+  },
+  "scripts": {
+    "start": "node index.js 8000"
+  },
+  "keywords": [
+    "mail",
+    "smtp",
+    "templates"
+  ],
+  "author": "Total.js",
+  "license":"MIT"
+}

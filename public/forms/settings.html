@@ -1,0 +1,69 @@
+<div data---="box__common.form__if:~PATH~;icon:far fa-cog;title:@(Global settings);autofocus:true;scrollbar:1;submit:?/submit;width:800" class="hidden" data-scope="~PATH~">
+	<div class="padding">
+
+		<div class="grid-2">
+			<div class="m">
+				<div data---="input__?.name__innerlabel:1;required:1;placeholder:@(App name)">@(Name)</div>
+			</div>
+			<div class="m">
+				<div class="grid-2">
+					<div data---="input__?.type__innerlabel:1;placeholder:@(Enter a value);type:lower">@(App type)</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="m">
+			<div data---="input__?.description__type:multiline;innerlabel:1;placeholder:@(App description)">@(Description)</div>
+		</div>
+
+		<div class="grid-4">
+			<div class="m">
+				<div data---="input__?.author__placeholder:@(Enter a value)">@(Author)</div>
+			</div>
+			<div class="m">
+				<div data---="input__?.icon__type:icon;placeholder:@(Choose an icon)">@(Icon)</div>
+			</div>
+			<div class="m">
+				<div data---="input__?.color__type:color;placeholder:@(Choose a color)">@(Color)</div>
+			</div>
+			<div class="m">
+				<div data---="input__?.version__placeholder:@(App version)">@(Version)</div>
+			</div>
+		</div>
+
+		<div class="caption m">
+			<label><i class="far fa-link"></i>@(Editor links)</label>
+		</div>
+		<div class="message message-alert"><i class="far fa-exclamation-triangle mr5"></i>@(Links are not declared in the <b>publishing</b> and <b>rendering</b> data. Data are sent via <b>POST</b> method and serialized via "url encode" in the form <code class="b">data=JSON</code>.)</div>
+		<br />
+		<div class="grid-3">
+			<div class="m">
+				<div data---="input__?.editor.save__icon:far fa-globe;placeholder:@(Enter URL address)">@(URL address for saving data)</div>
+			</div>
+			<div class="m">
+				<div data---="input__?.editor.publish__icon:far fa-globe;placeholder:@(Enter URL address)">@(URL address for publishing data)</div>
+			</div>
+			<div class="m">
+				<div data---="input__?.editor.render__icon:far fa-globe;placeholder:@(Enter URL address)">@(URL address for rendering data)</div>
+			</div>
+		</div>
+	</div>
+	<nav data---="validate__?">
+		<button name="submit" disabled><i class="fa fa-check-circle"></i>@(SUBMIT)</button>
+		<button name="cancel">@(Cancel)</button>
+	</nav>
+</div>
+
+<script>
+
+	PLUGIN('~PATH~', function(exports) {
+
+		exports.submit = function(hide) {
+			COPY(exports.form, app.schema);
+			UPD('app');
+			hide();
+		};
+
+	});
+
+</script>

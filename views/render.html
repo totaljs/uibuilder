@@ -1,0 +1,34 @@
+@{layout('')}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>UI Builder: Render</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta http-equiv="X-UA-Compatible" content="IE=10" />
+	<meta name="robots" content="all,follow" />
+	<link href="https://cdn.componentator.com/spa.min@19pro.css" rel="stylesheet" type="text/css" />
+	<script src="https://cdn.componentator.com/spa.min@19.js"></script>
+	<script src="https://componentator.com/download.js?id=exec"></script>
+	@{import('uibuilder.js')}
+</head>
+<body data---="exec">
+
+	<div id="appdom"></div>
+	@{json(body.data, 'renderdata')}
+
+	<script>
+		(function() {
+			var response = PARSE(PARSE($('#renderdata').html()));
+			response && UIBuilder.build('#appdom', response, function(response) {
+				W.app = response;
+				response.on('output', function(output) {
+					console.log(output);
+				});
+			});
+		})();
+	</script>
+
+</body>
+</html>

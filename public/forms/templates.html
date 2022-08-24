@@ -1,0 +1,24 @@
+<div data---="box__common.form__if:~PATH~;title:@(Templates);icon:far fa-pencil-paintbrush;autofocus:true;reload:?/reload;scrollbar:1;width:800" class="hidden" data-scope="~PATH~">
+	<div class="padding">
+		Templates
+	</div>
+	<nav>
+		<button name="cancel" style="width:100%">@(Close)</button>
+	</nav>
+</div>
+
+<script>
+
+	PLUGIN('~PATH~', function(exports) {
+
+		exports.reload = function() {
+			exports.refresh();
+		};
+
+		exports.refresh = function() {
+			SETTER('loading/hide', 1000);
+		};
+
+	});
+
+</script>

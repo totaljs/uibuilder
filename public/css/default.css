@@ -1,0 +1,59 @@
+html { margin: 0; padding: 0; overflow: hidden; }
+body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
+
+.UI_label { font-size: 11px; color: #777; margin-bottom: 5px; }
+.ui-layout-left .ui-searchinput { border: 0; border-bottom: 1px solid #E0E0E0; padding-left: 5px; }
+
+.settingsform .buttons { padding: 10px 15px 0; border-top: 1px solid #E0E0E0; }
+.settingsform .buttons button { border: 0; margin: 5px 0 0; background-color: #F0F0F0; height: 40px; padding: 0 20px; color: #000; cursor: pointer; font-family: Arial; line-height: 40px; vertical-align: middle; outline: 0; font-size: 14px; text-decoration: none; transition: all 0.3s; float: left; width: 50%; }
+.settingsform .buttons button i { width: 15px; text-align: center; margin-right: 5px; }
+.settingsform .buttons button:hover { opacity: 0.8; }
+.settingsform .buttons button:active { background-color: #D0D0D0; }
+.settingsform .buttons button:disabled { background-color: #F5F5F5 !important; border-color: #E0E0E0 !important; color: silver !important; cursor: not-allowed; box-shadow: none; }
+.settingsform .buttons button:disabled i { color: silver !important; }
+.settingsform .buttons button:first-child { border-top-left-radius: var(--radius); border-bottom-left-radius: var(--radius); }
+.settingsform .buttons button:last-child { border-top-right-radius: var(--radius); border-bottom-right-radius: var(--radius); }
+.settingsform .buttons button[name='submit'] { font-weight: bold; background-color: var(--color); color: #FFF; }
+
+.ui-layout-section { background: #FFF; }
+
+.objects { padding: 0; }
+.objects figure { height: 24px; font-size: 11px; padding: 0 5px; margin: 0 10px 5px; border-radius: var(--radius); cursor: grab; line-height: 19px; background-color: #F8F8F8; border: 1px solid transparent; }
+.objects .caption i { float: left; font-size: 11px; margin: 2px 5px 0 0; }
+.objects figure:hover { border-color: #E0E0E0; }
+.objects figure i { width: 13px; margin: 6px 6px 0 0; text-align: center; float: left; font-size: 12px; text-align: center; }
+.objects .name { font-size: 12px; padding-top: 2px; }
+.objects .name div { margin-right: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.objects .name span { font-weight: normal; font-size: 11px; float: right; color: #777; }
+.objects .name em { font-weight: normal; font-size: 11px; color: #777; margin-left: 5px; }
+.objects .caption { padding: 12px 10px 5px; font-size: 12px; color: #999; }
+
+.header { background-color: #FFF; height: 45px; padding-left: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); left: 0; right: 0; }
+.header button, .header a { margin: 6px 2px 0 0; float: left; border: 0; background-color: transparent; border-radius: var(--radius); padding: 0; min-width: 34px; height: 32px; font-size: 16px; line-height: 32px; text-decoration: none !important; text-align: center; color: #000; }
+.header button b { position: absolute; margin: 12px 0 0 4px; }
+.header button b i { font-size: 8px; }
+.header button.apply { padding: 0 15px 0 13px !important; font-weight: bold; }
+.header button.apply i { margin-right: 7px; color: #68B25B; }
+.header button.highlight { background-color: var(--color) !important; color: #FFF; }
+.header button.highlight i { color: #FFF !important; }
+.header button.paused { background-color: red !important; color: #FFF; }
+.header button.paused i { color: #FFF !important; }
+.header button.labeled { padding: 0 15px 0 13px !important; line-height: 30px; }
+.header button.labeled i { margin: 8px 7px 0 0; float: left; }
+.header button.changed { color: #FFF !important; background: #68B25B !important; animation: 1s blink infinite alternate forwards; }
+.header button.changed i { color: #FFF; }
+.header button span { font-size: 12px; }
+.header button:hover, header a:hover { background-color: #F0F0F0; }
+.header button:disabled { color: #D0D0D0; cursor: not-allowed; background-color: transparent !important; }
+.header button.selected { background-color: #F0F0F0; }
+.header button.special, header a.special { color: #99982F; }
+.header > div { float: left; margin: 0 0 0 8px; padding-right: 6px; border-right: 1px solid #E0E0E0; height: 44px; }
+.header .apply-button { margin-left: 0; }
+
+.dm { border: 2px solid #D0D0D0; margin: 30px auto; padding: 15px; border-radius: var(--radius); }
+.dm-xs { width: 450px; }
+.dm-sm { width: 800px; }
+.dm-md { width: 1024px; }
+.dm-lg { width: 1280px; }
+
+.ui-notify-container { z-index: 1001; }

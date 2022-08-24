@@ -1,0 +1,424 @@
+@{layout('')}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Total.js UI Builder</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta http-equiv="X-UA-Compatible" content="IE=10" />
+	<meta name="robots" content="all,follow" />
+	<link href="https://cdn.componentator.com/spa.min@19pro.css" rel="stylesheet" type="text/css" />
+	<script src="https://cdn.componentator.com/spa.min@19beta.js"></script>
+	<script src="https://componentator.com/download.js?id=exec,locale,faicons,stash,colorpicker,directory,loading,box,input,importer,ready,viewbox,validate,layout,intranetcss,menu,searchinput,notify,approve"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+	@{import('default.css + ui.css', 'default.js + ui.js + uibuilder.js')}
+</head>
+<body data---="exec">
+
+	<div data---="LAZY menu__null__style:2"></div>
+	<div data---="LAZY faicons"></div>
+	<div data---="LAZY directory__null__placeholder:@(Search)"></div>
+	<div data---="LAZY approve__null__cancel:@(Cancel)"></div>
+	<div data---="LAZY colorpicker"></div>
+	<div data---="LAZY notify__null__position:bottom right"></div>
+
+	<div data---="locale"></div>
+	<div data---="loading"></div>
+
+	<div data-bind="app.ready__visible" class="invisible">
+		<div data---="layout__common.layout__parent:window">
+
+			<script type="text/plain">
+				{
+					top: { size: 44 },
+					left: { size: 228, resize: true },
+					main: {}
+				}
+			</script>
+
+			<section data-type="top">
+				<div class="header">
+
+					<div class="pull-right">
+						<a href="https://docs.totaljs.com/uibuilder/" title="Documentation: Total.js Platform" target="_blank" class="special"><i class="far fa-book"></i></a>
+					</div>
+					<div class="pull-right">
+						<a href="/" title="@(Create a new app)" target="_blank"><i class="far fa-plus-circle green"></i></a>
+					</div>
+
+					<div style="margin-right:8px">
+						<button class="apply exec" data-exec="uibuilder_save"><i class="far fa-save"></i><span>@(SAVE)</span></button>
+					</div>
+
+					<div style="margin-right:8px">
+						<button data-bind="app.schema.editor.publish__enable" class="exec" data-exec="uibuilder_publish" title="@(Publish)" disabled><i class="far fa-box"></i></button>
+						<button data-bind="app.schema.editor.render__enable" class="exec" data-exec="uibuilder_render" title="@(Preview)" disabled><i class="fas fa-flask"></i></button>
+						<button class="exec" data-exec="uibuilder_settings" title="@(Global settings)"><i class="far fa-cog"></i></button>
+					</div>
+
+					<button class="exec" data-exec="uibuilder_device" title="@(Display settings)"><i class="far fa-desktop-alt"></i></button>
+					<button class="exec" data-exec="uibuilder_redraw" title="@(Redraw)"><i class="fas fa-sync"></i></button>
+				</div>
+			</section>
+
+			<section data-type="left">
+				<div data---="searchinput__%flowsearch__type:search;placeholder:Search components;autofocus:2"></div>
+				<div style="margin:5px 10px 0 10px" class="fs11">
+					<div><span class="exec link" data-exec="uibuilder_objects">@(Download)</span></div>
+				</div>
+				<div class="objects" data-bind="common.groups__template">
+					<script type="text/html">
+					{{ foreach g in value }}
+						<div class="caption">{{ g.id }}</div>
+						{{ foreach m in g.items }}
+						<figure draggable="true" class="draggable" data-id="{{ m.id }}">
+							<i class="{{ m.icon }}"></i>
+							<div class="name">{{ m.name }}</div>
+						</figure>
+						{{ end }}
+					{{ end }}
+					</script>
+				</div>
+			</section>
+
+			<section data-type="main">
+				<div data---="viewbox__app__parent:window;margin:44;scrollbarshadow:1">
+					<div id="dappcontainer">
+						<div id="dapp" data---="uibuildereditor__null__exec:func;ondrop:drop_object;dblclick:settings"></div>
+					</div>
+				</div>
+			</section>
+
+		</div>
+	</div>
+
+	<div data---="box__common.form__if:settingsform;width:700;title:@(Settings);icon:fa fa-cog;submit:settings_submit;scrollbar:0;reload:settings_reload;autofocus:1">
+		<div data---="stash__settingsform.objectid__load:settings_load" class="settingsform"></div>
+	</div>
+
+	<div data---="importer__common.form__if:appsettingsform;url:/forms/settings.html"></div>
+	<div data---="importer__common.form__if:templatesform;url:/forms/templates.html"></div>
+	<div data---="importer__common.form__if:objectsform;url:/forms/objects.html"></div>
+
+	<form id="uibuilderrender" method="POST" target="_blank">
+		<input name="data" type="hidden" />
+	</form>
+
+	<script>
+
+		var common = {};
+
+		common.objects = [];
+
+		ON('@flag showloading', function() {
+			SETTER('loading/show');
+		});
+
+		ON('@flag hideloading', function() {
+			SETTER('loading/hide', 500);
+		});
+
+		ON('ERROR', function(err) {
+			if (err instanceof Array)
+				err = err[0].message;
+			else
+				err = err.toString();
+			SETTER('notify/error', err);
+		});
+
+		function settings_reload(com) {
+			var id = settingsform.objectid;
+			var data = settingsform[id];
+			var obj = app.objects[id];
+			com.reconfigure({ title: '@(Settings:) ' + obj.name });
+			EXEC('settingsform.' + id + '/reload', data);
+		}
+
+		function settings_load(id, next) {
+			var obj = app.objects[id];
+			if (obj) {
+
+				var done = function(response) {
+
+					if (typeof(response) !== 'string')
+						response = '';
+
+					var beg = response.indexOf('<scr' + 'ipt>');
+					if (beg !== -1) {
+						response = response.replace(/PLUGIN\((\s)?function/g, 'PLUGIN(\'settingsform.' + id + '\', function');
+						var end = response.indexOf('</scr' + 'ipt>', beg + 8);
+						var scr = response.substring(beg + 8, end).trim();
+						response = response.substring(0, beg) + response.substring(end);
+						new Function(scr)();
+					}
+
+					next('<div data-scope="settingsform.{0}"><div data---="ready__null__rclass:invisible;delay:300" class="invisible"><div data---="viewbox__common.form__scrollbar:1;scrollbarshadow:1;margin:70;parent:auto"><div class="padding" style="padding-bottom:10px;border-bottom:1px solid #E0E0E0"><div class="grid-2"><div class="m"><div data---="input__?.name__required:1;innerlabel:1;placeholder:Enter name">Name</div></div><div class="m"><div data---="input__?.path__monospace:1;innerlabel:1;placeholder:path.to.property">Path</div></div></div></div>{1}</div><nav data---="validate__?" class="buttons"><button name="submit" disabled><i class="fa fa-check-circle"></i>SUBMIT</button><button name="cancel">CANCEL</button></nav></div></div>'.format(id, response));
+				};
+
+				if (obj.settings) {
+					if (obj.settings.indexOf('<') === -1)
+						AJAX('GET ' + obj.settings, done);
+					else
+						done(obj.settings);
+				} else
+					next('');
+
+			} else
+				next('');
+		}
+
+		function settings_submit(hide) {
+			var data = settingsform[settingsform.objectid];
+			var instance = app.instances.findItem('id', settingsform.id);
+			COPY(data, instance.config);
+			instance.emit('configure', instance.config);
+			app.refreshio();
+			hide();
+		}
+
+		ON('ready', function() {
+
+			var url = NAV.query.url;
+
+			if (!url) {
+				SET('common.form', 'templatesform');
+				return;
+			}
+
+			AJAX('GET ' + url, function(response) {
+				UIBuilder.data = response;
+				uibuilder_redraw();
+			});
+		});
+
+		function uibuilder_redraw(el) {
+
+			if (el) {
+				var cls = 'fa-spin';
+				el.aclass(cls).rclass(cls, 2000);
+			}
+
+			SETTER('loading/show');
+			UIBuilder.build('#dapp', UIBuilder.data, function(response) {
+
+				SETTER('stash/clear');
+				SETTER('loading/hide', 1000);
+
+				W.app = response;
+
+				var arr = [];
+				var groups = {};
+
+				for (var key in response.objects) {
+					var obj = response.objects[key];
+					var g = obj.group || '$';
+					if (groups[g])
+						groups[g].push(obj);
+					else
+						groups[g] = [obj];
+					arr.push(obj);
+				}
+
+				var arr2 = [];
+
+				for (var key in groups)
+					arr2.push({ id: key === '$' ? '' : key, items: groups[key] });
+
+				SET('common.objects', arr);
+				SET('common.groups', arr2);
+				UPD('app');
+			});
+		}
+
+		function settings(el) {
+			var obj = el[0].uibuilder;
+			var objectid = obj.object.id;
+			SET('settingsform.id', obj.id);
+			SET('settingsform.objectid', objectid);
+			SET('settingsform.' + objectid + ' @reset', CLONE(obj.config));
+			SET('common.form', 'settingsform');
+		}
+
+		function drop_object(meta) {
+
+			var parent = meta.container.closest('.UI_object');
+			var parentid = parent.attrd('id');
+			var containerindex = meta.container.attrd('index');
+			var target = meta.target.hclass('UI_object') ? meta.target : meta.target.closest('.UI_object');
+			var position = target[0] === parent[0] ? null : (NODEINDEXOF(target[0]) + 1);
+			var config;
+			var instance = meta.element[0].uibuilder;
+
+			// Existing object
+			if (instance) {
+
+				// Same element
+				if (instance.dom === target[0])
+					return;
+
+				var data = app.stringify(instance.element);
+				var metadata = data.children;
+				app.add(parentid, containerindex, metadata, position);
+				meta.element.remove();
+				app.clean();
+
+			} else
+				app.add(parentid, containerindex, ATTRD(meta.element), position);
+		}
+
+		function uibuilder_compile(callback) {
+
+			SETTER('loading/show');
+
+			var meta = CLONE(app.schema);
+			var data = app.stringify();
+			meta.children = data.children;
+			meta.inputs = app.inputs;
+			meta.outputs = app.outputs;
+			delete meta.css;
+
+			var used = {};
+			for (var instance of app.instances)
+				used[instance.object.id] = 1;
+
+			var arr = Object.keys(used);
+
+			arr.wait(function(key, next) {
+
+				var obj = app.objects[key];
+				AJAX('GET ' + obj.render, function(response) {
+					var index = response.indexOf('<scri' + 'pt object>');
+					response = response.substring(index + 16, response.indexOf('</scr' + 'ipt>', index + 16));
+					used[key] = 'base64 ' + btoa(encodeURIComponent(response));
+					next();
+				});
+
+			}, function() {
+				meta.objects = used;
+				callback(meta);
+			});
+		}
+
+		function uibuilder_publish() {
+			if (app.schema.editor && app.schema.editor.publish) {
+				SETTER('approve/show', '@(Are you sure you want to publish app?)', '"far fa-check-circle" @(Publish)', function() {
+					uibuilder_compile(function(meta) {
+						var data = meta.editor;
+						delete meta.editor;
+						AJAX('POST ' + data.publish + ' urlencoded', { data: JSON.stringify(meta) }, ERROR(ASETTER('notify/success @hideloading', '@(Done, published!)')));
+					});
+				});
+			}
+		}
+
+		function uibuilder_settings() {
+			var path = 'appsettingsform';
+			var data = {};
+			var schema = app.schema;
+
+			data.id = schema.id;
+			data.name = schema.name;
+			data.title = schema.title;
+			data.author = schema.author;
+			data.icon = schema.icon;
+			data.type = schema.type;
+			data.version = schema.version;
+			data.editor = schema.editor ? CLONE(schema.editor) : {};
+			data.description = schema.description;
+
+			SET('appsettingsform @reset', data);
+			SET('common.form', path);
+		}
+
+		function uibuilder_render() {
+			if (app.schema.editor && app.schema.editor.render) {
+				uibuilder_compile(function(meta) {
+					SETTER('loading/hide', 1000);
+					var data = meta.editor;
+					delete meta.editor;
+					var form = $('#uibuilderrender');
+					form.attr('action', data.render);
+					form.find('input').val(JSON.stringify(meta));
+					form.submit();
+				});
+			}
+		}
+
+		function uibuilder_device(el) {
+			var opt = {};
+			opt.element = el;
+			opt.align = 'left';
+			opt.items = [];
+			opt.items.push({ id: 'xs', name: 'Extra small display', icon: 'far fa-mobile' });
+			opt.items.push({ id: 'sm', name: 'Small display', icon: 'far fa-tablet' });
+			opt.items.push({ id: 'md', name: 'Medium display', icon: 'far fa-laptop' });
+			opt.items.push({ id: 'lg', name: 'Large display', icon: 'far fa-desktop' });
+			opt.items.push({ id: 'auto', name: 'Auto size', icon: 'far fa-arrows-alt-h' });
+			opt.callback = function(selected) {
+				var container = $('#dappcontainer');
+				container.rclass2('dm-');
+				container.tclass('dm', selected.id !== 'auto');
+				container.aclass('dm-' + selected.id);
+			};
+			SETTER('menu/show', opt);
+		}
+
+		function uibuilder_objects() {
+			SET('common.form', 'objectsform');
+		}
+
+		function uibuilder_save() {
+
+			var meta = CLONE(app.schema);
+			var data = app.stringify();
+
+			meta.children = data.children;
+			meta.inputs = app.inputs;
+			meta.outputs = app.outputs;
+
+
+			if (meta.editor && meta.editor.save) {
+				SETTER('approve/show', '@(Are you sure you want to save app?)', '"far fa-check-circle" @(Save)', function() {
+					SETTER('loading/show');
+					AJAX('POST ' + meta.editor.save, meta, ERROR(ASETTER('notify/success @hideloading', '@(Done, saved!)')));
+				});
+			} else {
+				var blob = new Blob([JSON.stringify(meta, null, '\t')], { type: 'text/plain; charset=utf-8' });
+				saveAs(blob, meta.name + '.json');
+				SETTER('loading/hide', 1000);
+			}
+		}
+
+		UIBuilder.on('io', function(app) {
+			SET('%inputs', app.inputs);
+			SET('%outputs', app.outputs);
+		});
+
+		UIBuilder.on('make', function(instance) {
+
+			if (!instance.protected) {
+				// instance.element.prepend('<div class="UI_label">{0}</div>'.format(instance.object.name));
+				instance.element.attr('draggable', true);
+				instance.element.on('contextmenu', function(e) {
+
+					e.preventDefault();
+					e.stopPropagation();
+
+					var opt = {};
+					opt.x = e.pageX;
+					opt.y = e.pageY;
+					opt.items = [];
+					opt.items.push({ id: 'remove', name: 'Remove', icon: 'far fa-trash-alt red' });
+					opt.callback = function(selected) {
+						instance.remove();
+					};
+
+					SETTER('menu/show', opt);
+				});
+			}
+		});
+
+	</script>
+</body>
+</html>

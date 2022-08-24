@@ -97,6 +97,7 @@
 					obj.color = output.color;
 					obj.note = output.note;
 					obj.name = output.name;
+					obj.app = t.app;
 					obj.instance = t;
 					obj.err = err;
 					obj.data = data;
@@ -232,7 +233,7 @@
 		app.pending.push({ name: name, fn: fn });
 	};
 
-	Builder.app_compile = function(container, obj, index, position) {
+	function app_compile(container, obj, index, position) {
 
 		var self = this;
 		var com = self.objects[obj.object];
@@ -257,7 +258,7 @@
 		instance.object = com;
 		instance.protected = obj.protected;
 		instance.meta = obj;
-		instance.edit = Builder.app_edit;
+		instance.edit = app_edit;
 
 		if (obj.config) {
 			for (var key in obj.config)
@@ -333,7 +334,7 @@
 			}
 			self.refreshio();
 		}, 1, self, obj.children);
-	};
+	}
 
 	function inDOM(el) {
 		if (!el)
@@ -348,7 +349,7 @@
 		}
 	}
 
-	Builder.app_clean = function() {
+	function app_clean() {
 
 		var self = this;
 		var index = 0;
@@ -366,7 +367,7 @@
 			} else
 				break;
 		}
-	};
+	}
 
 	var findcontainers = function(self, id) {
 		var containers = [];
@@ -381,7 +382,7 @@
 		return containers;
 	};
 
-	Builder.app_add = function(parentid, parentindex, obj, position, config) {
+	function app_add(parentid, parentindex, obj, position, config) {
 
 		var self = this;
 
@@ -411,7 +412,7 @@
 
 		self.refreshio();
 		return obj;
-	};
+	}
 
 	Builder.build = function(target, meta, args, callback) {
 
@@ -451,10 +452,10 @@
 		app.outputs = [];
 		app.events = {};
 		app.inputs = [];
-		app.compile = Builder.app_compile;
-		app.stringify = Builder.app_stringify;
-		app.clean = Builder.app_clean;
-		app.add = Builder.app_add;
+		app.compile = app_compile;
+		app.stringify = app_stringify;
+		app.clean = app_clean;
+		app.add = app_add;
 		app.remove = () => Builder.remove(app.id);
 		app.class = 'ui_' + HASH(Builder.current).toString(36);
 		app.element = container;
@@ -770,7 +771,7 @@
 
 	var openeditor = null;
 
-	Builder.app_edit = function(el, opt, callback) {
+	function app_edit(el, opt, callback) {
 
 		if (!(el instanceof jQuery))
 			el = $(el);
@@ -801,7 +802,7 @@
 		if (openeditor) {
 			if (openeditor.element[0] != el[0]) {
 				openeditor.close();
-				setTimeout(Builder.app_edit, 100, el, opt, callback);
+				setTimeout(app_edit, 100, el, opt, callback);
 			}
 			return;
 		}
@@ -960,9 +961,9 @@
 
 		$(W).on('click', clickoutside);
 		el.on('keydown', keydown);
-	};
+	}
 
-	Builder.app_stringify = function(element) {
+	function app_stringify(element) {
 
 		var self = this;
 		var arr = element || self.element.find('> ' + Builder.selectors.object);
@@ -1016,6 +1017,6 @@
 
 		var children = element ? children[0] : [children];
 		return { instances: instances, children: children };
-	};
+	}
 
 })(W.UIBuilder = {});

@@ -12,7 +12,7 @@
 	<script src="https://cdn.componentator.com/spa.min@19beta.js"></script>
 	<script src="https://componentator.com/download.js?id=exec,locale,faicons,stash,colorpicker,directory,loading,box,input,importer,ready,viewbox,validate,layout,intranetcss,menu,searchinput,notify,approve"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
-	@{import('default.css + ui.css', 'default.js + ui.js + uibuilder.js')}
+	@{import('default.css + ui.css', 'ui.js + uibuilder.js')}
 </head>
 <body data---="exec">
 
@@ -313,6 +313,7 @@
 		}
 
 		function uibuilder_settings() {
+
 			var path = 'appsettingsform';
 			var data = {};
 			var schema = app.schema;
@@ -377,7 +378,6 @@
 			meta.inputs = app.inputs;
 			meta.outputs = app.outputs;
 
-
 			if (meta.editor && meta.editor.save) {
 				SETTER('approve/show', '@(Are you sure you want to save app?)', '"far fa-check-circle" @(Save)', function() {
 					SETTER('loading/show');
@@ -417,6 +417,7 @@
 					SETTER('menu/show', opt);
 				});
 			}
+
 		});
 
 	</script>

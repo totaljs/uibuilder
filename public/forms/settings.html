@@ -32,10 +32,9 @@
 		</div>
 
 		<div class="caption m">
-			<label><i class="far fa-link"></i>@(Editor links)</label>
+			<label><i class="far fa-link"></i>@(Editor settings)</label>
 		</div>
-		<div class="message message-alert"><i class="far fa-exclamation-triangle mr5"></i>@(Links are not declared in the <b>publishing</b> and <b>rendering</b> data. Data are sent via <b>POST</b> method and serialized via "url encode" in the form <code class="b">data=JSON</code>.)</div>
-		<br />
+		<div class="message message-alert" style="margin-bottom:15px"><i class="far fa-exclamation-triangle mr5"></i>@(Links are not declared in the <b>publishing</b> and <b>rendering</b> data. Data are sent via <b>POST</b> method and serialized via "url encode" in the form <code class="b">data=JSON</code>.)</div>
 		<div class="grid-3">
 			<div class="m">
 				<div data---="input__?.editor.save__icon:far fa-globe;placeholder:@(Enter URL address)">@(URL address for saving data)</div>
@@ -47,6 +46,7 @@
 				<div data---="input__?.editor.render__icon:far fa-globe;placeholder:@(Enter URL address)">@(URL address for rendering data)</div>
 			</div>
 		</div>
+		<div data---="input__?.editor.download__type:checkbox" class="b">@(Download objects to the source)</div>
 	</div>
 	<nav data---="validate__?">
 		<button name="submit" disabled><i class="fa fa-check-circle"></i>@(SUBMIT)</button>

@@ -153,7 +153,7 @@
 						new Function(scr)();
 					}
 
-					next('<div data-scope="settingsform.{0}"><div data---="ready__null__rclass:invisible;delay:300" class="invisible"><div data---="viewbox__common.form__scrollbar:1;scrollbarshadow:1;margin:70;parent:auto"><div class="padding" style="padding-bottom:10px;border-bottom:1px solid #E0E0E0"><div class="grid-2"><div class="m"><div data---="input__?.name__required:1;innerlabel:1;placeholder:Enter name">Name</div></div><div class="m"><div data---="input__?.path__monospace:1;innerlabel:1;placeholder:path.to.property">Path</div></div></div></div>{1}</div><nav data---="validate__?" class="buttons"><button name="submit" disabled><i class="fa fa-check-circle"></i>SUBMIT</button><button name="cancel">CANCEL</button></nav></div></div>'.format(id, response));
+					next('<div data-scope="settingsform.{0}"><div data---="ready__null__rclass:invisible;delay:300" class="invisible"><div data---="viewbox__common.form__scrollbar:1;scrollbarshadow:1;margin:70;parent:auto"><div class="padding" style="padding-bottom:10px;border-bottom:1px solid #E0E0E0"><div class="grid-2"><div class="m"><div data---="input__?.name__required:1;innerlabel:1;placeholder:@(Object name)">@(Name)</div></div><div class="m"><div data---="input__?.path__monospace:1;innerlabel:1;placeholder:path.to.property">@(Path)</div></div></div></div>{1}</div><nav data---="validate__?" class="buttons"><button name="submit" disabled><i class="fa fa-check-circle"></i>@(SUBMIT)</button><button name="cancel">@(CANCEL)</button></nav></div></div>'.format(id, response));
 				};
 
 				if (obj.settings) {
@@ -162,7 +162,7 @@
 					else
 						done(obj.settings);
 				} else
-					next('');
+					done(obj.settings);
 
 			} else
 				next('');
@@ -196,7 +196,7 @@
 
 			if (el) {
 				var cls = 'fa-spin';
-				el.aclass(cls).rclass(cls, 2000);
+				el.find('i').aclass(cls).rclass(cls, 2000);
 			}
 
 			SETTER('loading/show');
@@ -279,25 +279,27 @@
 			delete meta.css;
 
 			var used = {};
+
 			for (var instance of app.instances)
-				used[instance.object.id] = 1;
+				used[instance.object.id] = instance.object.render;
 
-			var arr = Object.keys(used);
-
-			arr.wait(function(key, next) {
-
-				var obj = app.objects[key];
-				AJAX('GET ' + obj.render, function(response) {
-					var index = response.indexOf('<scri' + 'pt object>');
-					response = response.substring(index + 16, response.indexOf('</scr' + 'ipt>', index + 16));
-					used[key] = 'base64 ' + btoa(encodeURIComponent(response));
-					next();
+			if (meta.editor && meta.editor.download) {
+				var arr = Object.keys(used);
+				arr.wait(function(key, next) {
+					var obj = app.objects[key];
+					AJAX('GET ' + obj.render, function(response) {
+						var parsed = UIBuilder.parsehtml(response);
+						used[key] = 'base64 ' + btoa(encodeURIComponent(response));
+						next();
+					});
+				}, function() {
+					meta.objects = used;
+					callback(meta);
 				});
-
-			}, function() {
+			} else {
 				meta.objects = used;
 				callback(meta);
-			});
+			}
 		}
 
 		function uibuilder_publish() {
@@ -419,7 +421,7 @@
 			}
 
 		});
-
 	</script>
+
 </body>
 </html>

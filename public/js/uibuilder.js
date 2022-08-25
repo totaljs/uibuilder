@@ -97,6 +97,7 @@
 					obj.color = output.color;
 					obj.note = output.note;
 					obj.name = output.name;
+					obj.object = output.instance.object;
 					obj.app = t.app;
 					obj.instance = t;
 					obj.err = err;
@@ -639,6 +640,38 @@
 			}
 		};
 
+		Builder.parsehtml = function(response) {
+
+			var css = '';
+
+			if (response.indexOf('<scr' + 'ipt>') === -1)
+				return { js: response };
+
+			var settings = '';
+			var js = '';
+			var css = '';
+
+			var beg = response.indexOf('<sett' + 'ings>');
+			if (beg !== -1) {
+				var end = response.indexOf('</sett' + 'ings>', beg + 10);
+				settings = response.substring(beg + 8, end).trim();
+				response = response.substring(0, beg) + response.substring(end + 11);
+			}
+
+			beg = response.indexOf('<st' +'yle>');
+			if (beg !== -1)
+				css = response.substring(beg + 7, response.indexOf('</st' + 'yle>', beg + 7));
+
+			beg = response.indexOf('<scr' + 'ipt>');
+			if (beg !== -1) {
+				var end = response.indexOf('</scr' + 'ipt>', beg + 8);
+				js = response.substring(beg + 8, end).trim();
+			}
+
+			return { js: js, css: css, settings: settings };
+
+		};
+
 		Builder.apps[Builder.current] = app;
 
 		Object.keys(meta.objects).wait(function(key, next) {
@@ -666,8 +699,10 @@
 						var obj = {};
 						obj.id = key;
 						obj.cls = app.class + '_' + HASH(obj.id).toString(36);
-						var html = decodeURIComponent(atob(url));
-						new Function('exports', html)(obj);
+						var parsed = Builder.parsehtml(decodeURIComponent(atob(url)));
+						if (parsed.css)
+							obj.css = parsed.css;
+						new Function('exports', parsed.js)(obj);
 						app.pending.push({ name: key, fn: obj });
 					} catch (e) {
 						console.error('UI Builder:', key, e);
@@ -676,18 +711,24 @@
 					return;
 				}
 
-				if (ext === 'html') {
+				if (!ext || ext === 'html') {
 					AJAX('GET ' + url, function(response) {
 
-						var beg = response.indexOf('<scr' + 'ipt object>');
-						var end = response.indexOf('</scr' + 'ipt>', beg + 16);
-						var html = response.substring(beg + 16, end).trim();
+						var parsed = Builder.parsehtml(response);
 
 						try {
 							var obj = {};
+
 							obj.id = key;
 							obj.cls = app.class + '_' + HASH(obj.id).toString(36);
-							new Function('exports', html)(obj);
+
+							if (parsed.css)
+								obj.css = parsed.css;
+
+							if (parsed.settings)
+								obj.settings = parsed.settings;
+
+							new Function('exports', parsed.js)(obj);
 							app.pending.push({ name: key, fn: obj });
 						} catch (e) {
 							console.error('UI Builder:', key, e);
@@ -695,8 +736,7 @@
 						next();
 					});
 
-				} else
-					IMPORT(url, next);
+				}
 
 			} else {
 				app.pending.push({ name: key, fn: fn });

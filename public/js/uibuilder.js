@@ -210,6 +210,7 @@
 		Builder.emit('settings', t);
 	};
 
+	Builder.version = 1;
 	Builder.selectors = { object:'.UI_object', objects: '.UI_objects' };
 	Builder.current = 'default';
 	Builder.events = {};

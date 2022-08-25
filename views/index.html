@@ -10,7 +10,7 @@
 	<meta name="robots" content="all,follow" />
 	<link href="https://cdn.componentator.com/spa.min@19pro.css" rel="stylesheet" type="text/css" />
 	<script src="https://cdn.componentator.com/spa.min@19beta.js"></script>
-	<script src="https://componentator.com/download.js?id=exec,locale,faicons,stash,colorpicker,directory,loading,box,input,importer,ready,viewbox,validate,layout,intranetcss,menu,searchinput,notify,approve"></script>
+	<script src="https://componentator.com/download.js?id=exec,locale,faicons,stash,clipboard,colorpicker,directory,listform,floatinginput,miniform,movable,selected,loading,box,input,importer,ready,viewbox,validate,layout,intranetcss,menu,searchinput,notify,approve,loadcontent,choose,edit"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
 	@{import('default.css + ui.css', 'ui.js + uibuilder.js')}
 </head>
@@ -21,10 +21,14 @@
 	<div data---="LAZY directory__null__placeholder:@(Search)"></div>
 	<div data---="LAZY approve__null__cancel:@(Cancel)"></div>
 	<div data---="LAZY colorpicker"></div>
+	<div data---="LAZY datepicker"></div>
+	<div data---="LAZY floatinginput"></div>
 	<div data---="LAZY notify__null__position:bottom right"></div>
+	<div data---="LAZY clipboard"></div>
 
 	<div data---="locale"></div>
 	<div data---="loading"></div>
+	<div data---="edit"></div>
 
 	<div data-bind="app.ready__visible" class="invisible">
 		<div data---="layout__common.layout__parent:window">
@@ -56,9 +60,9 @@
 						<button data-bind="app.schema.editor.render__enable" class="exec" data-exec="uibuilder_render" title="@(Preview)" disabled><i class="fas fa-flask"></i></button>
 						<button class="exec" data-exec="uibuilder_settings" title="@(Global settings)"><i class="far fa-cog"></i></button>
 					</div>
-
-					<button class="exec" data-exec="uibuilder_device" title="@(Display settings)"><i class="far fa-desktop-alt"></i></button>
-					<button class="exec" data-exec="uibuilder_redraw" title="@(Redraw)"><i class="fas fa-sync"></i></button>
+					<button class="exec" data-exec="uibuilder_device" title="@(Display settings)"><i class="far fa-window-alt"></i></button>
+					<button class="exec" data-exec="uibuilder_io" title="@(Inputs / Outputs)"><i class="far fa-code-branch"></i></button>
+					<button class="exec" data-exec="uibuilder_redraw" title="@(Re-load objects)"><i class="fas fa-sync blue"></i></button>
 				</div>
 			</section>
 
@@ -100,6 +104,7 @@
 	<div data---="importer__common.form__if:appsettingsform;url:/forms/settings.html"></div>
 	<div data---="importer__common.form__if:templatesform;url:/forms/templates.html"></div>
 	<div data---="importer__common.form__if:objectsform;url:/forms/objects.html"></div>
+	<div data---="importer__common.form__if:ioform;url:/forms/io.html"></div>
 
 	<form id="uibuilderrender" method="POST" target="_blank">
 		<input name="data" type="hidden" />
@@ -124,7 +129,7 @@
 				err = err[0].message;
 			else
 				err = err.toString();
-			SETTER('notify/error', err);
+			SETTER('notify/warning', err);
 		});
 
 		function settings_reload(com) {
@@ -132,6 +137,10 @@
 			var data = settingsform[id];
 			var obj = app.objects[id];
 			com.reconfigure({ title: '@(Settings:) ' + obj.name });
+
+			if (!data.name)
+				data.name = obj.name;
+
 			EXEC('settingsform.' + id + '/reload', data);
 		}
 
@@ -191,6 +200,10 @@
 				uibuilder_redraw();
 			});
 		});
+
+		function uibuilder_io() {
+			SET('common.form', 'ioform');
+		}
 
 		function uibuilder_redraw(el) {
 
@@ -350,19 +363,29 @@
 
 		function uibuilder_device(el) {
 			var opt = {};
+			var sel = common.device || 'auto';
 			opt.element = el;
 			opt.align = 'left';
 			opt.items = [];
 			opt.items.push({ id: 'xs', name: 'Extra small display', icon: 'far fa-mobile' });
 			opt.items.push({ id: 'sm', name: 'Small display', icon: 'far fa-tablet' });
 			opt.items.push({ id: 'md', name: 'Medium display', icon: 'far fa-laptop' });
-			opt.items.push({ id: 'lg', name: 'Large display', icon: 'far fa-desktop' });
-			opt.items.push({ id: 'auto', name: 'Auto size', icon: 'far fa-arrows-alt-h' });
+			opt.items.push({ id: 'lg', name: 'Large display', icon: 'far fa-desktop-alt' });
+			opt.items.push('-');
+			opt.items.push({ id: 'auto', name: 'Current browser', icon: 'far fa-window-alt' });
+
+			if (sel) {
+				for (var item of opt.items)
+					item.selected = sel === item.id;
+			}
+
 			opt.callback = function(selected) {
 				var container = $('#dappcontainer');
 				container.rclass2('dm-');
 				container.tclass('dm', selected.id !== 'auto');
 				container.aclass('dm-' + selected.id);
+				SET('common.device', selected.id);
+				el.find('i').rclass2('fa').aclass(selected.icon);
 			};
 			SETTER('menu/show', opt);
 		}
@@ -383,7 +406,7 @@
 			if (meta.editor && meta.editor.save) {
 				SETTER('approve/show', '@(Are you sure you want to save app?)', '"far fa-check-circle" @(Save)', function() {
 					SETTER('loading/show');
-					AJAX('POST ' + meta.editor.save, meta, ERROR(ASETTER('notify/success @hideloading', '@(Done, saved!)')));
+					AJAX('POST ' + meta.editor.save + ' urlencoded', { data: JSON.stringify(meta) }, ERROR(ASETTER('notify/success @hideloading', '@(Done, saved!)')));
 				});
 			} else {
 				var blob = new Blob([JSON.stringify(meta, null, '\t')], { type: 'text/plain; charset=utf-8' });
@@ -400,6 +423,7 @@
 		UIBuilder.on('make', function(instance) {
 
 			if (!instance.protected) {
+
 				// instance.element.prepend('<div class="UI_label">{0}</div>'.format(instance.object.name));
 				instance.element.attr('draggable', true);
 				instance.element.on('contextmenu', function(e) {
@@ -411,9 +435,20 @@
 					opt.x = e.pageX;
 					opt.y = e.pageY;
 					opt.items = [];
-					opt.items.push({ id: 'remove', name: 'Remove', icon: 'far fa-trash-alt red' });
+					opt.items.push(instance.object.name);
+					opt.items.push({ id: 'settings', name: '@(Settings)', classname: 'b', icon: 'far fa-cog' });
+					opt.items.push('-');
+					opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'far fa-trash-alt red' });
 					opt.callback = function(selected) {
-						instance.remove();
+						switch (selected.id) {
+							case 'settings':
+								settings(instance.element);
+								break;
+							case 'remove':
+								instance.remove();
+								break;
+						}
+
 					};
 
 					SETTER('menu/show', opt);

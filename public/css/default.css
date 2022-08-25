@@ -18,10 +18,10 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .ui-layout-section { background: #FFF; }
 
 .objects { padding: 0; }
-.objects figure { height: 24px; font-size: 11px; padding: 0 5px; margin: 0 10px 5px; border-radius: var(--radius); cursor: grab; line-height: 19px; background-color: #F8F8F8; border: 1px solid transparent; }
+.objects figure { height: 27px; font-size: 11px; padding: 0 5px; margin: 0 10px 5px; border-radius: var(--radius); cursor: grab; line-height: 23px; background-color: #F8F8F8; border: 1px solid transparent; }
 .objects .caption i { float: left; font-size: 11px; margin: 2px 5px 0 0; }
 .objects figure:hover { border-color: #E0E0E0; }
-.objects figure i { width: 13px; margin: 6px 6px 0 0; text-align: center; float: left; font-size: 12px; text-align: center; }
+.objects figure i { width: 13px; margin: 7px 6px 0 0; text-align: center; float: left; font-size: 12px; text-align: center; }
 .objects .name { font-size: 12px; padding-top: 2px; }
 .objects .name div { margin-right: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .objects .name span { font-weight: normal; font-size: 11px; float: right; color: #777; }

@@ -368,6 +368,8 @@
 			} else
 				break;
 		}
+
+		self.refreshio();
 	}
 
 	var findcontainers = function(self, id) {
@@ -525,15 +527,17 @@
 				var name = instance.config.name || instance.object.name;
 
 				if (arr) {
-					for (var m of arr)
-						app.inputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, icon: m.icon, color: m.color, note: m.note, schema: m.schema });
+					for (var m of arr) {
+						app.inputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, object: name, input: m.name, icon: m.icon, color: m.color, note: m.note, schema: m.schema });
+					}
 				}
 
 				arr = instance.object.outputs;
 
 				if (arr && arr.length) {
-					for (var m of arr)
-						app.outputs.push({ id: instance.id + '_' + m.id,ref: m.id, name: name + ': ' + m.name, icon: m.icon, color: m.color, note: m.note, schema: m.schema });
+					for (var m of arr) {
+						app.outputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, object: name, output: m.name, icon: m.icon, color: m.color, note: m.note, schema: m.schema });
+					}
 				}
 
 			}

@@ -1,0 +1,69 @@
+<div data---="box__common.form__if:~PATH~;title:@(List of inputs and outputs);icon:far fa-code-branch;autofocus:true;reload:?/reload;scrollbar:1;submit:?/submit;width:960" class="hidden" data-scope="~PATH~">
+	<div class="padding">
+		<div class="grid-2">
+			<div class="m">
+				<div class="caption m">
+					<label><i class="far fa-arrow-alt-from-left blue"></i>@(Inputs)</label>
+				</div>
+				<div data-bind="?.inputs__template" class="listing2">
+					<script type="text/html">
+						{{ if !value || !value.length }}
+							<p class="gray"><i class="fas fa-ban mr5"></i>@(The schema doesn't contain any inputs)</p>
+						{{ else }}
+							{{ foreach m in value }}
+							<figure data-id="{{ m.id }}" class="exec" data-exec="?/copy">
+								<section>
+									<div><span class="badge badge-blue b">{{ m.object }}</span> {{ m.input }}</div>
+									<div class="help" style="margin-top:4px">ID: {{ m.id }}</div>
+								</section>
+							</figure>
+							{{ end }}
+						{{ fi }}
+					</script>
+				</div>
+			</div>
+			<div class="m">
+				<div class="caption m">
+					<label><i class="far fa-arrow-alt-to-left red"></i>@(Outputs)</label>
+				</div>
+				<div data-bind="?.outputs__template" class="listing2">
+					<script type="text/html">
+						{{ if !value || !value.length }}
+							<p class="gray"><i class="fas fa-ban mr5"></i>@(The schema doesn't contain any outputs)</p>
+						{{ else }}
+							{{ foreach m in value }}
+							<figure data-id="{{ m.id }}" class="exec" data-exec="?/copy">
+								<section>
+									<div><span class="badge badge-red b">{{ m.object }}</span> {{ m.output }}</div>
+									<div class="help" style="margin-top:4px">ID: {{ m.id }}</div>
+								</section>
+							</figure>
+							{{ end }}
+						{{ fi }}
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+	<nav>
+		<button name="cancel" style="width:100%">@(Close)</button>
+	</nav>
+</div>
+
+<script>
+
+	PLUGIN('~PATH~', function(exports) {
+
+		exports.reload = function(com) {
+			SET('?', { inputs: app.inputs, outputs: app.outputs });
+		};
+
+		exports.copy = function(el) {
+			var id = ATTRD(el);
+			SETTER('clipboard/copy', id);
+			SETTER('notify/success', 'Copied: <b>{0}</b>'.format(id));
+		};
+
+	});
+
+</script>

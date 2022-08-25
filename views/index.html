@@ -115,7 +115,8 @@
 		var common = {};
 
 		common.objects = [];
-		common.source = '';
+		common.paths = '';
+		common.codes = '';
 
 		ON('@flag showloading', function() {
 			SETTER('loading/show');
@@ -163,7 +164,7 @@
 						new Function(scr)();
 					}
 
-					next('<div data-scope="settingsform.{0}"><div data---="ready__null__rclass:invisible;delay:300" class="invisible"><div data---="viewbox__common.form__scrollbar:1;scrollbarshadow:1;margin:70;parent:auto"><div class="padding" style="padding-bottom:10px;border-bottom:1px solid #E0E0E0"><div class="grid-2"><div class="m"><div data---="input__?.name__required:1;innerlabel:1;placeholder:@(Object name)">@(Name)</div></div><div class="m"><div data---="input__?.path__dirsource:%source;dircustom:1;dirraw:1;dirplaceholder:@(Search path or enter custom);monospace:1;innerlabel:1;placeholder:path.to.property">@(Path for reading/writing)</div></div></div></div>{1}</div><nav data---="validate__?" class="buttons"><button name="submit" disabled><i class="fa fa-check-circle"></i>@(SUBMIT)</button><button name="cancel">@(Cancel)</button></nav></div></div>'.format(id, response));
+					next('<div data-scope="settingsform.{0}"><div data---="ready__null__rclass:invisible;delay:300" class="invisible"><div data---="viewbox__common.form__scrollbar:1;scrollbarshadow:1;margin:70;parent:auto"><div class="padding" style="padding-bottom:10px;border-bottom:1px solid #E0E0E0"><div class="grid-2"><div class="m"><div data---="input__?.name__required:1;innerlabel:1;placeholder:@(Object name)">@(Name)</div></div><div class="m"><div data---="input__?.path__dirsource:DEF.cl.paths;dircustom:1;dirraw:1;dirplaceholder:@(Search path or enter custom);monospace:1;innerlabel:1;placeholder:path.to.property">@(Path for reading/writing)</div></div></div></div>{1}</div><nav data---="validate__?" class="buttons"><button name="submit" disabled><i class="fa fa-check-circle"></i>@(SUBMIT)</button><button name="cancel">@(Cancel)</button></nav></div></div>'.format(id, response));
 				};
 
 				if (obj.settings) {
@@ -287,7 +288,10 @@
 			SETTER('loading/show');
 
 			var meta = CLONE(app.schema);
-			var data = app.stringify();
+			var data = app.stringify(function(item) {
+				return !!item.object.render;
+			});
+
 			meta.children = data.children;
 			meta.inputs = app.inputs;
 			meta.outputs = app.outputs;
@@ -296,8 +300,10 @@
 
 			var used = {};
 
-			for (var instance of app.instances)
-				used[instance.object.id] = instance.object.render;
+			for (var instance of app.instances) {
+				if (instance.object.render)
+					used[instance.object.id] = instance.object.render;
+			}
 
 			if (meta.editor && meta.editor.download) {
 				var arr = Object.keys(used);
@@ -422,13 +428,13 @@
 			}
 		}
 
-		WATCH('app.schema.editor.source', function(path, value) {
+		WATCH('app.schema.editor.paths', function(path, value) {
 
 			if (value == null)
 				value = '';
 
-			if (common.source !== value) {
-				common.source = value;
+			if (common.paths !== value) {
+				common.paths = value;
 				AJAX('GET ' + value, function(response) {
 
 					if (response instanceof Array) {
@@ -444,15 +450,31 @@
 					} else
 						response = [];
 
-					SET('%source', response);
+					SET('DEF.cl.paths', response);
 				});
 			}
+		});
 
+		WATCH('app.schema.editor.codes', function(path, value) {
+
+			if (value == null)
+				value = '';
+
+			if (common.codes !== value) {
+				common.codes = value;
+				AJAX('GET ' + value, function(response) {
+					if (response instanceof Array)
+						response = response.remove(item => !item || !item.name);
+					else
+						response = [];
+					SET('DEF.cl.codes', response);
+				});
+			}
 		});
 
 		UIBuilder.on('io', function(app) {
-			SET('%inputs', app.inputs);
-			SET('%outputs', app.outputs);
+			SET('DEF.cl.inputs', app.inputs);
+			SET('DEF.cl.outputs', app.outputs);
 		});
 
 		UIBuilder.on('make', function(instance) {

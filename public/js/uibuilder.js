@@ -135,6 +135,12 @@
 		t.app.clean();
 	};
 
+	Instance.prototype.cl = function(clid, id, fn) {
+		var t = this;
+		t.app.cl(clid, id, fn);
+		return t;
+	};
+
 	Instance.prototype.hidden = function() {
 		return HIDDEN(this.dom);
 	};
@@ -206,11 +212,11 @@
 
 	Builder.selectors = { object:'.UI_object', objects: '.UI_objects' };
 	Builder.current = 'default';
-	Builder.apps = {};
 	Builder.events = {};
-	Builder.tmp = {};
+	Builder.apps = {};
 	Builder.repo = {};
 	Builder.refs = {};
+	Builder.tmp = {};
 
 	Builder.on = function(name, fn) {
 		var t = this;
@@ -244,10 +250,14 @@
 			return;
 		}
 
+
 		var div = document.createElement('DIV');
 		var instance = new Instance();
 
 		obj.gap && div.classList.add('UI_gap');
+
+		if (!com.config)
+			com.config = {};
 
 		instance.id = obj.id;
 		instance.element = $(div);
@@ -265,6 +275,11 @@
 			for (var key in obj.config)
 				instance.config[key] = obj.config[key];
 		}
+
+
+		if (!instance.config.name)
+			instance.config.name = com.name;
+
 
 		self.instances.push(instance);
 
@@ -398,8 +413,6 @@
 			}
 
 			obj = { id: 'oid' + Date.now().toString(36), object: obj, children: [], config: com.config || {} };
-			if (!obj.config.name)
-				obj.config.name = com.name;
 		}
 
 		if (config) {
@@ -468,6 +481,16 @@
 		app.pending = [];
 		app.instances = [];
 		app.tmp = {};
+
+		app.cl = function(clid, id, fn) {
+
+			if (typeof(id) === 'function') {
+				fn = id;
+				id = null;
+			}
+
+			fn(id ? null : EMPTYARRAY);
+		};
 
 		app.on = function(name, fn) {
 			var t = this;
@@ -552,6 +575,7 @@
 					item.state.init = 1;
 					item.events.ready && item.emit('ready');
 				}
+				Builder.emit('app', app);
 			}
 
 			app.emit('io', app);
@@ -1012,6 +1036,11 @@
 	function app_stringify(element) {
 
 		var self = this;
+		var fn = typeof(element) ? element : null;
+
+		if (fn)
+			element = null;
+
 		var arr = element || self.element.find('> ' + Builder.selectors.object);
 		var children = [];
 		var instances = [];
@@ -1022,6 +1051,9 @@
 			item.id = el.getAttribute('data-id');
 			item.config = obj.config;
 			item.object = obj.object.id;
+
+			if (fn && !fn(item))
+				return;
 
 			instances.push(obj);
 

@@ -39,11 +39,16 @@
 			<label><i class="far fa-link"></i>@(Editor settings)</label>
 		</div>
 		<div data-scope="editor">
-			<div class="message message-alert" style="margin-bottom:15px"><i class="far fa-exclamation-triangle mr5"></i>@(Links are not declared in the <b>publishing</b> and <b>rendering</b> data. Data are sent via <b>POST</b> method and serialized via "url encode" in the form <code class="b">data=JSON</code>.)</div>
-			<div class="grid-2">
+			<div>
 				<div class="m">
-					<div data---="input__?.source__innerlabel:1;icon:far fa-database;placeholder:@(Enter URL address)">@(URL address for obtaining a data source)</div>
+					<div data---="input__?.paths__innerlabel:1;icon:far fa-database;placeholder:@(Enter URL address)">@(URL address for obtaining paths)</div>
 				</div>
+				<div class="m">
+					<div data---="input__?.codes__innerlabel:1;icon:fas fa-list-ul;placeholder:@(Enter URL address)">@(URL address for obtaining codes)</div>
+				</div>
+			</div>
+			<div class="message message-alert" style="margin-bottom:15px"><i class="far fa-exclamation-triangle mr5"></i>@(Links are not declared in the <b>publishing</b> and <b>rendering</b> data. Data are sent via <b>POST</b> method and serialized via "url encode" in the form <code class="b">data=JSON</code>.)</div>
+			<div>
 				<div class="m">
 					<div data---="input__?.save__innerlabel:1;icon:far fa-save;placeholder:@(Enter URL address)">@(URL address for saving data)</div>
 				</div>

@@ -397,7 +397,9 @@
 				return;
 			}
 
-			obj = { id: 'oid' + Date.now().toString(36), object: obj, children: [], config: com.config };
+			obj = { id: 'oid' + Date.now().toString(36), object: obj, children: [], config: com.config || {} };
+			if (!obj.config.name)
+				obj.config.name = com.name;
 		}
 
 		if (config) {

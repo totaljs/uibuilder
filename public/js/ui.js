@@ -71,14 +71,14 @@ COMPONENT('uibuildereditor', 'container:UI_objects;selector:.UI_object', functio
 				return;
 
 			if (drag.prev_el && drag.prev_el !== el)
-				drag.prev_el.classList.remove(cls + '-selected');
+				drag.prev_el.classList.remove('selected');
 
 			if (el) {
-				el.classList.add(cls + '-selected');
+				el.classList.add('selected');
 				drag.prev_el = el;
 			}
 
-			el.classList.add(cls + '-selected');
+			el.classList.add('selected');
 			config.click && self.SEEX(config.click, $(el));
 		});
 

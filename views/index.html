@@ -10,7 +10,7 @@
 	<meta name="robots" content="all,follow" />
 	<link href="https://cdn.componentator.com/spa.min@19pro.css" rel="stylesheet" type="text/css" />
 	<script src="https://cdn.componentator.com/spa.min@19beta.js"></script>
-	<script src="https://componentator.com/download.js?id=exec,locale,faicons,stash,clipboard,colorpicker,directory,listform,floatinginput,miniform,movable,selected,loading,box,input,importer,ready,viewbox,validate,layout,intranetcss,menu,searchinput,notify,approve,loadcontent,choose,edit"></script>
+	<script src="https://componentator.com/download.js?id=exec,locale,faicons,stash,clipboard,colorpicker,directory,listform,floatinginput,miniform,movable,selected,loading,box,input,importer,ready,viewbox,validate,layout,intranetcss,menu,searchinput,notify,approve,loadcontent,choose,edit,tangular-color"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
 	@{import('default.css + ui.css', 'ui.js + uibuilder.js')}
 </head>
@@ -56,7 +56,7 @@
 					</div>
 
 					<div style="margin-right:8px">
-						<button data-bind="app.schema.editor.publish__enable" class="exec" data-exec="uibuilder_publish" title="@(Publish)" disabled><i class="far fa-box"></i></button>
+						<button class="exec" data-exec="uibuilder_publish" title="@(Publish)"><i class="far fa-box"></i></button>
 						<button data-bind="app.schema.editor.render__enable" class="exec" data-exec="uibuilder_render" title="@(Preview)" disabled><i class="fas fa-flask"></i></button>
 						<button class="exec" data-exec="uibuilder_settings" title="@(Global settings)"><i class="far fa-cog"></i></button>
 					</div>
@@ -97,7 +97,7 @@
 		</div>
 	</div>
 
-	<div data---="box__common.form__if:settingsform;width:700;title:@(Settings);icon:fa fa-cog;submit:settings_submit;scrollbar:0;reload:settings_reload;autofocus:1">
+	<div data---="box__common.form__if:settingsform;width:840;title:@(Settings);icon:fa fa-cog;submit:settings_submit;scrollbar:0;reload:settings_reload;autofocus:1">
 		<div data---="stash__settingsform.objectid__load:settings_load" class="settingsform"></div>
 	</div>
 
@@ -115,6 +115,7 @@
 		var common = {};
 
 		common.objects = [];
+		common.source = '';
 
 		ON('@flag showloading', function() {
 			SETTER('loading/show');
@@ -126,10 +127,10 @@
 
 		ON('ERROR', function(err) {
 			if (err instanceof Array)
-				err = err[0].message;
+				err = err[0].error || err[0].message;
 			else
 				err = err.toString();
-			SETTER('notify/warning', err);
+			SETTER('notify/warning', err || 'Unexpected error');
 		});
 
 		function settings_reload(com) {
@@ -162,7 +163,7 @@
 						new Function(scr)();
 					}
 
-					next('<div data-scope="settingsform.{0}"><div data---="ready__null__rclass:invisible;delay:300" class="invisible"><div data---="viewbox__common.form__scrollbar:1;scrollbarshadow:1;margin:70;parent:auto"><div class="padding" style="padding-bottom:10px;border-bottom:1px solid #E0E0E0"><div class="grid-2"><div class="m"><div data---="input__?.name__required:1;innerlabel:1;placeholder:@(Object name)">@(Name)</div></div><div class="m"><div data---="input__?.path__monospace:1;innerlabel:1;placeholder:path.to.property">@(Path)</div></div></div></div>{1}</div><nav data---="validate__?" class="buttons"><button name="submit" disabled><i class="fa fa-check-circle"></i>@(SUBMIT)</button><button name="cancel">@(CANCEL)</button></nav></div></div>'.format(id, response));
+					next('<div data-scope="settingsform.{0}"><div data---="ready__null__rclass:invisible;delay:300" class="invisible"><div data---="viewbox__common.form__scrollbar:1;scrollbarshadow:1;margin:70;parent:auto"><div class="padding" style="padding-bottom:10px;border-bottom:1px solid #E0E0E0"><div class="grid-2"><div class="m"><div data---="input__?.name__required:1;innerlabel:1;placeholder:@(Object name)">@(Name)</div></div><div class="m"><div data---="input__?.path__dirsource:%source;dircustom:1;dirraw:1;dirplaceholder:@(Search path or enter custom);monospace:1;innerlabel:1;placeholder:path.to.property">@(Path for reading/writing)</div></div></div></div>{1}</div><nav data---="validate__?" class="buttons"><button name="submit" disabled><i class="fa fa-check-circle"></i>@(SUBMIT)</button><button name="cancel">@(Cancel)</button></nav></div></div>'.format(id, response));
 				};
 
 				if (obj.settings) {
@@ -210,6 +211,7 @@
 			if (el) {
 				var cls = 'fa-spin';
 				el.find('i').aclass(cls).rclass(cls, 2000);
+				UIBuilder.data.children = app.stringify().children;
 			}
 
 			SETTER('loading/show');
@@ -289,6 +291,7 @@
 			meta.children = data.children;
 			meta.inputs = app.inputs;
 			meta.outputs = app.outputs;
+
 			delete meta.css;
 
 			var used = {};
@@ -316,15 +319,19 @@
 		}
 
 		function uibuilder_publish() {
-			if (app.schema.editor && app.schema.editor.publish) {
-				SETTER('approve/show', '@(Are you sure you want to publish app?)', '"far fa-check-circle" @(Publish)', function() {
-					uibuilder_compile(function(meta) {
-						var data = meta.editor;
-						delete meta.editor;
+			SETTER('approve/show', '@(Are you sure you want to publish design?)', '"far fa-check-circle" @(Publish)', function() {
+				uibuilder_compile(function(meta) {
+					var data = meta.editor;
+					delete meta.editor;
+					if (app.schema.editor && app.schema.editor.publish) {
 						AJAX('POST ' + data.publish + ' urlencoded', { data: JSON.stringify(meta) }, ERROR(ASETTER('notify/success @hideloading', '@(Done, published!)')));
-					});
+					} else {
+						var blob = new Blob([JSON.stringify(meta, null, '\t')], { type: 'text/plain; charset=utf-8' });
+						saveAs(blob, meta.name + '_render.json');
+						SETTER('loading/hide', 1000);
+					}
 				});
-			}
+			});
 		}
 
 		function uibuilder_settings() {
@@ -404,16 +411,44 @@
 			meta.outputs = app.outputs;
 
 			if (meta.editor && meta.editor.save) {
-				SETTER('approve/show', '@(Are you sure you want to save app?)', '"far fa-check-circle" @(Save)', function() {
+				SETTER('approve/show', '@(Are you sure you want to save design?)', '"far fa-check-circle" @(Save)', function() {
 					SETTER('loading/show');
 					AJAX('POST ' + meta.editor.save + ' urlencoded', { data: JSON.stringify(meta) }, ERROR(ASETTER('notify/success @hideloading', '@(Done, saved!)')));
 				});
 			} else {
 				var blob = new Blob([JSON.stringify(meta, null, '\t')], { type: 'text/plain; charset=utf-8' });
-				saveAs(blob, meta.name + '.json');
+				saveAs(blob, meta.name + '_editor.json');
 				SETTER('loading/hide', 1000);
 			}
 		}
+
+		WATCH('app.schema.editor.source', function(path, value) {
+
+			if (value == null)
+				value = '';
+
+			if (common.source !== value) {
+				common.source = value;
+				AJAX('GET ' + value, function(response) {
+
+					if (response instanceof Array) {
+
+						response = response.remove(item => !item || !item.name);
+
+						for (var item of response) {
+							if (item.type)
+								item.name = item.name.encode() + (item.type ? '<span class="badge badge-medium ml5 monospace" style="background:{0}">{1}</span>'.format(Thelpers.color(item.type), item.type) : '');
+							else
+								item.name = item.name.encode();
+						}
+					} else
+						response = [];
+
+					SET('%source', response);
+				});
+			}
+
+		});
 
 		UIBuilder.on('io', function(app) {
 			SET('%inputs', app.inputs);
@@ -424,7 +459,6 @@
 
 			if (!instance.protected) {
 
-				// instance.element.prepend('<div class="UI_label">{0}</div>'.format(instance.object.name));
 				instance.element.attr('draggable', true);
 				instance.element.on('contextmenu', function(e) {
 

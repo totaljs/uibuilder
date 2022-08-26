@@ -3,6 +3,7 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 
 .UI_label { font-size: 11px; color: #777; margin-bottom: 5px; }
 .ui-layout-left .ui-searchinput { border: 0; border-bottom: 1px solid #E0E0E0; padding-left: 5px; }
+.ui-dark .ui-layout-left .ui-searchinput { border-bottom-color: #404040; }
 
 .settingsform .buttons { padding: 10px 15px 0; border-top: 1px solid #E0E0E0; }
 .settingsform .buttons button { border: 0; margin: 5px 0 0; background-color: #F0F0F0; height: 40px; padding: 0 20px; color: #000; cursor: pointer; font-family: Arial; line-height: 40px; vertical-align: middle; outline: 0; font-size: 14px; text-decoration: none; transition: all 0.3s; float: left; width: 50%; }
@@ -16,6 +17,7 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .settingsform .buttons button[name='submit'] { font-weight: bold; background-color: var(--color); color: #FFF; }
 
 .ui-layout-section { background: #FFF; }
+.ui-dark { background-color: #404040; }
 
 .objects { padding: 0; }
 .objects figure { height: 27px; font-size: 11px; padding: 0 5px; margin: 0 10px 5px; border-radius: var(--radius); cursor: grab; line-height: 23px; background-color: #F8F8F8; border: 1px solid transparent; }
@@ -27,6 +29,9 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .objects .name span { font-weight: normal; font-size: 11px; float: right; color: #777; }
 .objects .name em { font-weight: normal; font-size: 11px; color: #777; margin-left: 5px; }
 .objects .caption { padding: 12px 10px 5px; font-size: 12px; color: #999; }
+
+.ui-dark .objects figure { background-color: #333; }
+.ui-dark .objects figure:hover { border-color: #404040; }
 
 .header { background-color: #FFF; height: 45px; padding-left: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); left: 0; right: 0; }
 .header button, .header a { margin: 6px 2px 0 0; float: left; border: 0; background-color: transparent; border-radius: var(--radius); padding: 0; min-width: 34px; height: 32px; font-size: 16px; line-height: 32px; text-decoration: none !important; text-align: center; color: #000; }
@@ -43,12 +48,27 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .header button.changed { color: #FFF !important; background: #68B25B !important; animation: 1s blink infinite alternate forwards; }
 .header button.changed i { color: #FFF; }
 .header button span { font-size: 12px; }
-.header button:hover, header a:hover { background-color: #F0F0F0; }
+.header button:hover, .header a:hover { background-color: #F0F0F0; }
 .header button:disabled { color: #D0D0D0; cursor: not-allowed; background-color: transparent !important; }
 .header button.selected { background-color: #F0F0F0; }
-.header button.special, header a.special { color: #99982F; }
+.header button.special, .header a.special { color: #99982F; }
 .header > div { float: left; margin: 0 0 0 8px; padding-right: 6px; border-right: 1px solid #E0E0E0; height: 44px; }
 .header .apply-button { margin-left: 0; }
+
+.ui-dark .header { background-color: #202020; }
+.ui-dark .header button, .ui-dark .header a { background-color: transparent; color: #777; }
+.ui-dark .header button.apply i { color: #68B25B; }
+.ui-dark .header button.highlight { background-color: var(--color) !important; color: #FFF; }
+.ui-dark .header button.highlight i { color: #FFF !important; }
+.ui-dark .header button.paused { background-color: red !important; color: #FFF; }
+.ui-dark .header button.paused i { color: #FFF !important; }
+.ui-dark .header button.changed { color: #FFF !important; background: #68B25B !important; }
+.ui-dark .header button.changed i { color: #FFF; }
+.ui-dark .header button:hover, .ui-dark .header a:hover { background-color: #444; color: #FFF; }
+.ui-dark .header button:disabled { color: #D0D0D0; background-color: transparent !important; }
+.ui-dark .header button.selected { background-color: #303030; }
+.ui-dark .header button.special, .ui-dark header a.special { color: #99982F; }
+.ui-dark .header > div { border-right-color: #404040; }
 
 .dm { border: 2px solid #D0D0D0; margin: 30px auto; padding: 15px; border-radius: var(--radius); }
 .dm-xs { width: 450px; }

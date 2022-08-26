@@ -10,7 +10,7 @@
 	<meta name="robots" content="all,follow" />
 	<link href="https://cdn.componentator.com/spa.min@19pro.css" rel="stylesheet" type="text/css" />
 	<script src="https://cdn.componentator.com/spa.min@19beta.js"></script>
-	<script src="https://componentator.com/download.js?id=exec,locale,faicons,stash,clipboard,colorpicker,directory,listform,floatinginput,miniform,movable,selected,loading,box,input,importer,ready,viewbox,validate,layout,intranetcss,menu,searchinput,notify,approve,loadcontent,choose,edit,tangular-color,fileuploader,imageuploader,floatingbox"></script>
+	<script src="https://componentator.com/download.js?id=exec,locale,faicons,stash,clipboard,colorpicker,directory,listform,floatinginput,miniform,movable,selected,loading,box,input,importer,ready,viewbox,validate,layout,intranetcss,menu,searchinput,notify,approve,loadcontent,choose,edit,tangular-color,fileuploader,imageuploader,floatingbox,search"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
 	@{import('default.css + ui.css', 'ui.js + uibuilder.js')}
 </head>
@@ -63,23 +63,25 @@
 						<button data-bind="app.schema.editor.render__enable" class="exec" data-exec="uibuilder_render" title="@(Preview)" disabled><i class="fas fa-flask"></i></button>
 						<button class="exec" data-exec="uibuilder_settings" title="@(Global settings)"><i class="far fa-cog"></i></button>
 					</div>
+
 					<button class="exec" data-exec="uibuilder_device" title="@(Display settings)"><i class="far fa-window-alt"></i></button>
 					<button class="exec" data-exec="uibuilder_io" title="@(Inputs / Outputs)"><i class="far fa-code-branch"></i></button>
-					<button class="exec" data-exec="uibuilder_redraw" title="@(Re-load objects)"><i class="fas fa-sync blue"></i></button>
+					<button class="exec" data-exec="uibuilder_darkmode" title="@(Toggle between light/dark mode)" data-bind="common.darkmode__.selected"><i class="far fa-adjust"></i></button>
+					<button class="exec" data-exec="uibuilder_redraw" title="@(Re-load objects)"><i class="fas fa-sync"></i></button>
 				</div>
 			</section>
 
 			<section data-type="left">
-				<div data---="searchinput__%flowsearch__type:search;placeholder:Search components;autofocus:2"></div>
+				<div data---="searchinput__%searchobjects__type:search;placeholder:Search components;autofocus:2"></div>
 				<div style="margin:5px 10px 0 10px" class="fs11">
 					<div><span class="exec link" data-exec="uibuilder_objects">@(Download)</span></div>
 				</div>
-				<div class="objects" data-bind="common.groups__template">
+				<div class="objects" data-bind="common.groups__template" data---="search__%searchobjects__selector:figure">
 					<script type="text/html">
 					{{ foreach g in value }}
 						<div class="caption">{{ g.id }}</div>
 						{{ foreach m in g.items }}
-						<figure draggable="true" class="draggable" data-id="{{ m.id }}">
+						<figure draggable="true" class="draggable" data-id="{{ m.id }}" data-search="{{ m.name }}">
 							<i class="{{ m.icon }}"></i>
 							<div class="name">{{ m.name }}</div>
 						</figure>
@@ -120,6 +122,12 @@
 		common.objects = [];
 		common.paths = '';
 		common.codes = '';
+
+		CACHEPATH('common.darkmode', '1 year');
+
+		ON('ready', function() {
+			common.darkmode && $('body').aclass('ui-dark');
+		});
 
 		ON('@flag showloading', function() {
 			SETTER('loading/show');
@@ -210,6 +218,13 @@
 
 		function uibuilder_io() {
 			SET('common.form', 'ioform');
+		}
+
+		function uibuilder_darkmode() {
+			var el = $('body');
+			var c = 'ui-dark';
+			el.tclass(c);
+			SET('common.darkmode', el.hclass(c));
 		}
 
 		function uibuilder_redraw(el) {

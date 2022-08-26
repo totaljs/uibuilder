@@ -13,23 +13,16 @@
 
 	function Instance() {
 		var t = this;
-		t.state = { init: 0, invalid: false, value: null, disabled: false, modified: false, readonly: false, affected: false, delay: 10 };
+		t.state = { init: 0, value: null, disabled: false, modified: false, readonly: false, affected: false, delay: 10 };
 		t.cache = {};
 		t.events = {};
 		t.$inputs = {};
 		t.$outputs = {};
 	}
 
-	Instance.prototype.input = function(id, callback) {
-		var t = this;
-		t.$inputs[id] = callback;
-		return t;
-	};
-
 	Instance.prototype.set = function(type, value, kind) {
 
 		// Supported types:
-		// - invalid    (is not valid)
 		// - value      (current value)
 		// - disabled   (is disabled)
 		// - modified   (value has been modified)
@@ -40,7 +33,6 @@
 
 		switch (type) {
 			case 'disabled':
-			case 'invalid':
 			case 'modified':
 			case 'readonly':
 			case 'affected':
@@ -71,6 +63,12 @@
 		}
 
 		setTimeout(t => t.app.emitstate(t.cache.e), t.state.delay, t);
+		return t;
+	};
+
+	Instance.prototype.input = function(id, callback) {
+		var t = this;
+		t.$inputs[id] = callback;
 		return t;
 	};
 
@@ -137,6 +135,12 @@
 
 	Instance.prototype.cl = function(clid, id, fn) {
 		var t = this;
+
+		if (typeof(id) === 'function') {
+			fn = id;
+			id = null;
+		}
+
 		t.app.cl(clid, id, fn);
 		return t;
 	};
@@ -147,7 +151,6 @@
 
 	Instance.prototype.reset = function() {
 		var t = this;
-		// t.set('invalid', false);
 		// t.set('affected', false);
 		// t.set('modified', false);
 		t.events.reset && t.emit('reset');
@@ -180,7 +183,6 @@
 		for (i = 0; i < arr.length - 1; i++)
  			obj = obj[arr[i]];
 		obj[arr[i]] = value;
-		return obj;
 	};
 
 	Instance.prototype.read = function(obj, path) {
@@ -193,11 +195,11 @@
 		return obj;
 	};
 
-	Instance.prototype.args = function(val, data) {
+	Instance.prototype.replace = function(val, data) {
 		var self = this;
 		return val.replace(/\{[a-z0-9]+\}/gi, function(text) {
 			var key = text.substring(1, text.length - 1).trim();
-			var val = self.app.args[key];
+			var val = self.args[key];
 			if (val == null && data)
 				val = data[key];
 			return val == null ? text : val;
@@ -261,6 +263,7 @@
 			com.config = {};
 
 		instance.id = obj.id;
+		instance.args = self.args;
 		instance.element = $(div);
 		instance.element.aclass(Builder.selectors.object.substring(1) + ' ' + com.cls).attrd('id', obj.id);
 		instance.dom = div;
@@ -277,10 +280,8 @@
 				instance.config[key] = obj.config[key];
 		}
 
-
 		if (!instance.config.name)
 			instance.config.name = com.name;
-
 
 		self.instances.push(instance);
 

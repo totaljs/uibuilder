@@ -10,7 +10,7 @@
 	<meta name="robots" content="all,follow" />
 	<link href="https://cdn.componentator.com/spa.min@19pro.css" rel="stylesheet" type="text/css" />
 	<script src="https://cdn.componentator.com/spa.min@19beta.js"></script>
-	<script src="https://componentator.com/download.js?id=exec,locale,faicons,stash,clipboard,colorpicker,directory,listform,floatinginput,miniform,movable,selected,loading,box,input,importer,ready,viewbox,validate,layout,intranetcss,menu,searchinput,notify,approve,loadcontent,choose,edit,tangular-color"></script>
+	<script src="https://componentator.com/download.js?id=exec,locale,faicons,stash,clipboard,colorpicker,directory,listform,floatinginput,miniform,movable,selected,loading,box,input,importer,ready,viewbox,validate,layout,intranetcss,menu,searchinput,notify,approve,loadcontent,choose,edit,tangular-color,fileuploader,imageuploader,floatingbox"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
 	@{import('default.css + ui.css', 'ui.js + uibuilder.js')}
 </head>
@@ -25,6 +25,9 @@
 	<div data---="LAZY floatinginput"></div>
 	<div data---="LAZY notify__null__position:bottom right"></div>
 	<div data---="LAZY clipboard"></div>
+	<div data---="LAZY fileuploader"></div>
+	<div data---="LAZY imageuploader"></div>
+	<div data---="LAZY floatingbox"></div>
 
 	<div data---="locale"></div>
 	<div data---="loading"></div>
@@ -135,9 +138,11 @@
 		});
 
 		function settings_reload(com) {
+
 			var id = settingsform.objectid;
 			var data = settingsform[id];
 			var obj = app.objects[id];
+
 			com.reconfigure({ title: '@(Settings:) ' + obj.name });
 
 			if (!data.name)
@@ -470,6 +475,7 @@
 					SET('DEF.cl.codes', response);
 				});
 			}
+
 		});
 
 		UIBuilder.on('io', function(app) {

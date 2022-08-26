@@ -15,6 +15,15 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .settingsform .buttons button:first-child { border-top-left-radius: var(--radius); border-bottom-left-radius: var(--radius); }
 .settingsform .buttons button:last-child { border-top-right-radius: var(--radius); border-bottom-right-radius: var(--radius); }
 .settingsform .buttons button[name='submit'] { font-weight: bold; background-color: var(--color); color: #FFF; }
+.settingsform .main { padding-bottom: 10px; border-bottom: 1px solid #E0E0E0; }
+
+.ui-dark .settingsform .buttons { border-top-color: #303030; }
+.ui-dark .settingsform .buttons button { border-color: #202020; background-color: #505050; color: #F0F0F0; }
+.ui-dark .settingsform .buttons button[name='submit'] { background-color: var(--color); }
+.ui-dark .settingsform .buttons button:active { background-color: #404040; }
+.ui-dark .settingsform .buttons button:disabled i { color: #606060 !important; }
+.ui-dark .settingsform .buttons button:disabled { background-color: #303030 !important; color: #606060 !important; border-color: #202020 !important; }
+.ui-dark .settingsform .main { border-bottom-color: #404040; }
 
 .ui-layout-section { background: #FFF; }
 .ui-dark { background-color: #404040; }
@@ -75,5 +84,7 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .dm-sm { width: 800px; }
 .dm-md { width: 1024px; }
 .dm-lg { width: 1280px; }
+
+.ui-dark .dm { border-color: #404040; }
 
 .ui-notify-container { z-index: 1001; }

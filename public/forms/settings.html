@@ -19,9 +19,7 @@
 
 		<div class="m">
 			<div data---="input__?.description__type:multiline;monospace:1;height:150;innerlabel:1;placeholder:@(App description)">@(Description)</div>
-			<div class="help">@(Markdown format)</div>
 		</div>
-		<hr />
 
 		<div class="grid-4">
 			<div class="m">
@@ -33,6 +31,12 @@
 			<div class="m">
 				<div data---="input__?.color__type:color;placeholder:@(Choose a color)">@(Color)</div>
 			</div>
+		</div>
+
+		<hr style="margin-top:10px" />
+
+		<div class="m">
+			<div data---="keyvalue__?.args__placeholderkey:@(Key);placeholdervalue:@(Enter a value and press enter)">@(Dynamic arguments)</div>
 		</div>
 
 		<div class="caption m">

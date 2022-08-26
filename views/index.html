@@ -10,7 +10,7 @@
 	<meta name="robots" content="all,follow" />
 	<link href="https://cdn.componentator.com/spa.min@19pro.css" rel="stylesheet" type="text/css" />
 	<script src="https://cdn.componentator.com/spa.min@19beta.js"></script>
-	<script src="https://componentator.com/download.js?id=exec,locale,faicons,stash,clipboard,colorpicker,directory,listform,floatinginput,miniform,movable,selected,loading,box,input,importer,ready,viewbox,validate,layout,intranetcss,menu,searchinput,notify,approve,loadcontent,choose,edit,tangular-color,fileuploader,imageuploader,floatingbox,search"></script>
+	<script src="https://componentator.com/download.js?id=exec,locale,faicons,stash,clipboard,colorpicker,directory,listform,floatinginput,miniform,movable,selected,loading,box,input,importer,ready,viewbox,validate,layout,intranetcss,menu,searchinput,notify,approve,loadcontent,choose,edit,tangular-color,fileuploader,imageuploader,floatingbox,search,keyvalue"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
 	@{import('default.css + ui.css', 'ui.js + uibuilder.js')}
 </head>
@@ -39,7 +39,7 @@
 			<script type="text/plain">
 				{
 					top: { size: 44 },
-					left: { size: 228, resize: true },
+					left: { size: 220, resize: true },
 					main: {}
 				}
 			</script>
@@ -54,7 +54,7 @@
 						<a href="/" title="@(Create a new app)" target="_blank"><i class="far fa-plus-circle green"></i></a>
 					</div>
 
-					<div style="margin-right:8px">
+					<div>
 						<button class="apply exec" data-exec="uibuilder_save"><i class="far fa-save"></i><span>@(SAVE)</span></button>
 					</div>
 
@@ -373,6 +373,7 @@
 			data.icon = schema.icon;
 			data.type = schema.type;
 			data.version = schema.version;
+			data.args = schema.args;
 			data.editor = schema.editor ? CLONE(schema.editor) : {};
 			data.description = schema.description;
 

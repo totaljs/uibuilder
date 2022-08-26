@@ -5,6 +5,7 @@
 	// config.path {String} a path for storing of data
 
 	function InstanceEvent() {
+
 	}
 
 	InstanceEvent.prototype.stopPropagation = function() {
@@ -20,7 +21,9 @@
 		t.$outputs = {};
 	}
 
-	Instance.prototype.set = function(type, value, kind) {
+	var IP = Instance.prototype;
+
+	IP.set = function(type, value, kind) {
 
 		// Supported types:
 		// - value      (current value)
@@ -66,13 +69,13 @@
 		return t;
 	};
 
-	Instance.prototype.input = function(id, callback) {
+	IP.input = function(id, callback) {
 		var t = this;
 		t.$inputs[id] = callback;
 		return t;
 	};
 
-	Instance.prototype.output = function(name, fn) {
+	IP.output = function(name, fn) {
 
 		var t = this;
 		var output = (t.object.outputs || EMPTYARRAY).findItem('id', name);
@@ -109,7 +112,7 @@
 		return t;
 	};
 
-	Instance.prototype.family = function() {
+	IP.family = function() {
 
 		var t = this;
 		var output = [];
@@ -127,13 +130,13 @@
 		return output;
 	};
 
-	Instance.prototype.remove = function() {
+	IP.remove = function() {
 		var t = this;
 		t.element.remove();
 		t.app.clean();
 	};
 
-	Instance.prototype.cl = function(clid, id, fn) {
+	IP.cl = function(clid, id, fn) {
 		var t = this;
 
 		if (typeof(id) === 'function') {
@@ -145,11 +148,15 @@
 		return t;
 	};
 
-	Instance.prototype.hidden = function() {
+	IP.find = function(id) {
+		return this.app.instances.findItem('id', id);
+	};
+
+	IP.hidden = function() {
 		return HIDDEN(this.dom);
 	};
 
-	Instance.prototype.reset = function() {
+	IP.reset = function() {
 		var t = this;
 		// t.set('affected', false);
 		// t.set('modified', false);
@@ -157,11 +164,11 @@
 		return t;
 	};
 
-	Instance.prototype.get = function(type) {
+	IP.get = function(type) {
 		return this.state[type || 'value'];
 	};
 
-	Instance.prototype.on = function(name, fn) {
+	IP.on = function(name, fn) {
 		var t = this;
 		if (t.events[name])
 			t.events[name].push(fn);
@@ -169,7 +176,7 @@
 			t.events[name] = [fn];
 	};
 
-	Instance.prototype.emit = function(name, a, b, c, d, e) {
+	IP.emit = function(name, a, b, c, d, e) {
 		var t = this;
 		var items = t.events[name];
 		if (items) {
@@ -178,14 +185,14 @@
 		}
 	};
 
-	Instance.prototype.write = function(obj, path, value) {
+	IP.write = function(obj, path, value) {
 		var arr = path.split('.');
 		for (i = 0; i < arr.length - 1; i++)
  			obj = obj[arr[i]];
 		obj[arr[i]] = value;
 	};
 
-	Instance.prototype.read = function(obj, path) {
+	IP.read = function(obj, path) {
 		var arr = path.split('.');
 		for (i = 0; i < arr.length; i++) {
  			obj = obj[arr[i]];
@@ -195,7 +202,7 @@
 		return obj;
 	};
 
-	Instance.prototype.replace = function(val, data) {
+	IP.replace = function(val, data) {
 		var self = this;
 		return val.replace(/\{[a-z0-9]+\}/gi, function(text) {
 			var key = text.substring(1, text.length - 1).trim();
@@ -206,7 +213,7 @@
 		});
 	};
 
-	Instance.prototype.settings = function() {
+	IP.settings = function() {
 		var t = this;
 		t.app.emit('settings', t);
 		Builder.emit('settings', t);
@@ -638,7 +645,7 @@
 			// 2. notifies all other objects
 
 			var parents = {};
-			var key = '@state';
+			var key = 'state';
 			var instance = e.instance;
 
 			// Clears cache
@@ -658,18 +665,20 @@
 					parent.emit(key, e);
 
 				if (e.$propagation)
-					return;
+					break;
 
 				parent = parent.parent;
 			}
 
 			e.level = null;
 
-			for (var instance of app.instances) {
-				if (e.$propagation || parents[instance.id])
-					return;
-				instance.events[key] && instance.emit(key, e);
+			key = '@state';
+
+			for (var obj of app.instances) {
+				if (!parents[instance.id] && obj !== e.instance)
+					obj.events[key] && obj.emit(key, e);
 			}
+
 		};
 
 		Builder.parsehtml = function(response) {

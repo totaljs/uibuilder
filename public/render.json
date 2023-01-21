@@ -1,0 +1,40 @@
+{
+	"id": "AAA",
+	"name": "App name",
+	"description": "",
+	"icon": "",
+	"version": "0.0.1",
+	"css": ".UI_gap{margin-bottom:var(--gap)}",
+	"objects": {
+		"container": "/objects/container/render.html",
+		"input": "/objects/input/render.html"
+	},
+	"children": [
+		[
+			{
+				"children": [
+					[
+						{
+							"children": [],
+							"id": "oidl92eauhu",
+							"config": {
+								"required": false,
+								"type": "string",
+								"name": "Input"
+							},
+							"object": "input"
+						}
+					]
+				],
+				"id": "1",
+				"config": {
+					"name": "Container"
+				},
+				"object": "container"
+			}
+		]
+	],
+	"inputs": [],
+	"outputs": [],
+	"args": {}
+}

@@ -1,3 +1,4 @@
 name                 : Total.js UI Builder
 cdn                  : //cdn.componentator.com
 allow_custom_titles  : true
+// allow_compile_script : false

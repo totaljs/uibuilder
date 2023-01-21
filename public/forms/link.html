@@ -1,0 +1,76 @@
+<ui-component name="miniform" path="common.form2" config="if:~PATH~;width:400;autofocus:1;submit:?/submit;title:@(Link editor);icon:link" class="hidden" plugin="~PATH~">
+	<div >
+		<div class="padding">
+			<ui-component name="input" path="?.href" config="icon:globe;required:true">@(URL address)</ui-component>
+			<div class="m mt10 fs12">
+				<span class="link exec mr10" data-exec="?/type" data-type="email"><i class="ti ti-envelope mr5"></i>@(Email)</span>
+				<span class="link exec" data-exec="?/type" data-type="phone"><i class="ti ti-phone mr5"></i>@(Phone number)</span>
+			</div>
+			<hr />
+			<ui-component name="input" path="?.target" config="dirsource:|@(Current tab or Window),_blank|@(New tab or Window);dirplaceholder:@(Search)" class="m">@(Target)</ui-component>
+			<ui-component name="input" path="?.title" config="icon:info-circle" class="m">@(Tooltip)</ui-component>
+		</div>
+	</div>
+
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit" disabled><i class="ti ti-check-circle"></i>@(APPLY)</button>
+			<button name="cancel">@(Cancel)</button>
+		</ui-component>
+	</nav>
+
+</ui-component>
+
+<script>
+
+	PLUGIN(function(exports) {
+
+		exports.watch('href', function(value, path, type) {
+			if (type === 2 && value.length > 12 && (/^(http|https)\:\/\//i).test(value) && exports.model.target !== '_blank')
+				exports.set('target', '_blank');
+		}, true);
+
+		exports.type = function(el) {
+			var r = /^(tel|mailto)\:/;
+			var model = exports.model;
+			switch (el.attrd('type')) {
+				case 'email':
+					exports.set('href', 'mailto:' + model.href.replace(r, ''));
+					break;
+				case 'phone':
+					exports.set('href', 'tel:' + model.href.replace(r, ''));
+					break;
+			}
+		};
+
+		exports.submit = function(hide) {
+
+			var model = exports.model;
+			var link = model.element;
+			var href = model.href;
+
+			if (href.isEmail()) {
+				if (href.substring(0, 7) !== 'mailto:')
+					href = 'mailto:' + href;
+			} else if (href.substring(0, 1) === '+')
+				href = 'tel:' + href;
+
+			link.attr('href', href);
+
+			if (model.title)
+				link.attr('title', model.title.trim());
+			else
+				link.rattr('title');
+
+			if (!model.target || model.target === '_self')
+				link.rattr('target');
+			else
+				link.attr('target', model.target);
+
+			model.callback && model.callback(model);
+			hide();
+		};
+
+	});
+
+</script>

@@ -1,3 +1,10 @@
+customElements.define('is-button', class extends HTMLButtonElement {
+	constructor() {
+		super();
+		setTimeout(NEWUIBIND, 2, this);
+	}
+}, { extends: 'button' });
+
 COMPONENT('uibuildereditor', 'container:UI_objects;selector:.UI_object', function(self, config, cls) {
 
 	var drag = {};
@@ -114,7 +121,7 @@ COMPONENT('uibuildereditor', 'container:UI_objects;selector:.UI_object', functio
 					break;
 
 				case 'drop':
-					drag.prev.classList.remove(cls + '-hover');
+					drag.prev && drag.prev.classList.remove(cls + '-hover');
 					e.target.classList.contains(cls + '-disable') && e.target.classList.remove(cls + '-disable');
 					drag.container && drag.drop(e);
 					break;

@@ -5,7 +5,6 @@
 	// config.path {String} a path for storing of data
 
 	function InstanceEvent() {
-
 	}
 
 	InstanceEvent.prototype.stopPropagation = function() {
@@ -14,7 +13,7 @@
 
 	function Instance() {
 		var t = this;
-		t.state = { init: 0, value: null, disabled: false, modified: false, readonly: false, affected: false, delay: 10 };
+		t.state = { init: 0, value: null, disabled: false, modified: false, readonly: false, touched: false, invalid: false, delay: 10 };
 		t.cache = {};
 		t.events = {};
 		t.$inputs = {};
@@ -23,37 +22,79 @@
 
 	var IP = Instance.prototype;
 
-	IP.set = function(type, value, kind) {
+	IP.$forcecheck = function(t) {
+		t.$checktimeout = null;
+		t.set('invalid', t.state.disabled || t.state.readonly ? false : t.validate ? (!t.validate()) : true);
+	};
+
+	IP.check = function() {
+		var t = this;
+		t.$checktimeout && clearTimeout(t.$checktimeout);
+		t.$checktimeout = setTimeout(t.$forcecheck, 150, t);
+		return t;
+	};
+
+	IP.set = function(type, value, kind, binder) {
 
 		// Supported types:
 		// - value      (current value)
 		// - disabled   (is disabled)
 		// - modified   (value has been modified)
 		// - readonly   (is readonly)
-		// - affected   (user changed something)
+		// - touched    (user changed something)
+		// - invalid    (is invalid?)
 
 		var t = this;
+		var tclass = false;
 
 		switch (type) {
 			case 'disabled':
 			case 'modified':
 			case 'readonly':
-			case 'affected':
+			case 'touched':
+			case 'invalid':
+				tclass = true;
 				value = value ? true : false;
 				break;
 		}
 
+		if (type === 'touched')
+			t.check();
+
 		if (t.state[type] === value)
-			return;
+			return false;
 
 		t.state[type] = value;
 		t.events.set && t.emit('set', type, value, kind);
 
+		if (type === 'value') {
+
+			t.events.value && t.emit('value', value, kind);
+
+			if (t.binded) {
+				for (var m of t.binded) {
+					if (m !== binder)
+						m.set('value', value, binder ? 'noemitstate' : '', binder);
+				}
+			}
+
+			if (t.binder && t.binder !== binder)
+				t.binder.set('value', value, binder ? 'noemitstate' : '', t);
+
+			t.check();
+		}
+
+		if (kind === 'noemitstate')
+			return;
+
 		var e = t.cache.e;
+
+		if (tclass)
+			t.element.tclass('UI_' + type, value);
 
 		if (e) {
 			t.cache.e.changes[type] = 1;
-			return;
+			return true;
 		} else {
 			e = t.cache.e = new InstanceEvent();
 			e.id = t.id;
@@ -66,7 +107,7 @@
 		}
 
 		setTimeout(t => t.app.emitstate(t.cache.e), t.state.delay, t);
-		return t;
+		return true;
 	};
 
 	IP.input = function(id, callback) {
@@ -79,7 +120,6 @@
 
 		var t = this;
 		var output = (t.object.outputs || EMPTYARRAY).findItem('id', name);
-
 		if (!output) {
 			console.error('Output "{0}" not found in the "{1}" object'.format(name, t.object.name));
 			return;
@@ -89,24 +129,22 @@
 			t.$outputs[name] = fn;
 		} else {
 			fn = t.$outputs[name];
-			if (fn) {
-				fn(function(err, data) {
-					var obj = {};
-					obj.id = t.id + '_' + output.id;
-					obj.ref = output.id;
-					obj.icon = output.icon;
-					obj.color = output.color;
-					obj.note = output.note;
-					obj.name = output.name;
-					obj.object = output.instance.object;
-					obj.app = t.app;
-					obj.instance = t;
-					obj.err = err;
-					obj.data = data;
-					t.app.emit('output', obj);
-					Builder.emit('output', obj);
-				});
-			}
+			fn && fn(function(err, data) {
+				var obj = {};
+				obj.id = t.id + '_' + output.id;
+				obj.ref = output.id;
+				obj.icon = output.icon;
+				obj.color = output.color;
+				obj.note = output.note;
+				obj.name = output.name;
+				obj.object = t.object;
+				obj.app = t.app;
+				obj.instance = t;
+				obj.err = err;
+				obj.data = data;
+				t.app.emit('output', obj);
+				Builder.emit('output', obj);
+			});
 		}
 
 		return t;
@@ -158,9 +196,24 @@
 
 	IP.reset = function() {
 		var t = this;
-		// t.set('affected', false);
+		// t.set('touched', false);
 		// t.set('modified', false);
 		t.events.reset && t.emit('reset');
+		return t;
+	};
+
+	IP.reconfigure = function(config) {
+		var t = this;
+		if (t.events.configure) {
+			for (var key in config) {
+				var prev = t.config[key];
+				var curr = config[key];
+				if (curr !== prev) {
+					t.config[key] = curr;
+					t.emit('configure', key, curr);
+				}
+			}
+		}
 		return t;
 	};
 
@@ -185,14 +238,37 @@
 		}
 	};
 
+	IP.bindable = function(path) {
+		var t = this;
+		var can = !t.config.path || t.config.path.charAt(0) !== '@';
+		if (path)
+			return can ? t.config.path === path : false;
+		else
+			return can;
+	};
+
 	IP.write = function(obj, path, value) {
+
+		if (!path || path.charAt(0) === '@')
+			return value;
+
 		var arr = path.split('.');
-		for (i = 0; i < arr.length - 1; i++)
- 			obj = obj[arr[i]];
+		for (i = 0; i < arr.length - 1; i++) {
+ 			var tmp = obj[arr[i]];
+			if (tmp == null)
+				tmp = obj[arr[i]] = {};
+			obj = tmp;
+		}
+
 		obj[arr[i]] = value;
+		return obj;
 	};
 
 	IP.read = function(obj, path) {
+
+		if (!path || path.charAt(0) === '@')
+			return obj;
+
 		var arr = path.split('.');
 		for (i = 0; i < arr.length; i++) {
  			obj = obj[arr[i]];
@@ -204,7 +280,7 @@
 
 	IP.replace = function(val, data) {
 		var self = this;
-		return val.replace(/\{[a-z0-9]+\}/gi, function(text) {
+		return val.replace(/\{[a-z0-9_-]+\}/gi, function(text) {
 			var key = text.substring(1, text.length - 1).trim();
 			var val = self.args[key];
 			if (val == null && data)
@@ -259,7 +335,6 @@
 			console.error('Object "{0}" not found in the object list'.format(obj.object));
 			return;
 		}
-
 
 		var div = document.createElement('DIV');
 		var instance = new Instance();
@@ -348,17 +423,18 @@
 			return;
 		}
 
-		setTimeout(function(self, children) {
-			for (var i = 0; i < children.length; i++) {
-				var container = instance.element.find(Builder.selectors.objects + '[data-index="{0}"]'.format(i));
-				if (container.length) {
-					var arr = children[i];
-					for (var obj of arr)
-						self.compile(container, obj, i);
+		setTimeout(function(self, obj) {
+			var containers = findcontainers(self, obj.id);
+			for (var i = 0; i < obj.children.length; i++) {
+				var container = containers.findItem('index', i);
+				if (container) {
+					var arr = obj.children[i];
+					for (var o of arr)
+						self.compile(container.element, o, i);
 				}
 			}
 			self.refreshio();
-		}, 1, self, obj.children);
+		}, 1, self, obj);
 	}
 
 	function inDOM(el) {
@@ -421,7 +497,7 @@
 				return;
 			}
 
-			obj = { id: 'oid' + Date.now().toString(36), object: obj, children: [], config: com.config || {} };
+			obj = { id: 'oid' + Date.now().toString(36), object: obj, children: [], config: com.config || {}, gap: com.gap };
 		}
 
 		if (config) {
@@ -462,8 +538,10 @@
 		container.aclass('UI_app invisible');
 		container.empty();
 
-		if (meta.css)
-			container[0].style = meta.css;
+		CSS(meta.css, 'uiapp');
+
+		// if (meta.css)
+		// 	container[0].style = meta.css;
 
 		$(target).append(container);
 
@@ -551,6 +629,7 @@
 
 			app.inputs = [];
 			app.outputs = [];
+			app.list = [];
 
 			for (var instance of app.instances) {
 
@@ -560,9 +639,11 @@
 				var arr = instance.object.inputs;
 				var name = instance.config.name || instance.object.name;
 
+				app.list.push({ id: instance.id, name: name, icon: instance.object.icon, color: instance.object.color });
+
 				if (arr) {
 					for (var m of arr) {
-						app.inputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, object: name, input: m.name, icon: m.icon, color: m.color, note: m.note, schema: m.schema });
+						app.inputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, object: name, input: m.name, icon: instance.object.icon, color: instance.object.color, note: m.note, schema: m.schema });
 					}
 				}
 
@@ -570,20 +651,51 @@
 
 				if (arr && arr.length) {
 					for (var m of arr) {
-						app.outputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, object: name, output: m.name, icon: m.icon, color: m.color, note: m.note, schema: m.schema });
+						app.outputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, object: name, output: m.name, icon: instance.object.icon, color: instance.object.color, note: m.note, schema: m.schema });
 					}
 				}
 
 			}
 
 			if (!app.ready) {
+
 				app.ready = true;
 				app.callback && app.callback(app);
 				container.rclass('invisible');
+
+				var binded = {};
+				var binder = {};
+				var isbinded = false;
+
+				// Check binded instances
+				for (var item of app.instances) {
+					if (item.config.path && item.config.path.charAt(0) === '@') {
+						var key = item.config.path.substring(1);
+						if (key != item.id) {
+							if (binded[key])
+								binded[key].push(item);
+							else
+								binded[key] = [item];
+							binder[item.id] = key;
+							isbinded = true;
+						}
+					}
+				}
+
+				// Assign binded instances
+				if (isbinded) {
+					for (var item of app.instances) {
+						item.binded = binded[item.id] || null;
+						item.binder = binder[item.id] ? app.instances.findItem('id', binder[item.id]) : null;
+					}
+				}
+
+				// Emit ready
 				for (var item of app.instances) {
 					item.state.init = 1;
 					item.events.ready && item.emit('ready');
 				}
+
 				Builder.emit('app', app);
 			}
 
@@ -755,6 +867,11 @@
 				if (!ext || ext === 'html') {
 					AJAX('GET ' + url, function(response) {
 
+						if (ERROR(response)) {
+							console.error('UI Builder:', url, response);
+							return next;
+						}
+
 						var parsed = Builder.parsehtml(response);
 
 						try {
@@ -769,14 +886,13 @@
 							if (parsed.settings)
 								obj.settings = parsed.settings;
 
-							new Function('exports', parsed.js)(obj);
+							new Function('exports', parsed.js.replace(/CLASS/g, obj.cls))(obj);
 							app.pending.push({ name: key, fn: obj });
 						} catch (e) {
 							console.error('UI Builder:', key, e);
 						}
 						next();
 					});
-
 				}
 
 			} else {
@@ -847,10 +963,24 @@
 			}, 2);
 
 		}
-
 	};
 
 	var openeditor = null;
+	var D = document;
+
+	function getSelection2(node) {
+		if (D.selection && D.selection.type === 'Text')
+			return D.selection.createRange().htmlText;
+		else if (!W.getSelection)
+			return;
+		var sel = W.getSelection();
+		if (!sel.rangeCount)
+			return '';
+		var container = D.createElement('div');
+		for (var i = 0, len = sel.rangeCount; i < len; ++i)
+			container.appendChild(sel.getRangeAt(i).cloneContents());
+		return node ? container : container.innerHTML;
+	}
 
 	function app_edit(el, opt, callback) {
 
@@ -865,11 +995,11 @@
 		// opt.italic {Boolean}
 		// opt.underline {Boolean}
 		// opt.link {Boolean}
+		// opt.icon {Boolean}
 		// opt.multiline {Boolean}
 		// opt.callback {Function}
 		// opt.html {String}
 		// opt.commands {Boolean}
-		// opt.widget {Widget}
 		// opt.backslashremove {Boolean}
 		// opt.param {Object} a custom parameter
 		// opt.parent {Element}
@@ -897,6 +1027,49 @@
 		openeditor.element = el;
 		openeditor.dom = el[0];
 		openeditor.parent = opt.parent ? opt.parent[0] : openeditor.dom;
+		openeditor.createlink = function() {
+
+			var sel = getSelection2().trim();
+			if (!sel)
+				return;
+
+			var el = openeditor.element;
+			var url = '#link' + Date.now().toString(36);
+			var mtd = el[0];
+
+			for (var i = 0; i < 5; i++) {
+				if (mtd.tagName === 'A')
+					return;
+				mtd = mtd.parentNode;
+				if (!mtd)
+					break;
+			}
+
+			document.execCommand('CreateLink', false, url);
+
+			var tmp = el.find('a[href="' + url + '"]');
+			if (!tmp.length)
+				return;
+
+			openeditor && openeditor.close();
+
+			var content = tmp.text();
+			var href = '';
+
+			tmp.aclass('UI_link');
+
+			if (content.indexOf('@') !== -1)
+				href = 'mailto:' + content;
+			else if ((/\d+/).test(content))
+				href = 'tel:' + content;
+			else if (content.indexOf(' ') === -1 && content.indexOf(',') === -1 && content.indexOf('.') !== -1)
+				href = (/http(s):\/\//).test(content) ? content : ('https://' + content);
+
+			var target = href.indexOf('.') !== -1 && href.indexOf(location.hostname) === -1 ? '_blank' : '';
+			tmp.attr('href', href || '#');
+			tmp.attr('target', target);
+			Builder.emit('link', tmp, NOOP);
+		};
 
 		var clickoutside = function(e) {
 			if (!(e.target === openeditor.parent || openeditor.parent.contains(e.target)))
@@ -937,17 +1110,24 @@
 			}
 
 			if (e.keyCode === 9) {
-				// e.preventDefault();
-				// e.stopPropagation();
-				// var widget = openeditor.widget;
-				// openeditor.key = 9;
-				// openeditor.close();
-				// var w = widget.element.parent().next().find('> .widget')[0];
-				// if (w) {
-				// 	w = w.$widget;
-				// 	self.cmd.select(w);
-				// 	setTimeout(w => w.emit('focus'), 100, w);
-				// }
+
+				if (opt.tabs) {
+					e.preventDefault();
+					document.execCommand('insertHTML', false, '&#009');
+					return;
+				}
+
+				if (opt.endwithtab) {
+					e.preventDefault();
+					openeditor.key = 9;
+					openeditor.close();
+					return;
+				}
+
+				e.preventDefault();
+				e.stopPropagation();
+
+				openeditor.close();
 				return;
 			}
 
@@ -958,8 +1138,8 @@
 
 			if (e.keyCode === 66) {
 				// bold
-				if (opt.format && (opt.bold == null || opt.bold == true))
-					self.format.bold();
+				if (!opt.format || opt.bold === false)
+					return;
 				e.preventDefault();
 				e.stopPropagation();
 				return;
@@ -967,8 +1147,9 @@
 
 			if (e.keyCode === 76) {
 				// link
-				if (opt.format && (opt.link == null || opt.link == true))
-					self.format.link();
+				if (!opt.format || opt.link === false)
+					return;
+				openeditor.createlink();
 				e.preventDefault();
 				e.stopPropagation();
 				return;
@@ -976,15 +1157,28 @@
 
 			if (e.keyCode === 73) {
 				// italic
-				if (opt.format && (opt.italic == null || opt.italic == true))
-					self.format.italic();
+				if (!opt.format || opt.italic === false)
+					return;
 				e.preventDefault();
 				e.stopPropagation();
 				return;
 			}
 
 			if (e.keyCode === 80) {
-				self.format.icon();
+
+				if (opt.format && (!opt.icon || opt.icon === true)) {
+					var tag = el[0].nodeName.toLowerCase();
+					var icon = '<i class="ti ti-totaljs UI_icon" contenteditable="false"></i>';
+					switch (tag) {
+						case 'span':
+							el.parent().prepend(icon);
+							break;
+						default:
+							document.execCommand('insertHTML', false, icon);
+							break;
+					}
+				}
+
 				e.preventDefault();
 				e.stopPropagation();
 				return;
@@ -992,8 +1186,8 @@
 
 			if (e.keyCode === 85) {
 				// underline
-				if (opt.format && (opt.underline == null || opt.underline == true))
-					self.format.underline();
+				if (!opt.format || opt.underline === false)
+					return;
 				e.preventDefault();
 				e.stopPropagation();
 				return;
@@ -1047,7 +1241,7 @@
 	function app_stringify(element) {
 
 		var self = this;
-		var fn = typeof(element) ? element : null;
+		var fn = typeof(element) === 'function' ? element : null;
 
 		if (fn)
 			element = null;

@@ -1,2 +1,3 @@
 .ui-uibuildereditor { height: 500px; margin: 5px; }
 .ui-uibuildereditor-hover { background: #FFF7D4 !important; }
+.ui-uibuildereditor [contenteditable] { outline: 0; }

@@ -1,14 +1,14 @@
-<div data---="box__common.form__if:~PATH~;title:@(List of inputs and outputs);icon:far fa-code-branch;autofocus:true;reload:?/reload;scrollbar:1;submit:?/submit;width:960" class="hidden" data-scope="~PATH~">
+<div data---="box__common.form__if:~PATH~;title:@(List of inputs and outputs);icon:ti ti-code-branch;closeesc:1;closeoutside:1;autofocus:true;reload:?/reload;scrollbar:1;submit:?/submit;width:960" class="hidden" data-scope="~PATH~">
 	<div class="padding">
 		<div class="grid-2">
 			<div class="m">
 				<div class="caption m">
-					<label><i class="far fa-arrow-alt-from-left blue"></i>@(Inputs)</label>
+					<label><i class="ti ti-bull blue"></i>@(Inputs)</label>
 				</div>
 				<div data-bind="?.inputs__template" class="listing2">
 					<script type="text/html">
 						{{ if !value || !value.length }}
-							<p class="gray"><i class="fas fa-ban mr5"></i>@(The schema doesn't contain any inputs)</p>
+							<p class="gray"><i class="ti ti-ban mr5"></i>@(The schema doesn't contain any inputs)</p>
 						{{ else }}
 							{{ foreach m in value }}
 							<figure data-id="{{ m.id }}" class="exec" data-exec="?/copy">
@@ -24,12 +24,12 @@
 			</div>
 			<div class="m">
 				<div class="caption m">
-					<label><i class="far fa-arrow-alt-to-left red"></i>@(Outputs)</label>
+					<label><i class="ti ti-bull red"></i>@(Outputs)</label>
 				</div>
 				<div data-bind="?.outputs__template" class="listing2">
 					<script type="text/html">
 						{{ if !value || !value.length }}
-							<p class="gray"><i class="fas fa-ban mr5"></i>@(The schema doesn't contain any outputs)</p>
+							<p class="gray"><i class="ti ti-ban mr5"></i>@(The schema doesn't contain any outputs)</p>
 						{{ else }}
 							{{ foreach m in value }}
 							<figure data-id="{{ m.id }}" class="exec" data-exec="?/copy">

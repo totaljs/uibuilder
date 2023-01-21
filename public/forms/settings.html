@@ -1,4 +1,4 @@
-<div data---="box__common.form__if:~PATH~;icon:far fa-cog;title:@(Global settings);autofocus:true;scrollbar:1;submit:?/submit;width:800" class="hidden" data-scope="~PATH~">
+<div data---="box__common.form__if:~PATH~;icon:ti ti-cog;title:@(Global settings);autofocus:true;scrollbar:1;submit:?/submit;width:800" class="hidden" data-scope="~PATH~">
 	<div class="padding">
 
 		<div class="grid-2">
@@ -40,44 +40,44 @@
 		</div>
 
 		<div class="caption m">
-			<label><i class="far fa-link"></i>@(Editor settings)</label>
+			<label><i class="ti ti-link"></i>@(Editor settings)</label>
 		</div>
 		<div data-scope="editor">
 			<div>
 				<div class="m">
-					<div data---="input__?.paths__innerlabel:1;icon:far fa-database;placeholder:@(Enter URL address)">@(URL address for obtaining paths)</div>
+					<div data---="input__?.paths__innerlabel:1;icon:ti ti-database;placeholder:@(Enter URL address)">@(URL address for obtaining paths)</div>
 				</div>
 				<div class="m">
-					<div data---="input__?.codes__innerlabel:1;icon:fas fa-list-ul;placeholder:@(Enter URL address)">@(URL address for obtaining codes)</div>
+					<div data---="input__?.codes__innerlabel:1;icon:ti ti-list;placeholder:@(Enter URL address)">@(URL address for obtaining codes)</div>
 				</div>
 				<div class="m">
-					<div data---="input__?.upload__innerlabel:1;icon:fas fa-list-ul;placeholder:@(Enter URL address)">@(URL address for uploading files)</div>
+					<div data---="input__?.upload__innerlabel:1;icon:ti ti-list;placeholder:@(Enter URL address)">@(URL address for uploading files)</div>
 				</div>
 			</div>
-			<div class="message message-alert" style="margin-bottom:15px"><i class="far fa-exclamation-triangle mr5"></i>@(Links are not declared in the <b>publishing</b> and <b>rendering</b> data. Data are sent via <b>POST</b> method and serialized via "url encode" in the form <code class="b">data=JSON</code>.)</div>
+			<div class="message message-alert" style="margin-bottom:15px"><i class="ti ti-warning mr5"></i>@(Links are not declared in the <b>publishing</b> and <b>rendering</b> data. Data are sent via <b>POST</b> method and serialized via "url encode" in the form <code class="b">data=JSON</code>.)</div>
 			<div>
 				<div class="m">
-					<div data---="input__?.save__innerlabel:1;icon:far fa-save;placeholder:@(Enter URL address)">@(URL address for saving data)</div>
+					<div data---="input__?.save__innerlabel:1;icon:ti ti-save;placeholder:@(Enter URL address)">@(URL address for saving data)</div>
 				</div>
 				<div class="m">
-					<div data---="input__?.publish__innerlabel:1;icon:far fa-globe;placeholder:@(Enter URL address)">@(URL address for publishing data)</div>
+					<div data---="input__?.publish__innerlabel:1;icon:ti ti-globe;placeholder:@(Enter URL address)">@(URL address for publishing data)</div>
 				</div>
 				<div class="m">
-					<div data---="input__?.render__innerlabel:1;icon:fas fa-flask;placeholder:@(Enter URL address)">@(URL address for rendering data)</div>
+					<div data---="input__?.render__innerlabel:1;icon:ti ti-flask;placeholder:@(Enter URL address)">@(URL address for rendering data)</div>
 				</div>
 			</div>
 			<div data---="input__?.download__type:checkbox" class="b">@(Download objects to the source in compiling)</div>
 		</div>
 	</div>
 	<nav data---="validate__?">
-		<button name="submit" disabled><i class="fa fa-check-circle"></i>@(SUBMIT)</button>
+		<button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button>
 		<button name="cancel">@(Cancel)</button>
 	</nav>
 </div>
 
 <script>
 
-	PLUGIN('~PATH~', function(exports) {
+	PLUGIN(function(exports) {
 
 		exports.submit = function(hide) {
 			COPY(exports.form, app.schema);

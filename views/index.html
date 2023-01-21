@@ -8,33 +8,34 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 	<meta http-equiv="X-UA-Compatible" content="IE=10" />
 	<meta name="robots" content="all,follow" />
-	<link href="https://cdn.componentator.com/spa.min@19pro.css" rel="stylesheet" type="text/css" />
-	<script src="https://cdn.componentator.com/spa.min@19beta.js"></script>
-	<script src="https://componentator.com/download.js?id=exec,locale,faicons,stash,clipboard,colorpicker,directory,listform,floatinginput,miniform,movable,selected,loading,box,input,importer,ready,viewbox,validate,layout,intranetcss,menu,searchinput,notify,approve,loadcontent,choose,edit,tangular-color,fileuploader,imageuploader,floatingbox,search,keyvalue"></script>
+	<link href="@{'%cdn'}/spa.min@19.css" rel="stylesheet" type="text/css" />
+	<script src="@{'%cdn'}/spa.min@19.js"></script>
+	<script src="@{REPO.ui}"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
 	@{import('default.css + ui.css', 'ui.js + uibuilder.js')}
 </head>
-<body data---="exec">
+<body>
 
-	<div data---="LAZY menu__null__style:2"></div>
-	<div data---="LAZY faicons"></div>
-	<div data---="LAZY directory__null__placeholder:@(Search)"></div>
-	<div data---="LAZY approve__null__cancel:@(Cancel)"></div>
-	<div data---="LAZY colorpicker"></div>
-	<div data---="LAZY datepicker"></div>
-	<div data---="LAZY floatinginput"></div>
-	<div data---="LAZY notify__null__position:bottom right"></div>
-	<div data---="LAZY clipboard"></div>
-	<div data---="LAZY fileuploader"></div>
-	<div data---="LAZY imageuploader"></div>
-	<div data---="LAZY floatingbox"></div>
+	<ui-component name="LAZY menu" config="style:2"></ui-component>
+	<ui-component name="LAZY icons"></ui-component>
+	<ui-component name="LAZY directory" config="placeholder:@(Search)"></ui-component>
+	<ui-component name="LAZY approve" config="cancel:@(Cancel)"></ui-component>
+	<ui-component name="LAZY colorpicker"></ui-component>
+	<ui-component name="LAZY datepicker"></ui-component>
+	<ui-component name="LAZY floatinginput"></ui-component>
+	<ui-component name="LAZY notify" config="position:bottom right"></ui-component>
+	<ui-component name="LAZY clipboard"></ui-component>
+	<ui-component name="LAZY fileuploader"></ui-component>
+	<ui-component name="LAZY imageuploader"></ui-component>
+	<ui-component name="LAZY floatingbox"></ui-component>
 
-	<div data---="locale"></div>
-	<div data---="loading"></div>
-	<div data---="edit"></div>
+	<ui-component name="exec"></ui-component>
+	<ui-component name="locale"></ui-component>
+	<ui-component name="loading"></ui-component>
+	<ui-component name="edit"></ui-component>
 
-	<div data-bind="app.ready__visible" class="invisible">
-		<div data---="layout__common.layout__parent:window">
+	<ui-bind path="app.ready" config="visible" class="invisible block">
+		<ui-component name="layout" path="common.layout" config="parent:window">
 
 			<script type="text/plain">
 				{
@@ -48,68 +49,73 @@
 				<div class="header">
 
 					<div class="pull-right">
-						<a href="https://docs.totaljs.com/uibuilder/" title="Documentation: Total.js Platform" target="_blank" class="special"><i class="far fa-book"></i></a>
+						<a href="https://docs.totaljs.com/uibuilder/" title="Documentation: Total.js Platform" target="_blank" class="special"><i class="ti ti-book"></i></a>
 					</div>
 					<div class="pull-right">
-						<a href="/" title="@(Create a new app)" target="_blank"><i class="far fa-plus-circle green"></i></a>
+						<a href="/" title="@(Create a new app)" target="_blank"><i class="ti ti-plus-circle green"></i></a>
 					</div>
 
 					<div>
-						<button class="apply exec" data-exec="uibuilder_save"><i class="far fa-save"></i><span>@(SAVE)</span></button>
+						<button class="apply exec" data-exec="uibuilder_save"><i class="ti ti-save"></i><span>@(SAVE)</span></button>
 					</div>
 
 					<div style="margin-right:8px">
-						<button class="exec" data-exec="uibuilder_publish" title="@(Publish)"><i class="far fa-box"></i></button>
-						<button data-bind="app.schema.editor.render__enable" class="exec" data-exec="uibuilder_render" title="@(Preview)" disabled><i class="fas fa-flask"></i></button>
-						<button class="exec" data-exec="uibuilder_settings" title="@(Global settings)"><i class="far fa-cog"></i></button>
+						<button class="exec" data-exec="uibuilder_publish" title="@(Publish)"><i class="ti ti-box"></i></button>
+						<button is="is-button" path="app.schema.editor.render" config="enable" class="exec" data-exec="uibuilder_render" title="@(Preview)" disabled><i class="ti ti-flask"></i></button>
+						<button class="exec" data-exec="uibuilder_settings" title="@(Global settings)"><i class="ti ti-cog"></i></button>
 					</div>
 
-					<button class="exec" data-exec="uibuilder_device" title="@(Display settings)"><i class="far fa-window-alt"></i></button>
-					<button class="exec" data-exec="uibuilder_io" title="@(Inputs / Outputs)"><i class="far fa-code-branch"></i></button>
-					<button class="exec" data-exec="uibuilder_darkmode" title="@(Toggle between light/dark mode)" data-bind="common.darkmode__.selected"><i class="far fa-adjust"></i></button>
-					<button class="exec" data-exec="uibuilder_redraw" title="@(Re-load objects)"><i class="fas fa-sync"></i></button>
+					<button class="exec" data-exec="uibuilder_device" title="@(Display settings)"><i class="ti ti-window"></i></button>
+					<button class="exec" data-exec="uibuilder_io" title="@(Inputs / Outputs)"><i class="ti ti-code-branch"></i></button>
+					<button class="exec" data-exec="uibuilder_darkmode" title="@(Toggle between light/dark mode)" is="is-bind" path="common.darkmode" config=".selected"><i class="ti ti-adjust"></i></button>
+					<button class="exec" data-exec="uibuilder_redraw" title="@(Re-load objects)"><i class="ti ti-sync"></i></button>
 				</div>
 			</section>
 
 			<section data-type="left">
-				<div data---="searchinput__%searchobjects__type:search;placeholder:Search components;autofocus:2"></div>
-				<div style="margin:5px 10px 0 10px" class="fs11">
-					<div><span class="exec link" data-exec="uibuilder_objects">@(Download)</span></div>
+				<ui-component name="searchinput" path="%searchobjects" config="type:search;placeholder:Search components;autofocus:2"></ui-component>
+				<div style="margin:5px 10px 0 14px" class="fs11">
+					<div><span class="exec link" data-exec="uibuilder_objects"><i class="ti ti-cloud-download mr5"></i>@(Download)</span></div>
 				</div>
-				<div class="objects" data-bind="common.groups__template" data---="search__%searchobjects__selector:figure">
-					<script type="text/html">
-					{{ foreach g in value }}
-						<div class="caption">{{ g.id }}</div>
-						{{ foreach m in g.items }}
-						<figure draggable="true" class="draggable" data-id="{{ m.id }}" data-search="{{ m.name }}">
-							<i class="{{ m.icon }}"></i>
-							<div class="name">{{ m.name }}</div>
-						</figure>
+				<ui-component name="search" path="%searchobjects" config="selector:figure">
+					<ui-bind path="common.groups" config="template" class="block objects">
+						<script type="text/html">
+						{{ foreach g in value }}
+							<div class="caption">{{ g.id }}</div>
+							{{ foreach m in g.items }}
+							<figure draggable="true" class="draggable" data-id="{{ m.id }}" data-search="{{ m.name }}">
+								<i class="{{ m.icon }}"></i>
+								<div class="name">{{ m.name }}</div>
+							</figure>
+							{{ end }}
 						{{ end }}
-					{{ end }}
-					</script>
-				</div>
+						</script>
+					</ui-bind>
+				</ui-component>
 			</section>
 
 			<section data-type="main">
-				<div data---="viewbox__app__parent:window;margin:44;scrollbarshadow:1">
+				<ui-component name="viewbox" path="app" config="parent:window;margin:44;scrollbarshadow:1">
 					<div id="dappcontainer">
-						<div id="dapp" data---="uibuildereditor__null__exec:func;ondrop:drop_object;dblclick:settings"></div>
+						<ui-component id="dapp" name="uibuildereditor" config="exec:func;ondrop:drop_object;dblclick:opensettings"></ui-component>
 					</div>
-				</div>
+				</ui-component>
 			</section>
 
-		</div>
-	</div>
+		</ui-component>
 
-	<div data---="box__common.form__if:settingsform;width:840;title:@(Settings);icon:fa fa-cog;submit:settings_submit;scrollbar:0;reload:settings_reload;autofocus:1">
-		<div data---="stash__settingsform.objectid__load:settings_load" class="settingsform"></div>
-	</div>
+	</ui-bind>
 
-	<div data---="importer__common.form__if:appsettingsform;url:/forms/settings.html"></div>
-	<div data---="importer__common.form__if:templatesform;url:/forms/templates.html"></div>
-	<div data---="importer__common.form__if:objectsform;url:/forms/objects.html"></div>
-	<div data---="importer__common.form__if:ioform;url:/forms/io.html"></div>
+	<ui-component name="box" path="common.form" config="if:settingsform;width:840;title:@(Settings);icon:ti ti-cog;submit:settings_submit;scrollbar:0;reload:settings_reload;autofocus:1">
+		<ui-component name="stash" path="settingsform.objectid" config="load:settings_load" class="settingsform"></ui-component>
+	</ui-component>
+
+	<ui-component name="importer" path="common.form" config="if:appsettingsform;url:/forms/settings.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:templatesform;url:/forms/templates.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:objectsform;url:/forms/objects.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:ioform;url:/forms/io.html"></ui-component>
+	<ui-component name="importer" path="common.form2" config="if:formlink;url:/forms/link.html"></ui-component>
+	<ui-component name="importer" path="common.form2" config="if:formattr;url:/forms/attr.html"></ui-component>
 
 	<form id="uibuilderrender" method="POST" target="_blank">
 		<input name="data" type="hidden" />
@@ -177,7 +183,7 @@
 						new Function(scr)();
 					}
 
-					next('<div data-scope="settingsform.{0}"><div data---="ready__null__rclass:invisible;delay:300" class="invisible"><div data---="viewbox__common.form__scrollbar:1;scrollbarshadow:1;margin:70;parent:auto"><div class="padding main"><div class="grid-2"><div class="m"><div data---="input__?.name__required:1;innerlabel:1;placeholder:@(Object name)">@(Name)</div></div><div class="m"><div data---="input__?.path__dirsource:DEF.cl.paths;dircustom:1;dirraw:1;dirplaceholder:@(Search path or enter custom);monospace:1;innerlabel:1;placeholder:path.to.property">@(Path for reading/writing)</div></div></div></div>{1}</div><nav data---="validate__?" class="buttons"><button name="submit" disabled><i class="fa fa-check-circle"></i>@(SUBMIT)</button><button name="cancel">@(Cancel)</button></nav></div></div>'.format(id, response));
+					next('<ui-plugin path="settingsform.{0}"><ui-component name="ready" config="delay:300" class="invisible"><ui-component name="viewbox" path="common.form" config="scrollbar:1;scrollbarshadow:1;margin:70;parent:auto"><div class="padding main npb"><div class="grid-2"><div class="m"><ui-component name="input" path="?.name" config="required:1;innerlabel:1;placeholder:@(Object name)">@(Name)</ui-component><div class="help">ID: <ui-bind path="?.$id" config="text" class="b monospace"></ui-bind></div></div><div class="m"><ui-component name="input" path="?.path" config="dirsource:DEF.cl.paths;dircustom:1;dirraw:1;dirplaceholder:@(Search path or enter custom);monospace:1;innerlabel:1;placeholder:path.to.property">@(Path for reading/writing)</ui-component><div class="help"><span class="exec link" data-exec="settings_clearpath"><i class="ti ti-clean mr5"></i>@(Clear path)</span></div></div></div></div>{1}</ui-component><nav><ui-component name="validate" path="?" class="buttons"><button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button><button name="cancel">@(Cancel)</button></ui-component></nav></ui-component></ui-plugin>'.format(id, response));
 				};
 
 				if (obj.settings) {
@@ -192,12 +198,18 @@
 				next('');
 		}
 
+		function settings_clearpath(el) {
+			el.scope().set('path', '');
+		}
+
 		function settings_submit(hide) {
-			var data = settingsform[settingsform.objectid];
+			var data = CLONE(settingsform[settingsform.objectid]);
+			delete data.$id;
 			var instance = app.instances.findItem('id', settingsform.id);
 			COPY(data, instance.config);
 			instance.emit('configure', instance.config);
 			app.refreshio();
+			uibuilder_rebuildpaths();
 			hide();
 		}
 
@@ -227,15 +239,36 @@
 			SET('common.darkmode', el.hclass(c));
 		}
 
+		function uibuilder_rebuildpaths() {
+
+			DEF.cl.paths = DEF.cl.paths.remove('internal', true);
+
+			var arr = [];
+
+			for (var instance of app.instances) {
+				if (instance.config.path)
+					arr.push({ id: '@' + instance.id, name: '<span class="badge badge-small mr5 badge-gray monospace">object</span>' + instance.config.name + '<span class="fs11 silver ml5">' + instance.id + '</span>', sort: instance.config.name, internal: true });
+			}
+
+			arr.quicksort('sort');
+			DEF.cl.paths.push.apply(DEF.cl.paths, arr);
+
+			UPD('DEF.cl.paths');
+		}
+
 		function uibuilder_redraw(el) {
 
 			if (el) {
-				var cls = 'fa-spin';
+				var cls = 'ti-spin';
 				el.find('i').aclass(cls).rclass(cls, 2000);
 				UIBuilder.data.children = app.stringify().children;
 			}
 
 			SETTER('loading/show');
+
+			common.paths = '';
+			common.codes = '';
+
 			UIBuilder.build('#dapp', UIBuilder.data, function(response) {
 
 				SETTER('stash/clear');
@@ -267,12 +300,16 @@
 			});
 		}
 
-		function settings(el) {
+		function opensettings(el) {
 			var obj = el[0].uibuilder;
 			var objectid = obj.object.id;
+
+			var config = CLONE(obj.config);
+			config.$id = obj.id;
+
 			SET('settingsform.id', obj.id);
 			SET('settingsform.objectid', objectid);
-			SET('settingsform.' + objectid + ' @reset', CLONE(obj.config));
+			SET('settingsform.' + objectid + ' @reset', config);
 			SET('common.form', 'settingsform');
 		}
 
@@ -282,6 +319,10 @@
 			var parentid = parent.attrd('id');
 			var containerindex = meta.container.attrd('index');
 			var target = meta.target.hclass('UI_object') ? meta.target : meta.target.closest('.UI_object');
+
+			if (!target[0])
+				return;
+
 			var position = target[0] === parent[0] ? null : (NODEINDEXOF(target[0]) + 1);
 			var config;
 			var instance = meta.element[0].uibuilder;
@@ -345,7 +386,7 @@
 		}
 
 		function uibuilder_publish() {
-			SETTER('approve/show', '@(Are you sure you want to publish design?)', '"far fa-check-circle" @(Publish)', function() {
+			SETTER('approve/show', '@(Are you sure you want to publish design?)', '"ti ti-check-circle" @(PUBLISH)', function() {
 				uibuilder_compile(function(meta) {
 					var data = meta.editor;
 					delete meta.editor;
@@ -401,12 +442,12 @@
 			opt.element = el;
 			opt.align = 'left';
 			opt.items = [];
-			opt.items.push({ id: 'xs', name: 'Extra small display', icon: 'far fa-mobile' });
-			opt.items.push({ id: 'sm', name: 'Small display', icon: 'far fa-tablet' });
-			opt.items.push({ id: 'md', name: 'Medium display', icon: 'far fa-laptop' });
-			opt.items.push({ id: 'lg', name: 'Large display', icon: 'far fa-desktop-alt' });
+			opt.items.push({ id: 'xs', name: 'Extra small display', icon: 'ti ti-mobile' });
+			opt.items.push({ id: 'sm', name: 'Small display', icon: 'ti ti-tablet' });
+			opt.items.push({ id: 'md', name: 'Medium display', icon: 'ti ti-laptop' });
+			opt.items.push({ id: 'lg', name: 'Large display', icon: 'ti ti-desktop' });
 			opt.items.push('-');
-			opt.items.push({ id: 'auto', name: 'Current browser', icon: 'far fa-window-alt' });
+			opt.items.push({ id: 'auto', name: 'Current browser', icon: 'ti ti-window' });
 
 			if (sel) {
 				for (var item of opt.items)
@@ -438,7 +479,7 @@
 			meta.outputs = app.outputs;
 
 			if (meta.editor && meta.editor.save) {
-				SETTER('approve/show', '@(Are you sure you want to save design?)', '"far fa-check-circle" @(Save)', function() {
+				SETTER('approve/show', '@(Are you sure you want to save design?)', '"ti ti-check-circle" @(SAVE)', function() {
 					SETTER('loading/show');
 					AJAX('POST ' + meta.editor.save + ' urlencoded', { data: JSON.stringify(meta) }, ERROR(ASETTER('notify/success @hideloading', '@(Done, saved!)')));
 				});
@@ -464,7 +505,7 @@
 
 						for (var item of response) {
 							if (item.type)
-								item.name = item.name.encode() + (item.type ? '<span class="badge badge-medium ml5 monospace" style="background:{0}">{1}</span>'.format(Thelpers.color(item.type), item.type) : '');
+								item.name = item.name.encode() + (item.type ? '<span class="badge badge-small ml5 monospace" style="background:{0}">{1}</span>'.format(Thelpers.color(item.type), item.type) : '');
 							else
 								item.name = item.name.encode();
 						}
@@ -472,7 +513,11 @@
 						response = [];
 
 					SET('DEF.cl.paths', response);
+					uibuilder_rebuildpaths();
 				});
+			} else {
+				SET('DEF.cl.paths', []);
+				uibuilder_rebuildpaths();
 			}
 		});
 
@@ -490,13 +535,55 @@
 						response = [];
 					SET('DEF.cl.codes', response);
 				});
-			}
+			} else
+				SET('DEF.cl.codes', []);
 
 		});
 
 		UIBuilder.on('io', function(app) {
 			SET('DEF.cl.inputs', app.inputs);
 			SET('DEF.cl.outputs', app.outputs);
+			SET('DEF.cl.list', app.list);
+		});
+
+		UIBuilder.on('attr', function(el, callback) {
+			el = $(el);
+			var model = {};
+			model.element = el;
+			model.title = el.attr('title') || '';
+			model.isimage = el[0].tagName === 'IMG';
+			model.isiframe = el[0].tagName === 'IFRAME';
+			model.id = el.attr('id') || '';
+			model.width = el.attr('width') || '';
+			model.height = el.attr('height') || '';
+			model.src = el.attr('src') || '';
+			model.css = el.attr('style') || '';
+			model.cls = el.attr('class') || '';
+			model.callback = () => callback(model.element);
+			SET('formattr', model);
+			SET('common.form2', 'formattr');
+		});
+
+		UIBuilder.on('icon', function(el, callback) {
+			var opt = {};
+			opt.element = $(el);
+			opt.empty = true;
+			opt.callback = function(val) {
+				opt.element.rclass2('ti').aclass(val);
+				callback(opt.element, val);
+			};
+			EXEC('-icons/show', opt);
+		});
+
+		UIBuilder.on('link', function(el, callback) {
+			el = $(el);
+			var model = {};
+			model.element = el;
+			model.href = el.attr('href');
+			model.target = el.attr('_target') || '';
+			model.callback = () => callback(model.element);
+			SET('formlink', model);
+			SET('common.form2', 'formlink');
 		});
 
 		UIBuilder.on('make', function(instance) {
@@ -514,13 +601,18 @@
 					opt.y = e.pageY;
 					opt.items = [];
 					opt.items.push(instance.object.name);
-					opt.items.push({ id: 'settings', name: '@(Settings)', classname: 'b', icon: 'far fa-cog' });
+					opt.items.push({ id: 'settings', name: '@(Settings)', classname: 'b', icon: 'ti ti-cog' });
+					opt.items.push({ id: 'gap', name: '@(Toggle gap)', selected: instance.element.hclass('UI_gap'), icon: 'ti ti-caret-square-down' });
+
 					opt.items.push('-');
-					opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'far fa-trash-alt red' });
+					opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
 					opt.callback = function(selected) {
 						switch (selected.id) {
+							case 'gap':
+								instance.element.tclass('UI_gap');
+								break;
 							case 'settings':
-								settings(instance.element);
+								opensettings(instance.element);
 								break;
 							case 'remove':
 								instance.remove();
@@ -534,6 +626,7 @@
 			}
 
 		});
+
 	</script>
 
 </body>

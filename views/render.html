@@ -12,10 +12,21 @@
 	<script src="https://cdn.componentator.com/spa.min@19.js"></script>
 	<script src="https://componentator.com/download.js?id=exec"></script>
 	@{import('uibuilder.js')}
+	<style>
+		.UI_border { border: 1px solid #E0E0E0; padding: var(--gap); border-radius: var(--radius); }
+		.UI_gap { margin-bottom: var(--gap); }
+	</style>
 </head>
 <body data---="exec">
 
-	<div id="appdom"></div>
+	<div class="padding">
+		<div style="margin:0 auto;width:800px">
+			<div class="padding">
+				<div id="appdom"></div>
+			</div>
+		</div>
+	</div>
+
 	@{json(body.data, 'renderdata')}
 
 	<script>
@@ -24,7 +35,7 @@
 			response && UIBuilder.build('#appdom', response, function(response) {
 				W.app = response;
 				response.on('output', function(output) {
-					console.log(output);
+					console.log('OUTPUT', output);
 				});
 			});
 		})();

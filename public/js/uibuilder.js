@@ -13,7 +13,7 @@
 
 	function Instance() {
 		var t = this;
-		t.state = { init: 0, value: null, disabled: false, modified: false, readonly: false, touched: false, invalid: false, delay: 10 };
+		t.state = { init: 0, value: null, disabled: false, modified: false, readonly: false, touched: false, invalid: false, delay: 10, notify: false, bind: false };
 		t.cache = {};
 		t.events = {};
 		t.$inputs = {};
@@ -32,6 +32,12 @@
 		t.$checktimeout && clearTimeout(t.$checktimeout);
 		t.$checktimeout = setTimeout(t.$forcecheck, 150, t);
 		return t;
+	};
+
+	IP.error = function(e) {
+		var t = this;
+		var config = t.config;
+		console.error(t.object.name + ': ' + config.name + (config.path ? ' ({0})'.format(config.path) : ''), e);
 	};
 
 	IP.set = function(type, value, kind, binder) {
@@ -73,12 +79,16 @@
 
 			if (t.binded) {
 				for (var m of t.binded) {
-					if (m !== binder)
-						m.set('value', value, binder ? 'noemitstate' : '', binder);
+					if (m !== binder) {
+						if (m.state.notify)
+							m.emit('notify', value, binder);
+						else
+							m.set('value', value, binder ? 'noemitstate' : '', binder);
+					}
 				}
 			}
 
-			if (t.binder && t.binder !== binder)
+			if (t.binder && !t.state.notify && t.binder !== binder)
 				t.binder.set('value', value, binder ? 'noemitstate' : '', t);
 
 			t.check();
@@ -174,15 +184,19 @@
 		t.app.clean();
 	};
 
-	IP.cl = function(clid, id, fn) {
+	IP.clfind = function(clid, search, fn) {
 		var t = this;
-
-		if (typeof(id) === 'function') {
-			fn = id;
-			id = null;
+		if (typeof(search) === 'function') {
+			fn = search;
+			search = '';
 		}
+		t.app.clfind(clid, search, fn);
+		return t;
+	};
 
-		t.app.cl(clid, id, fn);
+	IP.clread= function(clid, id, fn) {
+		var t = this;
+		t.app.clread(clid, id, fn);
 		return t;
 	};
 
@@ -229,6 +243,23 @@
 			t.events[name] = [fn];
 	};
 
+	IP.off = function(name, fn) {
+		var t = this;
+		var events = t.events[name];
+		if (events) {
+			if (fn) {
+				var index = events.indexOf(fn);
+				if (index !== -1) {
+					events.splice(index, 1);
+					if (!events.length)
+						delete t.events[name];
+				}
+			} else
+				delete t.events[name];
+		}
+		return t;
+	};
+
 	IP.emit = function(name, a, b, c, d, e) {
 		var t = this;
 		var items = t.events[name];
@@ -262,6 +293,19 @@
 
 		obj[arr[i]] = value;
 		return obj;
+	};
+
+	IP.watch = function(id, type, callback) {
+
+		if (typeof(type) === 'function') {
+			callback = type;
+			type = 'value';
+		}
+
+		var t = this;
+		var instance = t.app.instance.findItem('id', id);
+		instance && instance.on(type, callback);
+		return t;
 	};
 
 	IP.read = function(obj, path) {
@@ -300,9 +344,6 @@
 	Builder.current = 'default';
 	Builder.events = {};
 	Builder.apps = {};
-	Builder.repo = {};
-	Builder.refs = {};
-	Builder.tmp = {};
 
 	Builder.on = function(name, fn) {
 		var t = this;
@@ -340,6 +381,12 @@
 		var instance = new Instance();
 
 		obj.gap && div.classList.add('UI_gap');
+
+		if (obj.bind)
+			instance.state.bind = true;
+
+		if (obj.notify)
+			instance.state.notify = true;
 
 		if (!com.config)
 			com.config = {};
@@ -491,12 +538,10 @@
 
 		if (typeof(obj) === 'string') {
 			var com = self.objects[obj];
-
 			if (!com) {
 				console.error('Object "{0}" not found'.format(obj));
 				return;
 			}
-
 			obj = { id: 'oid' + Date.now().toString(36), object: obj, children: [], config: com.config || {}, gap: com.gap };
 		}
 
@@ -538,8 +583,6 @@
 		container.aclass('UI_app invisible');
 		container.empty();
 
-		CSS(meta.css, 'uiapp');
-
 		// if (meta.css)
 		// 	container[0].style = meta.css;
 
@@ -551,12 +594,8 @@
 		app.id = Builder.current;
 		app.objects = {};
 		app.args = args;
-		app.repo = Builder.repo;
-		app.refs = Builder.refs;
 		app.schema = meta;
-		app.outputs = [];
 		app.events = {};
-		app.inputs = [];
 		app.compile = app_compile;
 		app.stringify = app_stringify;
 		app.clean = app_clean;
@@ -567,17 +606,33 @@
 		app.dom = container[0];
 		app.pending = [];
 		app.instances = [];
-		app.tmp = {};
 
-		app.cl = function(clid, id, fn) {
+		// app.outputs = [];
+		// app.inputs = [];
 
-			if (typeof(id) === 'function') {
-				fn = id;
-				id = null;
-			}
+		if (Builder.clfind) {
+			app.clfind = Builder.clfind;
+		} else {
+			app.clfind = function(clid, search, fn) {
+				// It must be declared in the app
+				// @clid {String}
+				// @search {String}
+				// @fn {Function(response)}
+				fn(EMPTYARRAY);
+			};
+		}
 
-			fn(id ? null : EMPTYARRAY);
-		};
+		if (Builder.clread) {
+			app.clread = Builder.clread;
+		} else {
+			app.clread = function(clid, id, fn) {
+				// It must be declared in the app
+				// @clid {String}
+				// @id {String}
+				// @fn {Function(response)}
+				fn(EMPTYOBJECT);
+			};
+		}
 
 		app.on = function(name, fn) {
 			var t = this;
@@ -597,6 +652,7 @@
 		};
 
 		app.intervalcounter = 0;
+		app.interval && clearInterval(app.interval);
 		app.interval = setInterval(function(app) {
 
 			if (!W.inDOM(app.dom)) {
@@ -627,35 +683,36 @@
 
 			refreshiotimeout = null;
 
-			app.inputs = [];
-			app.outputs = [];
-			app.list = [];
+			if (Builder.editor) {
+				app.inputs = [];
+				app.outputs = [];
+				app.list = [];
 
-			for (var instance of app.instances) {
+				for (var instance of app.instances) {
 
-				if (!instance.dom.parentNode)
-					continue;
+					if (!instance.dom.parentNode)
+						continue;
 
-				var arr = instance.object.inputs;
-				var name = instance.config.name || instance.object.name;
+					var arr = instance.object.inputs;
+					var name = instance.config.name || instance.object.name;
 
-				app.list.push({ id: instance.id, name: name, icon: instance.object.icon, color: instance.object.color });
+					app.list && app.list.push({ id: instance.id, name: name, icon: instance.object.icon, color: instance.object.color });
 
-				if (arr) {
-					for (var m of arr) {
-						app.inputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, object: name, input: m.name, icon: instance.object.icon, color: instance.object.color, note: m.note, schema: m.schema });
+					if (arr) {
+						for (var m of arr) {
+							app.inputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, object: name, input: m.name, icon: instance.object.icon, color: instance.object.color, note: m.note, schema: m.schema });
+						}
+					}
+
+					arr = instance.object.outputs;
+					if (arr && arr.length) {
+						for (var m of arr) {
+							app.outputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, object: name, output: m.name, icon: instance.object.icon, color: instance.object.color, note: m.note, schema: m.schema });
+						}
 					}
 				}
-
-				arr = instance.object.outputs;
-
-				if (arr && arr.length) {
-					for (var m of arr) {
-						app.outputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, object: name, output: m.name, icon: instance.object.icon, color: instance.object.color, note: m.note, schema: m.schema });
-					}
-				}
-
-			}
+			} else
+				app.outputs = app.inputs = app.schema = null;
 
 			if (!app.ready) {
 
@@ -801,8 +858,9 @@
 				return { js: response };
 
 			var settings = '';
-			var js = '';
+			var readme = '';
 			var css = '';
+			var js = '';
 
 			var beg = response.indexOf('<sett' + 'ings>');
 			if (beg !== -1) {
@@ -815,13 +873,17 @@
 			if (beg !== -1)
 				css = response.substring(beg + 7, response.indexOf('</st' + 'yle>', beg + 7));
 
+			beg = response.indexOf('<readme>');
+			if (beg !== -1)
+				readme = response.substring(beg + 8, response.indexOf('</readme>', beg + 8));
+
 			beg = response.indexOf('<scr' + 'ipt>');
 			if (beg !== -1) {
 				var end = response.indexOf('</scr' + 'ipt>', beg + 8);
 				js = response.substring(beg + 8, end).trim();
 			}
 
-			return { js: js, css: css, settings: settings };
+			return { js: js, css: css, settings: settings, readme: readme };
 
 		};
 
@@ -883,6 +945,9 @@
 							if (parsed.css)
 								obj.css = parsed.css;
 
+							if (parsed.readme)
+								obj.readme = parsed.readme;
+
 							if (parsed.settings)
 								obj.settings = parsed.settings;
 
@@ -925,6 +990,7 @@
 
 			}, function() {
 
+				meta.css && css.unshift(meta.css);
 				CSS(css, app.class);
 
 				for (var i = 0; i < meta.children.length; i++) {
@@ -1138,35 +1204,35 @@
 
 			if (e.keyCode === 66) {
 				// bold
-				if (!opt.format || opt.bold === false)
-					return;
-				e.preventDefault();
-				e.stopPropagation();
+				if (!opt.format || opt.bold === false) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
 				return;
 			}
 
 			if (e.keyCode === 76) {
 				// link
-				if (!opt.format || opt.link === false)
-					return;
-				openeditor.createlink();
-				e.preventDefault();
-				e.stopPropagation();
+				if (!opt.format || opt.link === false) {
+					e.preventDefault();
+					e.stopPropagation();
+				} else
+					openeditor.createlink();
 				return;
 			}
 
 			if (e.keyCode === 73) {
 				// italic
-				if (!opt.format || opt.italic === false)
-					return;
-				e.preventDefault();
-				e.stopPropagation();
+				if (!opt.format || opt.italic === false) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
 				return;
 			}
 
 			if (e.keyCode === 80) {
 
-				if (opt.format && (!opt.icon || opt.icon === true)) {
+				if (opt.format && opt.icon === true) {
 					var tag = el[0].nodeName.toLowerCase();
 					var icon = '<i class="ti ti-totaljs UI_icon" contenteditable="false"></i>';
 					switch (tag) {
@@ -1186,10 +1252,10 @@
 
 			if (e.keyCode === 85) {
 				// underline
-				if (!opt.format || opt.underline === false)
-					return;
-				e.preventDefault();
-				e.stopPropagation();
+				if (!opt.format || opt.underline === false) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
 				return;
 			}
 

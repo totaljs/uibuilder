@@ -12,7 +12,7 @@
 	<script src="@{'%cdn'}/spa.min@19.js"></script>
 	<script src="@{REPO.ui}"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
-	@{import('default.css + ui.css', 'ui.js + uibuilder.js')}
+	@{import('default.css + ui.css', 'ui.js + func.js + uibuilder.js')}
 </head>
 <body>
 
@@ -28,7 +28,10 @@
 	<ui-component name="LAZY fileuploader"></ui-component>
 	<ui-component name="LAZY imageuploader"></ui-component>
 	<ui-component name="LAZY floatingbox"></ui-component>
+	<ui-component name="LAZY sounds" config="volume:10"></ui-component>
 
+	<ui-component name="windows" path="common.windows"></ui-component>
+	<ui-component name="markdown"></ui-component>
 	<ui-component name="exec"></ui-component>
 	<ui-component name="locale"></ui-component>
 	<ui-component name="loading"></ui-component>
@@ -74,23 +77,25 @@
 
 			<section data-type="left">
 				<ui-component name="searchinput" path="%searchobjects" config="type:search;placeholder:Search components;autofocus:2"></ui-component>
-				<div style="margin:5px 10px 0 14px" class="fs11">
+				<div style="margin:5px 10px 8px 14px" class="fs11">
 					<div><span class="exec link" data-exec="uibuilder_objects"><i class="ti ti-cloud-download mr5"></i>@(Download)</span></div>
 				</div>
-				<ui-component name="search" path="%searchobjects" config="selector:figure">
-					<ui-bind path="common.groups" config="template" class="block objects">
-						<script type="text/html">
-						{{ foreach g in value }}
-							<div class="caption">{{ g.id }}</div>
-							{{ foreach m in g.items }}
-							<figure draggable="true" class="draggable" data-id="{{ m.id }}" data-search="{{ m.name }}">
-								<i class="{{ m.icon }}"></i>
-								<div class="name">{{ m.name }}</div>
-							</figure>
+				<ui-component name="viewbox" config="parent:window;margin:104;scrollbarshadow:1">
+					<ui-component name="search" path="%searchobjects" config="selector:figure">
+						<ui-bind path="common.groups" config="template" class="block objects">
+							<script type="text/html">
+							{{ foreach g in value }}
+								<div class="caption">{{ g.id }}</div>
+								{{ foreach m in g.items }}
+								<figure draggable="true" class="draggable exec3" data-exec3="uibuilder_contextmenu" data-id="{{ m.id }}" data-search="{{ m.name }}">
+									<i class="{{ m.icon }}"></i>
+									<div class="name">{{ m.name }}</div>
+								</figure>
+								{{ end }}
 							{{ end }}
-						{{ end }}
-						</script>
-					</ui-bind>
+							</script>
+						</ui-bind>
+					</ui-component>
 				</ui-component>
 			</section>
 
@@ -125,6 +130,9 @@
 
 		var common = {};
 
+		UIBuilder.editor = true;
+
+		common.windows = [];
 		common.objects = [];
 		common.paths = '';
 		common.codes = '';
@@ -183,7 +191,7 @@
 						new Function(scr)();
 					}
 
-					next('<ui-plugin path="settingsform.{0}"><ui-component name="ready" config="delay:300" class="invisible"><ui-component name="viewbox" path="common.form" config="scrollbar:1;scrollbarshadow:1;margin:70;parent:auto"><div class="padding main npb"><div class="grid-2"><div class="m"><ui-component name="input" path="?.name" config="required:1;innerlabel:1;placeholder:@(Object name)">@(Name)</ui-component><div class="help">ID: <ui-bind path="?.$id" config="text" class="b monospace"></ui-bind></div></div><div class="m"><ui-component name="input" path="?.path" config="dirsource:DEF.cl.paths;dircustom:1;dirraw:1;dirplaceholder:@(Search path or enter custom);monospace:1;innerlabel:1;placeholder:path.to.property">@(Path for reading/writing)</ui-component><div class="help"><span class="exec link" data-exec="settings_clearpath"><i class="ti ti-clean mr5"></i>@(Clear path)</span></div></div></div></div>{1}</ui-component><nav><ui-component name="validate" path="?" class="buttons"><button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button><button name="cancel">@(Cancel)</button></ui-component></nav></ui-component></ui-plugin>'.format(id, response));
+					next('<ui-plugin path="settingsform.{0}" config="init:?/reload"><ui-component name="ready" config="delay:300" class="invisible"><ui-component name="viewbox" path="common.form" config="scrollbar:1;scrollbarshadow:1;margin:70;parent:auto"><div class="padding main npb"><div class="grid-2"><div class="m"><ui-component name="input" path="?.name" config="required:1;innerlabel:1;placeholder:@(Object name)">@(Name)</ui-component><div class="help">ID: <ui-bind path="?.$id" config="text" class="b monospace"></ui-bind></div></div><div class="m"><ui-component name="input" path="?.path" config="dirsource:DEF.cl.paths;dircustom:1;dirraw:1;dirplaceholder:@(Search path or enter custom);monospace:1;innerlabel:1;placeholder:path.to.property">@(Path for reading/writing)</ui-component><div class="help"><span class="exec link" data-exec="settings_clearpath"><i class="ti ti-clean mr5"></i>@(Clear path)</span></div></div></div></div>{1}</ui-component><nav><ui-component name="validate" path="?" class="buttons"><button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button><button name="cancel">@(Cancel)</button></ui-component></nav></ui-component></ui-plugin>'.format(id, response));
 				};
 
 				if (obj.settings) {
@@ -246,8 +254,8 @@
 			var arr = [];
 
 			for (var instance of app.instances) {
-				if (instance.config.path)
-					arr.push({ id: '@' + instance.id, name: '<span class="badge badge-small mr5 badge-gray monospace">object</span>' + instance.config.name + '<span class="fs11 silver ml5">' + instance.id + '</span>', sort: instance.config.name, internal: true });
+				if (instance.object.follow)
+					arr.push({ id: '@' + instance.id, name: '<span class="badge badge-small mr5 badge-gray monospace">object</span>' + instance.config.name + '<span class="fs11 silver ml5">' + instance.id + ' / ' + instance.object.name + '</span>', sort: instance.config.name, internal: true });
 			}
 
 			arr.quicksort('sort');
@@ -291,8 +299,13 @@
 
 				var arr2 = [];
 
-				for (var key in groups)
-					arr2.push({ id: key === '$' ? '' : key, items: groups[key] });
+				for (var key in groups) {
+					var items = groups[key];
+					items.quicksort('name');
+					arr2.push({ id: key === '$' ? '' : key, items: items });
+				}
+
+				arr2.quicksort('id');
 
 				SET('common.objects', arr);
 				SET('common.groups', arr2);
@@ -325,7 +338,14 @@
 
 			var position = target[0] === parent[0] ? null : (NODEINDEXOF(target[0]) + 1);
 			var config;
-			var instance = meta.element[0].uibuilder;
+			var node = meta.element;
+			if (!node.hclass('UI_object'))
+				node = node.closest('.UI_object');
+
+			instance = node[0] ? node[0].uibuilder : null;
+
+			if (!meta.element.hclass('draggable') && !instance)
+				return;
 
 			// Existing object
 			if (instance) {
@@ -337,7 +357,7 @@
 				var data = app.stringify(instance.element);
 				var metadata = data.children;
 				app.add(parentid, containerindex, metadata, position);
-				meta.element.remove();
+				node.remove();
 				app.clean();
 
 			} else
@@ -432,6 +452,23 @@
 					form.submit();
 				});
 			}
+		}
+
+		function uibuilder_contextmenu(el, e) {
+			var id = ATTRD(el);
+			var opt = {};
+			opt.x = e.pageX;
+			opt.y = e.pageY;
+			opt.align = 'left';
+			opt.items = [];
+			opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
+			opt.callback = function(selected) {
+				if (selected.id === 'readme') {
+					var obj = app.objects[id];
+					FUNC.readme(obj.name, obj.readme || '@(Without readme)');
+				}
+			};
+			SETTER('menu/show', opt);
 		}
 
 		function uibuilder_device(el) {
@@ -570,7 +607,7 @@
 				opt.element.rclass2('ti').aclass(val);
 				callback(opt.element, val);
 			};
-			EXEC('-icons/show', opt);
+			SETTER('icons/show', opt);
 		});
 
 		UIBuilder.on('link', function(el, callback) {
@@ -601,11 +638,16 @@
 					opt.items.push(instance.object.name);
 					opt.items.push({ id: 'settings', name: '@(Settings)', classname: 'b', icon: 'ti ti-cog' });
 					opt.items.push({ id: 'gap', name: '@(Toggle gap)', selected: instance.element.hclass('UI_gap'), icon: 'ti ti-caret-square-down' });
+					opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
 
 					opt.items.push('-');
 					opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
 					opt.callback = function(selected) {
 						switch (selected.id) {
+							case 'readme':
+								var obj = instance.object;
+								FUNC.readme(obj.name, obj.readme || '@(Without readme)');
+								break;
 							case 'gap':
 								instance.element.tclass('UI_gap');
 								break;

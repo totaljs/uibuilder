@@ -56,12 +56,9 @@ COMPONENT('uibuildereditor', 'container:UI_objects;selector:.UI_object', functio
 			var parent = el;
 
 			while (parent != self.dom) {
-				if (parent.classList.contains(c)) {
+				if (parent.classList.contains(c))
 					return parent;
-				}
-
 				parent = parent.parentNode;
-
 			}
 
 			return null;

@@ -24,7 +24,7 @@ __Instructions__:
 __Custom rendering__:
 
 ```html
-	<ui-component name="uibuilder" config="url:https://uibuilder.totaljs.com/render.json"></ui-component>
+<ui-component name="uibuilder" config="url:https://uibuilder.totaljs.com/render.json"></ui-component>
 ```
 
 ### Components

@@ -1,0 +1,37 @@
+[
+	{
+		"id": "app",
+		"name": "Web app",
+		"image": "/img/app.png"
+	},
+	{
+		"id": "form",
+		"name": "Form",
+		"image": "/img/form.png",
+		"disabled": true
+	},
+	{
+		"id": "dashboard",
+		"name": "Dashboard",
+		"image": "/img/dashboard.png",
+		"disabled": false
+	},
+	{
+		"id": "flowboard",
+		"name": "Flowboard",
+		"image": "/img/flowboard.png",
+		"disabled": false
+	},
+	{
+		"id": "mobile",
+		"name": "Mobile app",
+		"image": "/img/mobile.png",
+		"disabled": true
+	},
+	{
+		"id": "hmi",
+		"name": "HMI panel",
+		"image": "/img/hmi.png",
+		"disabled": true
+	}
+]

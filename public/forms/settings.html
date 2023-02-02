@@ -1,91 +1,126 @@
-<div data---="box__common.form__if:~PATH~;icon:ti ti-cog;title:@(Global settings);autofocus:true;scrollbar:1;submit:?/submit;width:800" class="hidden" data-scope="~PATH~">
+<ui-component name="box" path="common.form" config="if:~PATH~;icon:ti ti-cog;title:@(Global settings);autofocus:true;scrollbar:1;reload:?/reload;submit:?/submit;width:800" class="hidden" plugin="~PATH~">
 	<div class="padding">
 
 		<div class="grid-2">
 			<div class="m">
-				<div data---="input__?.name__innerlabel:1;required:1;placeholder:@(App name)">@(Name)</div>
+				<ui-component name="input" path="?.name" config="innerlabel:1;required:1;placeholder:@(App name)">@(Name)</ui-component>
 			</div>
 			<div>
 				<div class="grid-2">
 					<div class="m">
-						<div data---="input__?.type__innerlabel:1;placeholder:@(Enter a value);type:lower">@(App type)</div>
+						<ui-component name="input" path="?.type" config="innerlabel:1;placeholder:@(Enter a value);type:lower">@(App type)</ui-component>
 					</div>
 					<div class="m">
-						<div data---="input__?.version__innerlabel:1;placeholder:@(App version)">@(Version)</div>
+						<ui-component name="input" path="?.version" config="innerlabel:1;placeholder:@(App version)">@(Version)</ui-component>
 					</div>
 				</div>
 			</div>
 		</div>
 
 		<div class="m">
-			<div data---="input__?.description__type:multiline;monospace:1;height:150;innerlabel:1;placeholder:@(App description)">@(Description)</div>
+			<ui-component name="input" path="?.description" config="type:multiline;monospace:1;height:70;innerlabel:1;placeholder:@(App description)">@(Description)</ui-component>
 		</div>
 
 		<div class="grid-4">
 			<div class="m">
-				<div data---="input__?.author__placeholder:@(Enter a value)">@(Author)</div>
+				<ui-component name="input" path="?.group" config="dirsource:#usergroups;dircustom:1;dirplaceholder:@(Enter new or search for an existing);dirminwidth:300">@(Group)</ui-component>
 			</div>
 			<div class="m">
-				<div data---="input__?.icon__type:icon;placeholder:@(Choose an icon)">@(Icon)</div>
+				<ui-component name="input" path="?.author">@(Author)</ui-component>
 			</div>
 			<div class="m">
-				<div data---="input__?.color__type:color;placeholder:@(Choose a color)">@(Color)</div>
+				<ui-component name="input" path="?.icon" config="type:icon;placeholder:@(Choose an icon)">@(Icon)</ui-component>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.color" config="type:color;placeholder:@(Choose a color)">@(Color)</ui-component>
 			</div>
 		</div>
 
 		<hr style="margin-top:10px" />
 
 		<div class="m">
-			<div data---="keyvalue__?.args__placeholderkey:@(Key);placeholdervalue:@(Enter a value and press enter)">@(Dynamic arguments)</div>
+			<ui-component name="keyvalue" path="?.args" config="placeholderkey:@(Key);placeholdervalue:@(Enter a value and press enter)">@(Dynamic arguments)</ui-component>
 		</div>
 
 		<div class="caption m">
 			<label><i class="ti ti-link"></i>@(Editor settings)</label>
 		</div>
-		<div data-scope="editor">
+		<ui-plugin path="editor">
 			<div>
 				<div class="m">
-					<div data---="input__?.paths__innerlabel:1;icon:ti ti-database;placeholder:@(Enter URL address)">@(URL address for obtaining paths)</div>
+					<ui-component name="input" path="?.paths" config="innerlabel:1;icon:ti ti-database;placeholder:@(Enter URL address)">@(URL address for obtaining paths)</ui-component>
 				</div>
 				<div class="m">
-					<div data---="input__?.codes__innerlabel:1;icon:ti ti-list;placeholder:@(Enter URL address)">@(URL address for obtaining codes)</div>
+					<ui-component name="input" path="?.codes" config="innerlabel:1;icon:ti ti-list;placeholder:@(Enter URL address)">@(URL address for obtaining codes)</ui-component>
 				</div>
 				<div class="m">
-					<div data---="input__?.upload__innerlabel:1;icon:ti ti-list;placeholder:@(Enter URL address)">@(URL address for uploading files)</div>
+					<ui-component name="input" path="?.upload" config="innerlabel:1;icon:ti ti-list;placeholder:@(Enter URL address)">@(URL address for uploading files)</ui-component>
 				</div>
 			</div>
-			<div class="message message-alert" style="margin-bottom:15px"><i class="ti ti-warning mr5"></i>@(Links are not declared in the <b>publishing</b> and <b>rendering</b> data. Data are sent via <b>POST</b> method and serialized via "url encode" in the form <code class="b">data=JSON</code>.)</div>
-			<div>
-				<div class="m">
-					<div data---="input__?.save__innerlabel:1;icon:ti ti-save;placeholder:@(Enter URL address)">@(URL address for saving data)</div>
+			<ui-bind path="common.iframe" config="hide" class="hidden block">
+				<div class="message message-alert" style="margin-bottom:15px"><i class="ti ti-warning mr5"></i>@(Links are not declared in the <b>publishing</b> and <b>rendering</b> data. Data are sent via <b>POST</b> method and serialized via "url encode" in the form <code class="b">data=JSON</code>.)</div>
+				<div>
+					<div class="m">
+						<ui-component name="input" path="?.save" config="innerlabel:1;icon:ti ti-save;placeholder:@(Enter URL address)">@(URL address for saving data)</ui-component>
+					</div>
+					<div class="m">
+						<ui-component name="input" path="?.publish" config="innerlabel:1;icon:ti ti-globe;placeholder:@(Enter URL address)">@(URL address for publishing data)</ui-component>
+					</div>
+					<div class="m">
+						<ui-component name="input" path="?.render" config="innerlabel:1;icon:ti ti-flask;placeholder:@(Enter URL address)">@(URL address for rendering data)</ui-component>
+					</div>
 				</div>
-				<div class="m">
-					<div data---="input__?.publish__innerlabel:1;icon:ti ti-globe;placeholder:@(Enter URL address)">@(URL address for publishing data)</div>
-				</div>
-				<div class="m">
-					<div data---="input__?.render__innerlabel:1;icon:ti ti-flask;placeholder:@(Enter URL address)">@(URL address for rendering data)</div>
-				</div>
+			</ui-bind>
+			<ui-component name="input" path="?.download" config="type:checkbox" class="b">@(Download components to the source in compiling)</ui-component>
+		</ui-plugin>
+		<hr />
+		<div>
+			<div class="m">
+				<ui-component name="input" path="?.css" config="type:multiline;monospace:1;height:100">@(CSS for editor)</ui-component>
+				<div class="help">@(In the absence of a declaration for other modes, these styles will be used as defaults.)</div>
 			</div>
-			<div data---="input__?.download__type:checkbox" class="b">@(Download objects to the source in compiling)</div>
+			<div class="m">
+				<ui-component name="input" path="?.csspublish" config="type:multiline;monospace:1;height:100">@(CSS for publishing)</ui-component>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.cssrender" config="type:multiline;monospace:1;height:100">@(CSS for rendering)</ui-component>
+			</div>
 		</div>
 	</div>
-	<nav data---="validate__?">
-		<button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button>
-		<button name="cancel">@(Cancel)</button>
+	<nav>
+		<ui-component name="validate" path="?" config="validonly:1">
+			<button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button>
+			<button name="cancel">@(Cancel)</button>
+		</ui-component>
 	</nav>
-</div>
+</ui-component>
 
 <script>
 
 	PLUGIN(function(exports) {
 
+		var css = '';
+
+		exports.reload = function() {
+			var model = exports.model;
+			css = (model.css || '') + (model.csspublish || '') + (model.cssrender || '');
+		};
+
 		exports.submit = function(hide) {
-			COPY(exports.form, app.schema);
+			var model = exports.form;
+			COPY(model, app.schema);
 
 			for (var instance of app.instances)
 				instance.args.upload = app.schema.editor.upload;
 
+			var tmp = (model.css || '') + (model.csspublish || '') + (model.cssrender || '');
+
 			UPD('app');
+
+			if (tmp !== css) {
+				setTimeout(uibuilder_redraw, 200, true);
+			}
+
 			hide();
 		};
 

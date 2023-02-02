@@ -23,7 +23,7 @@ FUNC.makeimage = function(width, height, fill, color, text) {
 
 FUNC.upload = function(opt, callback) {
 
-	opt.url = app.schema.editor.upload;
+	opt.url = app.schema.editor.upload || common.upload;
 
 	if (opt.query) {
 		opt.url = QUERIFY(opt.url, opt.query);
@@ -31,6 +31,10 @@ FUNC.upload = function(opt, callback) {
 	}
 
 	opt.callback = function(response) {
+
+		if (!opt.multiple && response instanceof Array)
+			response = response[0];
+
 		callback(response);
 	};
 
@@ -45,7 +49,7 @@ FUNC.readme = function(title, md) {
 	if (common.windows.findItem('id', winid))
 		SETTER('windows/focus', winid);
 	else
-		PUSH('common.windows', { id: winid, cache: 'readme', html: '<ui-import config="url:@{#}/forms/readme.html"></ui-import>', title: title, actions: { move: true, autosave: true, close: true, maximize: false, minimize: false }, offset: { x: ((WW / 2) - 275) >> 0, y: ((WH / 2) - 250) >> 0, width: 550, height: 500, minwidth: 200, minheight: 300, maxwidth: 800, maxheight: 1200 }, make: el => el.closest('.ui-windows-item').css('z-index', 50) });
+		PUSH('common.windows', { id: winid, cache: 'readme', html: '<ui-import config="url:/forms/readme.html"></ui-import>', title: title, actions: { move: true, autosave: true, close: true, maximize: false, minimize: false }, offset: { x: ((WW / 2) - 275) >> 0, y: ((WH / 2) - 250) >> 0, width: 550, height: 500, minwidth: 200, minheight: 300, maxwidth: 800, maxheight: 1200 }, make: el => el.closest('.ui-windows-item').css('z-index', 50) });
 
 };
 
@@ -73,4 +77,41 @@ FUNC.strim = function(value) {
 	}
 
 	return lines.join('\n');
+};
+
+FUNC.send = function(data) {
+	data.uibuilder = 1;
+	W.parent.postMessage(STRINGIFY(data), '*');
+};
+
+FUNC.placeholder = function(options) {
+	var count = options.count || 3;
+	var builder = [];
+
+	builder.push('<div class="ui_placeholder_content ui_placeholder_{0}">'.format(options.name));
+
+	switch (options.name) {
+		case 'columnchart':
+			for (var i = 0; i < count; i++)
+				builder.push('<div class="ui_placeholder_bar" style="height:{0}px;width:{1}%"></div>'.format(Math.round((Math.random() * 100) + 1), 100 / count));
+			break;
+		case 'linechart':
+			for (var i = 0; i < count; i++)
+				builder.push('<div class="ui_placeholder_bar" style="height:{0}px;width:{1}%"><div class="ui_placeholder_dot"></div></div>'.format(Math.round((Math.random() * 100) + 1), 100 / count));
+			break;
+		case 'barchart':
+			for (var i = 0; i < count; i++)
+				builder.push('<div class="ui_placeholder_bar" style="width:{0}%;height:{1}%"></div>'.format(Math.round((Math.random() * 100) + 1), 100 / count));
+			break;
+		case 'checkboxlist':
+			for (var i = 0; i < count; i++)
+				builder.push('<div class="ui_placeholder_checkbox"><i></i><span class="editable">Checkbox</span></div>');
+			break;
+		case 'piechart':
+			builder.push('<div class="ui_placeholder_pie"></div>');
+			break;
+	}
+
+	builder.push('</div>');
+	return builder.join('');
 };

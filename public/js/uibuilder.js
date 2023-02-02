@@ -1,7 +1,29 @@
 (function(Builder) {
 
-	// Internal "object" configuration keys:
-	// config.name {String} an object readble name for human
+	customElements.define('ui-build-root', class extends HTMLDivElement {
+
+		constructor() {
+			super();
+		}
+
+	}, { extends: 'div' });
+
+	customElements.define('ui-build-component', class extends HTMLDivElement {
+		constructor() {
+			super();
+		}
+	}, { extends: 'div' });
+
+	customElements.define('ui-build-children', class extends HTMLDivElement {
+		constructor() {
+			super();
+		}
+	}, { extends: 'div' });
+
+	var REG_CLASS = /CLASS/g;
+
+	// Internal "component" configuration keys:
+	// config.name {String} a component readable name for human
 	// config.path {String} a path for storing of data
 
 	function InstanceEvent() {
@@ -24,20 +46,47 @@
 
 	IP.$forcecheck = function(t) {
 		t.$checktimeout = null;
-		t.set('invalid', t.state.disabled || t.state.readonly ? false : t.validate ? (!t.validate()) : true);
+		t.set('invalid', t.state.disabled || t.state.readonly ? false : t.validate ? (!t.validate()) : false);
 	};
 
-	IP.check = function() {
+	IP.check = function(force) {
 		var t = this;
 		t.$checktimeout && clearTimeout(t.$checktimeout);
-		t.$checktimeout = setTimeout(t.$forcecheck, 150, t);
+
+		if (force)
+			t.$forcecheck(t);
+		else
+			t.$checktimeout = setTimeout(t.$forcecheck, 150, t);
+
 		return t;
+	};
+
+	var emptytemplate = function() {
+		return '';
+	};
+
+	IP.maketemplate = function(value) {
+
+		var t = this;
+
+		if (!value)
+			value = t.component.html;
+
+		if (!value)
+			return emptytemplate;
+
+		var id = HASH(value).toString(36);
+		if (t.app.cache[id])
+			return t.app.cache[id];
+
+		t.app.cache[id] = value.indexOf('{{') === -1 ? (() => value) : Tangular.compile(value);
+		return t.app.cache[id];
 	};
 
 	IP.error = function(e) {
 		var t = this;
 		var config = t.config;
-		console.error(t.object.name + ': ' + config.name + (config.path ? ' ({0})'.format(config.path) : ''), e);
+		console.error(t.component.name + ': ' + config.name + (config.path ? ' ({0})'.format(config.path) : ''), e);
 	};
 
 	IP.set = function(type, value, kind, binder) {
@@ -129,9 +178,9 @@
 	IP.output = function(name, fn) {
 
 		var t = this;
-		var output = (t.object.outputs || EMPTYARRAY).findItem('id', name);
+		var output = (t.component.outputs || EMPTYARRAY).findItem('id', name);
 		if (!output) {
-			console.error('Output "{0}" not found in the "{1}" object'.format(name, t.object.name));
+			console.error('Output "{0}" not found in the "{1}" component'.format(name, t.component.name));
 			return;
 		}
 
@@ -147,7 +196,7 @@
 				obj.color = output.color;
 				obj.note = output.note;
 				obj.name = output.name;
-				obj.object = t.object;
+				obj.component = t.component;
 				obj.app = t.app;
 				obj.instance = t;
 				obj.err = err;
@@ -184,24 +233,56 @@
 		t.app.clean();
 	};
 
+	IP.datasource = function(id, callback) {
+
+		var t = this;
+
+		if (!id)
+			return t;
+
+		var fn = function(response) {
+			if (response && response instanceof Array)
+				callback(CLONE(response));
+		};
+
+		if (id.charAt(0) === '@') {
+			var instance = t.find(id);
+			if (instance) {
+				instance.on('value', fn);
+				fn(instance.state.value);
+			}
+		} else
+			t.clfind(id, fn);
+
+		return t;
+	};
+
 	IP.clfind = function(clid, search, fn) {
 		var t = this;
+
 		if (typeof(search) === 'function') {
 			fn = search;
 			search = '';
 		}
-		t.app.clfind(clid, search, fn);
-		return t;
+
+		if (fn) {
+			t.app.clfind(clid, search, fn);
+			return t;
+		} else
+			return new Promise(resolve => t.app.clfind(clid, search, resolve));
 	};
 
-	IP.clread= function(clid, id, fn) {
+	IP.clread = function(clid, id, fn) {
 		var t = this;
-		t.app.clread(clid, id, fn);
-		return t;
+		if (fn) {
+			t.app.clread(clid, id, fn);
+			return t;
+		} else
+			return new Promise(resolve => t.app.clread(clid, id, resolve));
 	};
 
 	IP.find = function(id) {
-		return this.app.instances.findItem('id', id);
+		return this.app.instances.findItem('id', id.charAt(0) === '@' ? id.substring(1) : id);
 	};
 
 	IP.hidden = function() {
@@ -271,11 +352,17 @@
 
 	IP.bindable = function(path) {
 		var t = this;
+
+		/*
 		var can = !t.config.path || t.config.path.charAt(0) !== '@';
 		if (path)
 			return can ? t.config.path === path : false;
 		else
 			return can;
+		*/
+
+		var can = !t.config.path || t.config.path.charAt(0) !== '@';
+		return can ? t.config.path === path : false;
 	};
 
 	IP.write = function(obj, path, value) {
@@ -340,7 +427,7 @@
 	};
 
 	Builder.version = 1;
-	Builder.selectors = { object:'.UI_object', objects: '.UI_objects' };
+	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
 	Builder.apps = {};
@@ -370,17 +457,24 @@
 	function app_compile(container, obj, index, position) {
 
 		var self = this;
-		var com = self.objects[obj.object];
+		var com = self.components[obj.component];
 
 		if (!com) {
-			console.error('Object "{0}" not found in the object list'.format(obj.object));
+			console.error('UI Builder: The component "{0}" not found'.format(obj.component));
 			return;
 		}
 
 		var div = document.createElement('DIV');
 		var instance = new Instance();
 
+		div.setAttribute('is', 'ui-build-component');
+
 		obj.gap && div.classList.add('UI_gap');
+
+		if (com.floating) {
+			div.classList.add('UI_floating');
+			div.style = 'left:{0}px;top:{1}px;z-index:{2};position:absolute'.format(obj.x || 0, obj.y || 0, obj.zindex || 1);
+		}
 
 		if (obj.bind)
 			instance.state.bind = true;
@@ -394,12 +488,12 @@
 		instance.id = obj.id;
 		instance.args = self.args;
 		instance.element = $(div);
-		instance.element.aclass(Builder.selectors.object.substring(1) + ' ' + com.cls).attrd('id', obj.id);
+		instance.element.aclass(Builder.selectors.component.substring(1) + ' ' + com.cls).attrd('id', obj.id);
 		instance.dom = div;
 		instance.events = {};
 		instance.config = CLONE(com.config);
 		instance.app = self;
-		instance.object = com;
+		instance.component = com;
 		instance.protected = obj.protected;
 		instance.meta = obj;
 		instance.edit = app_edit;
@@ -414,7 +508,7 @@
 
 		self.instances.push(instance);
 
-		var tmp = container.closest(Builder.selectors.object);
+		var tmp = container.closest(Builder.selectors.component);
 		if (tmp && tmp.length) {
 
 			instance.parent = tmp[0].uibuilder;
@@ -445,8 +539,8 @@
 		}
 
 		div.uibuilder = instance;
-		tmp = $(container);
 
+		tmp = $(container);
 		if (position == null) {
 			tmp.append(div);
 		} else {
@@ -462,7 +556,7 @@
 				tmp.append(div);
 		}
 
-		com.make(instance, instance.config, instance.element);
+		com.make(instance, instance.config, instance.element, instance.component.cls);
 		Builder.events.make && Builder.emit('make', instance);
 
 		if (!(obj.children instanceof Array)) {
@@ -501,6 +595,8 @@
 
 		var self = this;
 		var index = 0;
+		var counter = 0;
+		var ref = [];
 
 		while (true) {
 			var instance = self.instances[index];
@@ -508,23 +604,33 @@
 				if (inDOM(instance.dom)) {
 					index++;
 				} else {
-					// @TODO: Notify all parents?
+					counter++;
 					instance.events.destroy && instance.emit('destroy');
 					self.instances.splice(index, 1);
+					ref.push(instance);
 				}
 			} else
 				break;
 		}
 
 		self.refreshio();
+
+		if (counter) {
+			for (var item of self.instances)
+				item.events.refresh && item.emit('refresh', { type: 'remove', items: ref });
+		}
+
 	}
 
 	var findcontainers = function(self, id) {
+
+		var el = self.element;
 		var containers = [];
-		var container = self.element.find(Builder.selectors.object + '[data-id="{0}"] {1}'.format(id, Builder.selectors.objects));
+		var container = el.find(Builder.selectors.component + '[data-id="{0}"] {1}'.format(id, Builder.selectors.components));
+
 		for (var el of container) {
 			el = $(el);
-			var parent = el.closest(Builder.selectors.object);
+			var parent = el.closest(Builder.selectors.component);
 			if (parent.attrd('id') === id)
 				containers.push({ index: +el.attrd('index'), element: el });
 		}
@@ -532,34 +638,38 @@
 		return containers;
 	};
 
-	function app_add(parentid, parentindex, obj, position, config) {
+	function app_add(parentid, parentindex, com, position, config, extendmeta) {
 
 		var self = this;
 
-		if (typeof(obj) === 'string') {
-			var com = self.objects[obj];
-			if (!com) {
-				console.error('Object "{0}" not found'.format(obj));
+		if (typeof(com) === 'string') {
+			var tmp = self.components[com];
+			if (!tmp) {
+				console.error('Component "{0}" not found'.format(com));
 				return;
 			}
-			obj = { id: 'oid' + Date.now().toString(36), object: obj, children: [], config: com.config || {}, gap: com.gap };
+
+			com = { id: 'cid' + Date.now().toString(36), component: com, children: [], config: com.config || {}, gap: com.gap != false };
 		}
+
+		extendmeta && COPY(extendmeta, com);
 
 		if (config) {
 			for (var key in config)
-				obj.config[key] = config[key];
+				com.config[key] = config[key];
 		}
 
 		var containers = findcontainers(self, parentid);
 		if (containers.length) {
 			for (var container of containers) {
-				if (container.index == parentindex)
-					self.compile(container.element, obj, parentindex, position);
+				if (container.index == parentindex) {
+					self.compile(container.element, com, parentindex, position);
+				}
 			}
 		}
 
 		self.refreshio();
-		return obj;
+		return com;
 	}
 
 	Builder.build = function(target, meta, args, callback) {
@@ -578,24 +688,28 @@
 
 		Builder.current = meta.id;
 
-		var container = $('<div>');
+		var root = document.createElement('DIV');
+		var container = $(root);
 		container.attrd('id', meta.id);
 		container.aclass('UI_app invisible');
 		container.empty();
 
+		root.setAttribute('is', 'ui-build-root');
+
 		// if (meta.css)
 		// 	container[0].style = meta.css;
 
-		$(target).append(container);
+		$(target)[0].appendChild(root);
 
 		var app = {};
 		var css = [];
 
 		app.id = Builder.current;
-		app.objects = {};
+		app.components = {};
 		app.args = args;
 		app.schema = meta;
 		app.events = {};
+		app.cache = {};
 		app.compile = app_compile;
 		app.stringify = app_stringify;
 		app.clean = app_clean;
@@ -606,6 +720,8 @@
 		app.dom = container[0];
 		app.pending = [];
 		app.instances = [];
+
+		container.aclass(app.class);
 
 		// app.outputs = [];
 		// app.inputs = [];
@@ -687,27 +803,34 @@
 				app.inputs = [];
 				app.outputs = [];
 				app.list = [];
+				app.zindex = 1;
 
 				for (var instance of app.instances) {
 
 					if (!instance.dom.parentNode)
 						continue;
 
-					var arr = instance.object.inputs;
-					var name = instance.config.name || instance.object.name;
+					if (instance.component.floating) {
+						app.zindex = (instance.element.css('z-index') || '').parseInt();
+						if (app.zindex <= 0)
+							app.zindex = 1;
+					}
 
-					app.list && app.list.push({ id: instance.id, name: name, icon: instance.object.icon, color: instance.object.color });
+					var arr = instance.component.inputs;
+					var name = instance.config.name || instance.component.name;
+
+					app.list && app.list.push({ id: instance.id, name: name, icon: instance.component.icon, color: instance.component.color });
 
 					if (arr) {
 						for (var m of arr) {
-							app.inputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, object: name, input: m.name, icon: instance.object.icon, color: instance.object.color, note: m.note, schema: m.schema });
+							app.inputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, component: name, input: m.name, icon: instance.component.icon, color: instance.component.color, note: m.note, schema: m.schema });
 						}
 					}
 
-					arr = instance.object.outputs;
+					arr = instance.component.outputs;
 					if (arr && arr.length) {
 						for (var m of arr) {
-							app.outputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, object: name, output: m.name, icon: instance.object.icon, color: instance.object.color, note: m.note, schema: m.schema });
+							app.outputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, component: name, output: m.name, icon: instance.component.icon, color: instance.component.color, note: m.note, schema: m.schema });
 						}
 					}
 				}
@@ -811,7 +934,7 @@
 
 			// @e InstanceEvent
 			// 1. notifies all parents
-			// 2. notifies all other objects
+			// 2. notifies all other components
 
 			var parents = {};
 			var key = 'state';
@@ -861,6 +984,7 @@
 			var readme = '';
 			var css = '';
 			var js = '';
+			var html = '';
 
 			var beg = response.indexOf('<sett' + 'ings>');
 			if (beg !== -1) {
@@ -873,6 +997,10 @@
 			if (beg !== -1)
 				css = response.substring(beg + 7, response.indexOf('</st' + 'yle>', beg + 7));
 
+			beg = response.indexOf('<body>');
+			if (beg !== -1)
+				html = response.substring(beg + 6, response.indexOf('</body>', beg + 6));
+
 			beg = response.indexOf('<readme>');
 			if (beg !== -1)
 				readme = response.substring(beg + 8, response.indexOf('</readme>', beg + 8));
@@ -883,14 +1011,14 @@
 				js = response.substring(beg + 8, end).trim();
 			}
 
-			return { js: js, css: css, settings: settings, readme: readme };
+			return { js: js, css: css, settings: settings, readme: readme, html: html };
 
 		};
 
 		Builder.apps[Builder.current] = app;
 
-		Object.keys(meta.objects).wait(function(key, next) {
-			var fn = meta.objects[key];
+		Object.keys(meta.components).wait(function(key, next) {
+			var fn = meta.components[key];
 			if (typeof(fn) === 'string') {
 
 				var ext = fn.split(' ');
@@ -917,21 +1045,29 @@
 						var parsed = Builder.parsehtml(decodeURIComponent(atob(url)));
 						if (parsed.css)
 							obj.css = parsed.css;
-						new Function('exports', parsed.js)(obj);
+						if (parsed.html)
+							obj.html = parsed.html.replace(REG_CLASS, obj.cls);
+						new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
 						app.pending.push({ name: key, fn: obj });
-					} catch (e) {
-						console.error('UI Builder:', key, e);
+					} finally {
+						next();
 					}
-					next();
 					return;
 				}
 
 				if (!ext || ext === 'html') {
-					AJAX('GET ' + url, function(response) {
+					AJAX('GET ' + url, function(response, err) {
+
+						if (err) {
+							console.error('UI Builder:', url, err);
+							next();
+							return;
+						}
 
 						if (ERROR(response)) {
 							console.error('UI Builder:', url, response);
-							return next;
+							next();
+							return;
 						}
 
 						var parsed = Builder.parsehtml(response);
@@ -948,15 +1084,19 @@
 							if (parsed.readme)
 								obj.readme = parsed.readme;
 
-							if (parsed.settings)
-								obj.settings = parsed.settings;
+							if (parsed.html)
+								obj.html = parsed.html.replace(REG_CLASS, obj.cls);
 
-							new Function('exports', parsed.js.replace(/CLASS/g, obj.cls))(obj);
+							if (parsed.settings)
+								obj.settings = parsed.settings.replace(REG_CLASS, obj.cls);
+
+							new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
 							app.pending.push({ name: key, fn: obj });
-						} catch (e) {
-							console.error('UI Builder:', key, e);
+
+						} finally {
+							next();
 						}
-						next();
+						// console.error('UI Builder:', key, e);
 					});
 				}
 
@@ -980,8 +1120,8 @@
 				} else
 					obj = item.fn;
 
-				app.objects[item.name] = obj;
-				obj.css && css.push(obj.css.replace(/CLASS/g, obj.cls));
+				app.components[item.name] = obj;
+				obj.css && css.push(obj.css.replace(REG_CLASS, obj.cls));
 
 				if (obj.import instanceof Array)
 					obj.import.wait(IMPORT, next);
@@ -990,7 +1130,7 @@
 
 			}, function() {
 
-				meta.css && css.unshift(meta.css);
+				meta.css && css.unshift(meta.css.replace(REG_CLASS, app.class));
 				CSS(css, app.class);
 
 				for (var i = 0; i < meta.children.length; i++) {
@@ -1018,8 +1158,8 @@
 				instance.events.destroy && instance.emit('destroy');
 
 			setTimeout(function() {
-				for (var key in item.objects) {
-					var obj = item.objects[key];
+				for (var key in item.components) {
+					var obj = item.components[key];
 					obj.uninstall && obj.uninstall();
 				}
 				item.tmp = null;
@@ -1304,7 +1444,7 @@
 		el.on('keydown', keydown);
 	}
 
-	function app_stringify(element) {
+	function app_stringify(element, isbuild) {
 
 		var self = this;
 		var fn = typeof(element) === 'function' ? element : null;
@@ -1312,33 +1452,44 @@
 		if (fn)
 			element = null;
 
-		var arr = element || self.element.find('> ' + Builder.selectors.object);
+		var arr = element || self.element.find('> ' + Builder.selectors.component);
 		var children = [];
 		var instances = [];
 
 		function browse(item, el) {
 
-			var obj = el.uibuilder;
+			var com = el.uibuilder;
 			item.id = el.getAttribute('data-id');
-			item.config = obj.config;
-			item.object = obj.object.id;
+			item.component = com.component.id;
+			item.config = CLONE(com.config);
+
+			if (com.component.floating) {
+				var tmp = $(el);
+				var pos = tmp.position();
+				item.x = pos.left;
+				item.y = pos.top;
+				item.zindex = tmp.css('z-index') || instances.length;
+				item.zindex = +item.zindex;
+				if (item.zindex <= 0)
+					item.zindex = 1;
+			}
 
 			if (fn && !fn(item))
 				return;
 
-			instances.push(obj);
+			instances.push(com);
 
 			if (el.classList.contains('UI_gap'))
 				item.gap = true;
 
-			obj.children = [];
+			com.children = [];
 
 			var containers = findcontainers(self, item.id);
 
 			for (var container of containers) {
 
 				var items = [];
-				var arr = container.element.find('> ' + Builder.selectors.object);
+				var arr = container.element.find('> ' + Builder.selectors.component);
 
 				if (!item.children)
 					item.children = [];
@@ -1349,12 +1500,12 @@
 					var subitem = {};
 					subitem.children = [];
 					items.push(subitem);
-					obj.children.push(sub.uibuilder);
+					com.children.push(sub.uibuilder);
 					browse(subitem, sub);
 				}
 			}
 
-			obj.events.stringify && obj.emit('stringify', item);
+			com.events.stringify && com.emit('stringify', item, isbuild);
 		}
 
 		for (var el of arr) {

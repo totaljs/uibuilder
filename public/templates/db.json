@@ -1,0 +1,388 @@
+[
+	{
+		"id": "barchart",
+		"group": "Charts",
+		"name": "Bar chart",
+		"url": "/components/barchart/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-chart-bar",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "callout",
+		"group": "Content",
+		"name": "Callout",
+		"url": "/components/callout/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-info-circle",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "captureoutput",
+		"group": "Data",
+		"name": "Capture output",
+		"url": "/components/captureoutput/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-share-alt",
+		"color": "",
+		"version": "1",
+		"readme": "This component can capture data from an output."
+	},
+	{
+		"id": "cards",
+		"group": "List",
+		"name": "Cards",
+		"url": "/components/cards/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-menu",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "checkbox",
+		"group": "Controls",
+		"name": "Checkbox",
+		"url": "/components/checkbox/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-check-square",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "checkboxlist",
+		"group": "Controls",
+		"name": "Checkboxlist",
+		"url": "/components/checkboxlist/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-list-alt",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "color",
+		"group": "Controls",
+		"name": "Color",
+		"url": "/components/color/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-palette",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "columnchart",
+		"group": "Charts",
+		"name": "Column chart",
+		"url": "/components/columnchart/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-chart-bar",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "columns",
+		"group": "Layouts",
+		"name": "Columns",
+		"url": "/components/columns/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-columns",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "comment",
+		"group": "Content",
+		"name": "Comment",
+		"url": "/components/comment/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-comment",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "container",
+		"group": "Layouts",
+		"name": "Container",
+		"url": "/components/container/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-window",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "counter",
+		"group": "Logical",
+		"name": "Counter",
+		"url": "/components/counter/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-calculator",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "datagenerator",
+		"group": "Data",
+		"name": "Data generator",
+		"url": "/components/datagenerator/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-database",
+		"color": "",
+		"version": "1",
+		"readme": "Data generator creates data defined in the configuration."
+	},
+	{
+		"id": "datareader",
+		"group": "Data",
+		"name": "Data reader",
+		"url": "/components/datareader/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-globe",
+		"color": "",
+		"version": "1",
+		"readme": "Data reader reads data from the URL address and stores them in memory. Other components can read this data."
+	},
+	{
+		"id": "datasource",
+		"group": "Data",
+		"name": "Data source",
+		"url": "/components/datasource/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-database-alt",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "datagrid",
+		"group": "List",
+		"name": "Datagrid",
+		"url": "/components/datagrid/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-table-alt",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "enable",
+		"group": "Logical",
+		"name": "Enable editing",
+		"url": "/components/enable/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-config",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "fb-floorplan",
+		"group": "Flowboard",
+		"name": "Floor plan",
+		"url": "/components/fb-floorplan/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-object-group",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "floorplan",
+		"group": "Content",
+		"name": "Floor plan",
+		"url": "/components/floorplan/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-object-group",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "form",
+		"group": "Data",
+		"name": "Form",
+		"url": "/components/form/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-database-alt",
+		"color": "",
+		"version": "1",
+		"readme": "The form collects only components with defined paths."
+	},
+	{
+		"id": "headline",
+		"group": "Content",
+		"name": "Headline",
+		"url": "/components/headline/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-heading",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "hr",
+		"group": "Content",
+		"name": "Horizontal rule",
+		"url": "/components/hr/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-minus",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "icon",
+		"group": "Controls",
+		"name": "Icon",
+		"url": "/components/icon/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-icons",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "image",
+		"group": "Content",
+		"name": "Image",
+		"url": "/components/image/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-image",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "infocard",
+		"group": "Content",
+		"name": "Info card",
+		"url": "/components/infocard/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-address-card",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "keyvalue",
+		"group": "Content",
+		"name": "Kye/Value",
+		"url": "/components/keyvalue/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-address-card",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "linechart",
+		"group": "Charts",
+		"name": "Line chart",
+		"url": "/components/linechart/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-chart-line",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "fb-marker",
+		"group": "Flowboard",
+		"name": "Marker",
+		"url": "/components/fb-marker/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-pin-alt",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "paragraph",
+		"group": "Content",
+		"name": "Paragraph",
+		"url": "/components/paragraph/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-align-left",
+		"color": "",
+		"version": ""
+	},
+	{
+		"id": "sound",
+		"group": "Logical",
+		"name": "Play sound",
+		"url": "/components/sound/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-volume",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "sendtoinput",
+		"group": "Data",
+		"name": "Send to input",
+		"url": "/components/sendtoinput/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-compress",
+		"color": "",
+		"version": "1",
+		"readme": "This component can send data to an input."
+	},
+	{
+		"id": "show",
+		"group": "Logical",
+		"name": "Show components",
+		"url": "/components/show/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-eye",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "stylebox",
+		"group": "Content",
+		"name": "Style box",
+		"url": "/components/stylebox/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-pencil-paintbrush",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "tabs",
+		"group": "Content",
+		"name": "Tabs",
+		"url": "/components/tabs/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-layer-group",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "textarea",
+		"group": "Controls",
+		"name": "Textarea",
+		"url": "/components/textarea/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-font",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "textbox",
+		"group": "Controls",
+		"name": "Textbox",
+		"url": "/components/textbox/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-font",
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "json",
+		"group": "Debugging",
+		"name": "To JSON",
+		"url": "/components/json/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-qrcode",
+		"color": "",
+		"version": "1",
+		"readme": "This component prints data in JSON format."
+	},
+	{
+		"id": "video",
+		"group": "Content",
+		"name": "Video",
+		"url": "/components/video/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-photo-video",
+		"color": "",
+		"version": ""
+	}
+]

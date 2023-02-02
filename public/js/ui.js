@@ -5,12 +5,15 @@ customElements.define('is-button', class extends HTMLButtonElement {
 	}
 }, { extends: 'button' });
 
-COMPONENT('uibuildereditor', 'container:UI_objects;selector:.UI_object', function(self, config, cls) {
+COMPONENT('uibuildereditor', 'container:UI_components;selector:.UI_component', function(self, config, cls) {
 
 	var drag = {};
+	var events = {};
 
 	self.make = function() {
+
 		self.aclass(cls);
+		self.cache = {};
 
 		drag.start = function(e) {
 
@@ -68,6 +71,7 @@ COMPONENT('uibuildereditor', 'container:UI_objects;selector:.UI_object', functio
 		doc.on('dragstart touchstart', '[draggable]', drag.start);
 		doc.on('dragend touchend', '[draggable]', drag.end);
 
+		/*
 		self.element.on('click', config.selector, function(e) {
 			var el = e.target.closest(config.selector);
 
@@ -84,7 +88,7 @@ COMPONENT('uibuildereditor', 'container:UI_objects;selector:.UI_object', functio
 
 			el.classList.add('selected');
 			config.click && self.SEEX(config.click, $(el));
-		});
+		});*/
 
 		self.element.on('dblclick', config.selector, function(e) {
 			config.dblclick && self.SEEX(config.dblclick, $(this));
@@ -125,6 +129,78 @@ COMPONENT('uibuildereditor', 'container:UI_objects;selector:.UI_object', functio
 			}
 
 			e.preventDefault();
+		});
+
+		drag.css = {};
+
+		events.move = function(e) {
+
+			var x = (e.pageX - drag.x);
+			var y = (e.pageY - drag.y);
+
+			drag.css.left = drag.posX + x;
+			drag.css.top = drag.posY + y;
+
+			if (!drag.is)
+				drag.is = true;
+
+			drag.target.css(drag.css);
+		};
+
+		events.movetouch = function(e) {
+			events.move(e.touches[0]);
+		};
+
+		events.up = function() {
+			events.unbind();
+		};
+
+		events.bind = function() {
+			self.element.on('mouseup', events.up);
+			self.element.on('mousemove', events.move);
+			self.element.on('touchend', events.up);
+			self.element.on('touchmove', events.movetouch);
+		};
+
+		events.unbind = function() {
+			self.element.off('mouseup', events.up);
+			self.element.off('mousemove', events.move);
+			self.element.off('touchend', events.up);
+			self.element.off('touchmove', events.movetouch);
+		};
+
+		self.event('mousedown touchstart', '.UI_floating', function(e) {
+
+			if (!e.touches && e.button)
+				return;
+
+			e.preventDefault();
+
+			var target = $(e.target);
+			if (target[0].tagName === 'BUTTON' || target[0].tagName === 'A') {
+				return;
+			} else {
+				var p = target[0].parentNode;
+				if (p.tagName === 'BUTTON' || p.tagName === 'A')
+					return;
+			}
+
+			var evt = e.touches ? e.touches[0] : e;
+
+			target = target.closest('.UI_component');
+			drag.id = target.attrd('id');
+
+			drag.target = target;
+			drag.x = evt.pageX;
+			drag.y = evt.pageY;
+
+			drag.is = false;
+
+			var pos = target.position();
+			drag.posX = pos.left;
+			drag.posY = pos.top;
+
+			events.bind();
 		});
 
 	};

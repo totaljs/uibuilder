@@ -1,11 +1,11 @@
-<div data---="box__common.form__if:~PATH~;title:@(List of inputs and outputs);icon:ti ti-code-branch;closeesc:1;closeoutside:1;autofocus:true;reload:?/reload;scrollbar:1;submit:?/submit;width:960" class="hidden" data-scope="~PATH~">
+<ui-component name="box" path="common.form" config="if:~PATH~;title:@(List of inputs and outputs);icon:ti ti-code-branch;closeesc:1;closeoutside:1;autofocus:true;reload:?/reload;scrollbar:1;submit:?/submit;width:960" class="hidden" plugin="~PATH~">
 	<div class="padding">
 		<div class="grid-2">
 			<div class="m">
 				<div class="caption m">
 					<label><i class="ti ti-bull blue"></i>@(Inputs)</label>
 				</div>
-				<div data-bind="?.inputs__template" class="listing2">
+				<ui-bind path="?.inputs" config="template" class="listing2 block">
 					<script type="text/html">
 						{{ if !value || !value.length }}
 							<p class="gray"><i class="ti ti-ban mr5"></i>@(The schema doesn't contain any inputs)</p>
@@ -13,20 +13,20 @@
 							{{ foreach m in value }}
 							<figure data-id="{{ m.id }}" class="exec" data-exec="?/copy">
 								<section>
-									<div><span class="badge badge-blue b">{{ m.object }}</span> {{ m.input }}</div>
+									<div><span class="badge badge-blue b">{{ m.component }}</span> {{ m.input }}</div>
 									<div class="help" style="margin-top:4px">ID: {{ m.id }}</div>
 								</section>
 							</figure>
 							{{ end }}
 						{{ fi }}
 					</script>
-				</div>
+				</ui-bind>
 			</div>
 			<div class="m">
 				<div class="caption m">
 					<label><i class="ti ti-bull red"></i>@(Outputs)</label>
 				</div>
-				<div data-bind="?.outputs__template" class="listing2">
+				<ui-bind path="?.outputs" config="template" class="listing2 block">
 					<script type="text/html">
 						{{ if !value || !value.length }}
 							<p class="gray"><i class="ti ti-ban mr5"></i>@(The schema doesn't contain any outputs)</p>
@@ -34,21 +34,21 @@
 							{{ foreach m in value }}
 							<figure data-id="{{ m.id }}" class="exec" data-exec="?/copy">
 								<section>
-									<div><span class="badge badge-red b">{{ m.object }}</span> {{ m.output }}</div>
+									<div><span class="badge badge-red b">{{ m.component }}</span> {{ m.output }}</div>
 									<div class="help" style="margin-top:4px">ID: {{ m.id }}</div>
 								</section>
 							</figure>
 							{{ end }}
 						{{ fi }}
 					</script>
-				</div>
+				</ui-bind>
 			</div>
 		</div>
 	</div>
 	<nav>
 		<button name="cancel" style="width:100%">@(Close)</button>
 	</nav>
-</div>
+</ui-component>
 
 <script>
 

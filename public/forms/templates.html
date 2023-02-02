@@ -1,22 +1,68 @@
-<div data---="box__common.form__if:~PATH~;title:@(Templates);icon:ti ti-pencil-paintbrush;autofocus:true;reload:?/reload;scrollbar:1;width:1200" class="hidden" data-scope="~PATH~">
-	<div class="padding">
-		<p>@(Welcome to Total.js UI Builder)</p>
+<style>
+	.~PATH~ figure { border: 1px solid #E0E0E0; border-radius: 10px; background-color: #FFF; box-shadow: 0 2px 20px rgba(0,0,0,0.04); margin-bottom: var(--gap); }
+	.~PATH~ figure:hover { background-color: #F8F8F8; }
+	.~PATH~ figure.disabled { background-color: #FFF !important; color: #B0B0B0; border-color: #F0F0F0; }
+	.~PATH~ figure.disabled img { filter: grayscale(100%); opacity: 0.3; }
+	.~PATH~ .image { padding: 15px; }
+	.~PATH~ .name { text-align: center; padding: 10px 0; border-top: 1px solid #E0E0E0; font-size: 15px; }
+</style>
+
+<ui-component name="centered" path="common.form" config="if:~PATH~;autofocus:true;reload:?/reload;closebutton:1;closeesc:0;close:?/close" class="hidden ~PATH~" plugin="~PATH~">
+	<div style="max-width:700px;width:100%;margin:0 auto">
+		<div class="padding npt">
+			<div class="b" style="font-size:18px"><i class="ti ti-totaljs green mr10"></i>@(Total.js UI Builder)</div>
+			<div class="gray mt5 m">@(How does UI Builder work?) <a href="https://www.youtube.com/" target="_blank"><i class="ti ti-play-alt mr5"></i>@(Video tutorial)</a></div>
+			<br />
+			<ui-bind path="?.items" config="template" class="grid-3">
+				<script type="text/html">
+					{{ foreach m in value }}
+					<figure{{ if m.disabled }} class="disabled"{{ else }} class="exec m" data-exec="?/install" data-id="{{ m.id }}"{{ fi }}>
+						<div class="image"><img src="{{ m.image }}" class="img-responsive" alt="{{ m.name }}" /></div>
+						<div class="name">{{ m.name }}</div>
+					</figure>
+					{{ end }}
+				</script>
+			</ui-bind>
+			<div class="help"><a href="https://docs.totaljs.com/uibuilder/" target="_blank" class="silver"><i class="ti ti-book-open mr5"></i>Documentation</a></div>
+			<br />
+			<br />
+		</div>
 	</div>
-	<nav>
-		<button name="cancel" style="width:100%">@(Close)</button>
-	</nav>
-</div>
+</ui-component>
 
 <script>
 
-	PLUGIN('~PATH~', function(exports) {
+	PLUGIN(function(exports) {
 
 		exports.reload = function() {
 			exports.refresh();
 		};
 
 		exports.refresh = function() {
+			exports.ajax('GET /templates.json', 'items');
 			SETTER('loading/hide', 1000);
+		};
+
+		exports.install = function(el) {
+			var id = ATTRD(el);
+			exports.ajax('GET /templates/{0}.json'.format(id), function(response) {
+				response.id = Date.now().toString(36);
+				UIBuilder.data = response;
+				uibuilder_redraw();
+				WAIT('app', uibuilder_settings);
+				NUL('common.form');
+			});
+		};
+
+		exports.close = function() {
+			if (!UIBuilder.data) {
+				if (common.iframe) {
+					uibuilder_close();
+				} else {
+					SETTER('message/warning', '@(You need to choose a template)');
+					SET('common.form', exports.name, 2000);
+				}
+			}
 		};
 
 	});

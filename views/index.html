@@ -26,11 +26,11 @@
 	<ui-component name="LAZY notify" config="position:bottom right"></ui-component>
 	<ui-component name="LAZY clipboard"></ui-component>
 	<ui-component name="LAZY fileuploader"></ui-component>
-	<ui-component name="LAZY imageuploader"></ui-component>
 	<ui-component name="LAZY floatingbox"></ui-component>
 	<ui-component name="LAZY sounds" config="volume:10"></ui-component>
+	<ui-component name="LAZY message" config="style:2"></ui-component>
 
-	<ui-component name="windows" path="common.windows"></ui-component>
+	<ui-component name="windows" path="common.windows" config="zindex:30"></ui-component>
 	<ui-component name="markdown"></ui-component>
 	<ui-component name="exec"></ui-component>
 	<ui-component name="locale"></ui-component>
@@ -51,11 +51,14 @@
 			<section data-type="top">
 				<div class="header">
 
+					<span class="beta">beta</span>
+
+					<ui-bind path="common.iframe" config="show" class="hidden pull-right">
+						<button class="exec red" data-exec="uibuilder_close" title="@(Close)"><i class="ti ti-times"></i></button>
+					</ui-bind>
+
 					<div class="pull-right">
 						<a href="https://docs.totaljs.com/uibuilder/" title="Documentation: Total.js Platform" target="_blank" class="special"><i class="ti ti-book"></i></a>
-					</div>
-					<div class="pull-right">
-						<a href="/" title="@(Create a new app)" target="_blank"><i class="ti ti-plus-circle green"></i></a>
 					</div>
 
 					<div>
@@ -64,25 +67,27 @@
 
 					<div style="margin-right:8px">
 						<button class="exec" data-exec="uibuilder_publish" title="@(Publish)"><i class="ti ti-box"></i></button>
-						<button is="is-button" path="app.schema.editor.render" config="enable" class="exec" data-exec="uibuilder_render" title="@(Preview)" disabled><i class="ti ti-flask"></i></button>
+						<button class="exec" data-exec="uibuilder_render" title="@(Preview)"><i class="ti ti-flask"></i></button>
 						<button class="exec" data-exec="uibuilder_settings" title="@(Global settings)"><i class="ti ti-cog"></i></button>
 					</div>
 
 					<button class="exec" data-exec="uibuilder_device" title="@(Display settings)"><i class="ti ti-window"></i></button>
 					<button class="exec" data-exec="uibuilder_io" title="@(Inputs / Outputs)"><i class="ti ti-code-branch"></i></button>
+					<!--
 					<button class="exec" data-exec="uibuilder_darkmode" title="@(Toggle between light/dark mode)" is="is-bind" path="common.darkmode" config=".selected"><i class="ti ti-adjust"></i></button>
-					<button class="exec" data-exec="uibuilder_redraw" title="@(Re-load objects)"><i class="ti ti-sync"></i></button>
+					-->
+					<button class="exec" data-exec="uibuilder_redraw" title="@(Re-load components)"><i class="ti ti-sync"></i></button>
 				</div>
 			</section>
 
 			<section data-type="left">
-				<ui-component name="searchinput" path="%searchobjects" config="type:search;placeholder:Search components;autofocus:2"></ui-component>
+				<ui-component name="searchinput" path="%searchcomponents" config="type:search;placeholder:@(Search components);autofocus:2"></ui-component>
 				<div style="margin:5px 10px 8px 14px" class="fs11">
-					<div><span class="exec link" data-exec="uibuilder_objects"><i class="ti ti-cloud-download mr5"></i>@(Download)</span></div>
+					<div><span class="exec link" data-exec="uibuilder_components"><i class="ti ti-cloud-download mr5"></i>@(Download components)</span></div>
 				</div>
 				<ui-component name="viewbox" config="parent:window;margin:104;scrollbarshadow:1">
-					<ui-component name="search" path="%searchobjects" config="selector:figure">
-						<ui-bind path="common.groups" config="template" class="block objects">
+					<ui-component name="search" path="%searchcomponents" config="selector:figure">
+						<ui-bind path="common.groups" config="template" class="block components">
 							<script type="text/html">
 							{{ foreach g in value }}
 								<div class="caption">{{ g.id }}</div>
@@ -100,9 +105,9 @@
 			</section>
 
 			<section data-type="main">
-				<ui-component name="viewbox" path="app" config="parent:window;margin:44;scrollbarshadow:1">
+				<ui-component name="viewbox" path="app" config="parent:window;margin:44;scrollbarshadow:1;visibleX:1;visibleY:1">
 					<div id="dappcontainer">
-						<ui-component id="dapp" name="uibuildereditor" config="exec:func;ondrop:drop_object;dblclick:opensettings"></ui-component>
+						<ui-component id="dapp" name="uibuildereditor" config="exec:func;ondrop:drop_component;dblclick:opensettings"></ui-component>
 					</div>
 				</ui-component>
 			</section>
@@ -112,12 +117,12 @@
 	</ui-bind>
 
 	<ui-component name="box" path="common.form" config="if:settingsform;width:840;title:@(Settings);icon:ti ti-cog;submit:settings_submit;scrollbar:0;reload:settings_reload;autofocus:1">
-		<ui-component name="stash" path="settingsform.objectid" config="load:settings_load" class="settingsform"></ui-component>
+		<ui-component name="stash" path="settingsform.componentid" config="load:settings_load" class="settingsform"></ui-component>
 	</ui-component>
 
 	<ui-component name="importer" path="common.form" config="if:appsettingsform;url:/forms/settings.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:templatesform;url:/forms/templates.html"></ui-component>
-	<ui-component name="importer" path="common.form" config="if:objectsform;url:/forms/objects.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:componentsform;url:/forms/components.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:ioform;url:/forms/io.html"></ui-component>
 	<ui-component name="importer" path="common.form2" config="if:formlink;url:/forms/link.html"></ui-component>
 	<ui-component name="importer" path="common.form2" config="if:formattr;url:/forms/attr.html"></ui-component>
@@ -129,19 +134,16 @@
 	<script>
 
 		var common = {};
+		var settingsform = {};
 
 		UIBuilder.editor = true;
 
 		common.windows = [];
-		common.objects = [];
+		common.components = [];
 		common.paths = '';
 		common.codes = '';
 
 		CACHEPATH('common.darkmode', '1 year');
-
-		ON('ready', function() {
-			common.darkmode && $('body').aclass('ui-dark');
-		});
 
 		ON('@flag showloading', function() {
 			SETTER('loading/show');
@@ -159,28 +161,55 @@
 			SETTER('notify/warning', err || 'Unexpected error');
 		});
 
-		function settings_reload(com) {
+		function settings_reload(form) {
 
-			var id = settingsform.objectid;
+			var id = settingsform.componentid;
 			var data = settingsform[id];
-			var obj = app.objects[id];
+			var com = app.components[id];
 
-			com.reconfigure({ title: '@(Settings:) ' + obj.name });
+			form.reconfigure({ title: '@(Settings:) ' + com.name });
 
 			if (!data.name)
-				data.name = obj.name;
+				data.name = com.name;
 
 			EXEC('settingsform.' + id + '/reload', data);
 		}
 
+		$(W).on('message', function(e) {
+			e = e.originalEvent;
+
+			var msg = e.data;
+
+			if (typeof(msg) === 'string')
+				msg = PARSE(msg);
+
+			if (!msg.uibuilder)
+				return;
+
+			switch (msg.TYPE) {
+				case 'init':
+					common.upload = msg.upload;
+					DEF.cl.usergroups = msg.groups || [];
+					if (msg.data && msg.data.id) {
+						UIBuilder.data = msg.data;
+						uibuilder_redraw();
+					} else
+						SET('common.form', 'templatesform');
+					break;
+			}
+
+		});
+
 		function settings_load(id, next) {
-			var obj = app.objects[id];
-			if (obj) {
+			var com = app.components[id];
+			if (com) {
 
 				var done = function(response) {
 
 					if (typeof(response) !== 'string')
 						response = '';
+
+					response = response.replace(/CLASS/g, com.cls);
 
 					var beg = response.indexOf('<scr' + 'ipt>');
 					if (beg !== -1) {
@@ -191,16 +220,16 @@
 						new Function(scr)();
 					}
 
-					next('<ui-plugin path="settingsform.{0}" config="init:?/reload"><ui-component name="ready" config="delay:300" class="invisible"><ui-component name="viewbox" path="common.form" config="scrollbar:1;scrollbarshadow:1;margin:70;parent:auto"><div class="padding main npb"><div class="grid-2"><div class="m"><ui-component name="input" path="?.name" config="required:1;innerlabel:1;placeholder:@(Object name)">@(Name)</ui-component><div class="help">ID: <ui-bind path="?.$id" config="text" class="b monospace"></ui-bind></div></div><div class="m"><ui-component name="input" path="?.path" config="dirsource:DEF.cl.paths;dircustom:1;dirraw:1;dirplaceholder:@(Search path or enter custom);monospace:1;innerlabel:1;placeholder:path.to.property">@(Path for reading/writing)</ui-component><div class="help"><span class="exec link" data-exec="settings_clearpath"><i class="ti ti-clean mr5"></i>@(Clear path)</span></div></div></div></div>{1}</ui-component><nav><ui-component name="validate" path="?" class="buttons"><button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button><button name="cancel">@(Cancel)</button></ui-component></nav></ui-component></ui-plugin>'.format(id, response));
+					next('<ui-plugin path="settingsform.{0}" config="init:?/reload" class="{2}_settings"><ui-component name="ready" config="delay:300" class="invisible"><ui-component name="viewbox" path="common.form" config="scrollbar:1;scrollbarshadow:1;margin:70;parent:auto"><div class="padding main npb"><div class="grid-2"><div class="m"><ui-component name="input" path="?.name" config="required:1;innerlabel:1;placeholder:@(Component name)">@(Name)</ui-component><div class="help">ID: <ui-bind path="?.$id" config="text" class="b monospace"></ui-bind></div></div><div class="m"><ui-component name="input" path="?.path" config="dirsource:DEF.cl.paths;dircustom:1;dirraw:1;dirplaceholder:@(Search path or enter custom);monospace:1;innerlabel:1;placeholder:path.to.property">@(Path for reading/writing)</ui-component><div class="help"><span class="exec link" data-exec="settings_clearpath"><i class="ti ti-clean mr5"></i>@(Clear path)</span></div></div></div></div>{1}</ui-component><nav><ui-component name="validate" path="?" class="buttons"><button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button><button name="cancel">@(Cancel)</button></ui-component></nav></ui-component></ui-plugin>'.format(id, response, com.cls));
 				};
 
-				if (obj.settings) {
-					if (obj.settings.indexOf('<') === -1)
-						AJAX('GET ' + obj.settings, done);
+				if (com.settings) {
+					if (com.settings.indexOf('<') === -1)
+						AJAX('GET ' + com.settings, done);
 					else
-						done(obj.settings);
+						done(com.settings);
 				} else
-					done(obj.settings);
+					done(com.settings);
 
 			} else
 				next('');
@@ -211,17 +240,30 @@
 		}
 
 		function settings_submit(hide) {
-			var data = CLONE(settingsform[settingsform.objectid]);
+			var data = CLONE(settingsform[settingsform.componentid]);
 			delete data.$id;
 			var instance = app.instances.findItem('id', settingsform.id);
 			COPY(data, instance.config);
 			instance.emit('configure', instance.config);
+
+			for (var item of app.instances)
+				item.events.refresh && item.emit('refresh', { type: 'configure', item: instance });
+
 			app.refreshio();
 			uibuilder_rebuildpaths();
 			hide();
 		}
 
 		ON('ready', function() {
+
+			common.darkmode && $('body').aclass('ui-dark');
+
+			if (top !== W) {
+				// iframe
+				SET('common.iframe', true);
+				FUNC.send({ TYPE: 'ready' });
+				return;
+			}
 
 			var url = NAV.query.url;
 
@@ -230,9 +272,14 @@
 				return;
 			}
 
-			AJAX('GET ' + url, function(response) {
-				UIBuilder.data = response;
-				uibuilder_redraw();
+			AJAX('GET ' + url, function(response, err) {
+				if (err) {
+					SET('common.form', 'templatesform');
+					SETTER('message/warning @hideloading', 'Invalid source: ' + err);
+				} else {
+					UIBuilder.data = response;
+					uibuilder_redraw();
+				}
 			});
 		});
 
@@ -250,25 +297,32 @@
 		function uibuilder_rebuildpaths() {
 
 			DEF.cl.paths = DEF.cl.paths.remove('internal', true);
+			DEF.cl.datasource = [];
 
 			var arr = [];
 
 			for (var instance of app.instances) {
-				if (instance.object.follow)
-					arr.push({ id: '@' + instance.id, name: '<span class="badge badge-small mr5 badge-gray monospace">object</span>' + instance.config.name + '<span class="fs11 silver ml5">' + instance.id + ' / ' + instance.object.name + '</span>', sort: instance.config.name, internal: true });
+				if (instance.component.follow)
+					arr.push({ id: '@' + instance.id, name: '<span class="badge badge-small mr5 badge-gray monospace">@(component)</span>' + instance.config.name + '<span class="fs11 silver ml5">' + instance.id + ' / ' + instance.component.name + '</span>', sort: instance.config.name, internal: true });
 			}
 
 			arr.quicksort('sort');
 			DEF.cl.paths.push.apply(DEF.cl.paths, arr);
 
+			DEF.cl.datasource.push.apply(DEF.cl.datasource, DEF.cl.codes);
+			DEF.cl.datasource.push.apply(DEF.cl.datasource, arr);
+
 			UPD('DEF.cl.paths');
+			UPD('DEF.cl.datasource');
 		}
 
 		function uibuilder_redraw(el) {
 
 			if (el) {
-				var cls = 'ti-spin';
-				el.find('i').aclass(cls).rclass(cls, 2000);
+				if (el instanceof jQuery) {
+					var cls = 'ti-spin';
+					el.find('i').aclass(cls).rclass(cls, 2000);
+				}
 				UIBuilder.data.children = app.stringify().children;
 			}
 
@@ -287,14 +341,18 @@
 				var arr = [];
 				var groups = {};
 
-				for (var key in response.objects) {
-					var obj = response.objects[key];
-					var g = obj.group || '$';
+				for (var key in response.components) {
+					var com = response.components[key];
+
+					if (com.hidden)
+						continue;
+
+					var g = com.group || '$';
 					if (groups[g])
-						groups[g].push(obj);
+						groups[g].push(com);
 					else
-						groups[g] = [obj];
-					arr.push(obj);
+						groups[g] = [com];
+					arr.push(com);
 				}
 
 				var arr2 = [];
@@ -307,31 +365,33 @@
 
 				arr2.quicksort('id');
 
-				SET('common.objects', arr);
+				SET('common.components', arr);
 				SET('common.groups', arr2);
 				UPD('app');
 			});
 		}
 
 		function opensettings(el) {
-			var obj = el[0].uibuilder;
-			var objectid = obj.object.id;
+			var com = el[0].uibuilder;
+			var componentid = com.component.id;
 
-			var config = CLONE(obj.config);
-			config.$id = obj.id;
+			var config = CLONE(com.config);
+			config.$id = com.id;
 
-			SET('settingsform.id', obj.id);
-			SET('settingsform.objectid', objectid);
-			SET('settingsform.' + objectid + ' @reset', config);
+			UIBuilder.selected = com;
+
+			SET('settingsform.id', com.id);
+			SET('settingsform.componentid', componentid);
+			SET('settingsform.' + componentid + ' @reset', config);
 			SET('common.form', 'settingsform');
 		}
 
-		function drop_object(meta) {
+		function drop_component(meta) {
 
-			var parent = meta.container.closest('.UI_object');
+			var parent = meta.container.closest('.UI_component');
 			var parentid = parent.attrd('id');
 			var containerindex = meta.container.attrd('index');
-			var target = meta.target.hclass('UI_object') ? meta.target : meta.target.closest('.UI_object');
+			var target = meta.target.hclass('UI_component') ? meta.target : meta.target.closest('.UI_component');
 
 			if (!target[0])
 				return;
@@ -339,19 +399,20 @@
 			var position = target[0] === parent[0] ? null : (NODEINDEXOF(target[0]) + 1);
 			var config;
 			var node = meta.element;
-			if (!node.hclass('UI_object'))
-				node = node.closest('.UI_object');
+
+			if (!node.hclass('UI_component'))
+				node = node.closest('.UI_component');
 
 			instance = node[0] ? node[0].uibuilder : null;
 
 			if (!meta.element.hclass('draggable') && !instance)
 				return;
 
-			// Existing object
+			// Existing component
 			if (instance) {
 
-				// Same element
-				if (instance.dom === target[0])
+				// Same element or child
+				if (instance.dom === target[0] || instance.dom.contains(parent[0]))
 					return;
 
 				var data = app.stringify(instance.element);
@@ -360,8 +421,21 @@
 				node.remove();
 				app.clean();
 
-			} else
-				app.add(parentid, containerindex, ATTRD(meta.element), position);
+			} else {
+
+
+				var comid = ATTRD(meta.element);
+				var com = app.components[comid];
+				var metadata = null;
+
+				if (com.floating) {
+					var offset = $('#dappcontainer').offset();
+					metadata = { x: meta.pageX - offset.left, y: meta.pageY - offset.top, zindex: app.zindex + 1 };
+					parentid = app.instances[0].id;
+				}
+
+				app.add(parentid, containerindex, comid, position, null, metadata);
+			}
 		}
 
 		function uibuilder_compile(callback) {
@@ -370,8 +444,8 @@
 
 			var meta = CLONE(app.schema);
 			var data = app.stringify(function(item) {
-				return !!item.object.render;
-			});
+				return !!item.component.render;
+			}, true);
 
 			meta.children = data.children;
 			meta.inputs = app.inputs;
@@ -380,34 +454,58 @@
 			var used = {};
 
 			for (var instance of app.instances) {
-				if (instance.object.render)
-					used[instance.object.id] = instance.object.render;
+				if (instance.component.render)
+					used[instance.component.id] = 'https://uibuilder.totaljs.com' + instance.component.render;
 			}
 
 			if (meta.editor && meta.editor.download) {
 				var arr = Object.keys(used);
 				arr.wait(function(key, next) {
-					var obj = app.objects[key];
-					AJAX('GET ' + obj.render, function(response) {
+					var com = app.components[key];
+					AJAX('GET ' + com.render, function(response) {
 						var parsed = UIBuilder.parsehtml(response);
 						used[key] = 'base64 ' + btoa(encodeURIComponent(response));
 						next();
 					});
 				}, function() {
-					meta.objects = used;
+					meta.components = used;
 					callback(meta);
 				});
 			} else {
-				meta.objects = used;
+				meta.components = used;
 				callback(meta);
 			}
 		}
 
 		function uibuilder_publish() {
+
+			if (common.iframe) {
+				uibuilder_compile(function(meta) {
+					var data = meta.editor;
+
+					if (meta.csspublish)
+						meta.css = meta.csspublish;
+
+					delete meta.editor;
+					delete meta.csspublish;
+					delete meta.cssrender;
+					SETTER('loading/hide', 500);
+					FUNC.send({ TYPE: 'publish', data: meta });
+				});
+				return;
+			}
+
 			SETTER('approve/show', '@(Are you sure you want to publish design?)', '"ti ti-check-circle" @(PUBLISH)', function() {
 				uibuilder_compile(function(meta) {
 					var data = meta.editor;
+
+					if (meta.csspublish)
+						meta.css = meta.csspublish;
+
 					delete meta.editor;
+					delete meta.csspublish;
+					delete meta.cssrender;
+
 					if (app.schema.editor && app.schema.editor.publish) {
 						AJAX('POST ' + data.publish + ' urlencoded', { data: JSON.stringify(meta) }, ERROR(ASETTER('notify/success @hideloading', '@(Done, published!)')));
 					} else {
@@ -435,23 +533,41 @@
 			data.args = schema.args;
 			data.editor = schema.editor ? CLONE(schema.editor) : {};
 			data.description = schema.description;
+			data.css = schema.css;
+			data.csspublish = schema.csspublish;
+			data.cssrender = schema.cssrender;
 
 			SET('appsettingsform @reset', data);
 			SET('common.form', path);
 		}
 
 		function uibuilder_render() {
-			if (app.schema.editor && app.schema.editor.render) {
-				uibuilder_compile(function(meta) {
+			uibuilder_compile(function(meta) {
+
+				var data = meta.editor;
+
+				if (meta.cssrender)
+					meta.css = meta.cssrender;
+
+				delete meta.editor;
+				delete meta.csspublish;
+				delete meta.cssrender;
+
+				if (common.iframe) {
+					SETTER('loading/hide', 500);
+					FUNC.send({ TYPE: 'render', data: meta });
+					return;
+				}
+
+				if (data.render) {
 					SETTER('loading/hide', 1000);
-					var data = meta.editor;
-					delete meta.editor;
 					var form = $('#uibuilderrender');
 					form.attr('action', data.render);
 					form.find('input').val(JSON.stringify(meta));
 					form.submit();
-				});
-			}
+				} else
+					SETTER('message/warning @hideloading', '@(You do not have defined a render URL address)');
+			});
 		}
 
 		function uibuilder_contextmenu(el, e) {
@@ -462,10 +578,30 @@
 			opt.align = 'left';
 			opt.items = [];
 			opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
+			opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
 			opt.callback = function(selected) {
-				if (selected.id === 'readme') {
-					var obj = app.objects[id];
-					FUNC.readme(obj.name, obj.readme || '@(Without readme)');
+				switch (selected.id) {
+
+					case 'readme':
+						var com = app.components[id];
+						FUNC.readme(com.name, com.readme || '@(Without readme)');
+						break;
+
+					case 'remove':
+						var com = app.components[id];
+						for (var item of app.instances) {
+							if (item.component === com && item.protected) {
+								SETTER('message/warning', "@(This component is protected, it can't be removed.)");
+								return;
+							}
+						}
+
+						SETTER('approve/show', '@(Are you sure you want to remove "{0}" component?)'.format(com.name), '"ti ti-remove" @(Remove)', function() {
+							delete app.schema.components[id];
+							uibuilder_redraw();
+						});
+
+						break;
 				}
 			};
 			SETTER('menu/show', opt);
@@ -495,13 +631,13 @@
 				container.tclass('dm', selected.id !== 'auto');
 				container.aclass('dm-' + selected.id);
 				SET('common.device', selected.id);
-				el.find('i').rclass2('fa').aclass(selected.icon);
+				el.find('i').rclass2('ti').aclass(selected.icon);
 			};
 			SETTER('menu/show', opt);
 		}
 
-		function uibuilder_objects() {
-			SET('common.form', 'objectsform');
+		function uibuilder_components() {
+			SET('common.form', 'componentsform');
 		}
 
 		function uibuilder_save() {
@@ -512,6 +648,11 @@
 			meta.children = data.children;
 			meta.inputs = app.inputs;
 			meta.outputs = app.outputs;
+
+			if (common.iframe) {
+				FUNC.send({ TYPE: 'save', data: meta });
+				return;
+			}
 
 			if (meta.editor && meta.editor.save) {
 				SETTER('approve/show', '@(Are you sure you want to save design?)', '"ti ti-check-circle" @(SAVE)', function() {
@@ -625,7 +766,9 @@
 
 			if (!instance.protected) {
 
-				instance.element.attr('draggable', true);
+				if (!instance.component.floating)
+					instance.element.attr('draggable', true);
+
 				instance.element.on('contextmenu', function(e) {
 
 					e.preventDefault();
@@ -635,18 +778,40 @@
 					opt.x = e.pageX;
 					opt.y = e.pageY;
 					opt.items = [];
-					opt.items.push(instance.object.name);
+					opt.items.push(instance.component.name);
 					opt.items.push({ id: 'settings', name: '@(Settings)', classname: 'b', icon: 'ti ti-cog' });
-					opt.items.push({ id: 'gap', name: '@(Toggle gap)', selected: instance.element.hclass('UI_gap'), icon: 'ti ti-caret-square-down' });
-					opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
+
+					if (!instance.component.floating)
+						opt.items.push({ id: 'gap', name: '@(Toggle gap)', selected: instance.element.hclass('UI_gap'), icon: 'ti ti-caret-square-down' });
+
+					if (instance.component.readme)
+						opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
+
+					if (instance.component.floating) {
+						opt.items.push('-');
+						opt.items.push({ id: 'bringfront', name: '@(Bring to front)', icon: 'ti ti-plus-circle green' });
+						opt.items.push({ id: 'bringback', name: '@(Bring to back)', icon: 'ti ti-minus-circle green' });
+					}
 
 					opt.items.push('-');
 					opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
 					opt.callback = function(selected) {
+
+						var tmp;
+
 						switch (selected.id) {
+							case 'bringfront':
+								tmp = +instance.element.css('z-index');
+								instance.element.css('z-index', tmp + 1);
+								break;
+							case 'bringback':
+								tmp = +instance.element.css('z-index');
+								if (tmp > 1)
+									instance.element.css('z-index', tmp - 1);
+								break;
 							case 'readme':
-								var obj = instance.object;
-								FUNC.readme(obj.name, obj.readme || '@(Without readme)');
+								var com = instance.component;
+								FUNC.readme(com.name, com.readme || '@(Without readme)');
 								break;
 							case 'gap':
 								instance.element.tclass('UI_gap');
@@ -666,6 +831,10 @@
 			}
 
 		});
+
+		function uibuilder_close() {
+			FUNC.send({ TYPE: 'close' });
+		}
 
 	</script>
 

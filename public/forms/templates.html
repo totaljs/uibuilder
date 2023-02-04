@@ -9,24 +9,26 @@
 
 <ui-component name="centered" path="common.form" config="if:~PATH~;autofocus:true;reload:?/reload;closebutton:1;closeesc:0;close:?/close" class="hidden ~PATH~" plugin="~PATH~">
 	<div style="max-width:700px;width:100%;margin:0 auto">
-		<div class="padding npt">
-			<div class="b" style="font-size:18px"><i class="ti ti-totaljs green mr10"></i>@(Total.js UI Builder)</div>
-			<div class="gray mt5 m">@(How does UI Builder work?) <a href="https://www.youtube.com/" target="_blank"><i class="ti ti-play-alt mr5"></i>@(Video tutorial)</a></div>
-			<br />
-			<ui-bind path="?.items" config="template" class="grid-3">
-				<script type="text/html">
-					{{ foreach m in value }}
-					<figure{{ if m.disabled }} class="disabled"{{ else }} class="exec m" data-exec="?/install" data-id="{{ m.id }}"{{ fi }}>
-						<div class="image"><img src="{{ m.image }}" class="img-responsive" alt="{{ m.name }}" /></div>
-						<div class="name">{{ m.name }}</div>
-					</figure>
-					{{ end }}
-				</script>
-			</ui-bind>
-			<div class="help"><a href="https://docs.totaljs.com/uibuilder/" target="_blank" class="silver"><i class="ti ti-book-open mr5"></i>Documentation</a></div>
-			<br />
-			<br />
-		</div>
+		<ui-component name="ready" class="invisible">
+			<div class="padding npt">
+				<div class="b" style="font-size:18px"><i class="ti ti-totaljs green mr10"></i>@(Total.js UI Builder)</div>
+				<div class="gray mt5 m">@(How does UI Builder work?) <a href="https://www.youtube.com/" target="_blank"><i class="ti ti-play-alt mr5"></i>@(Video tutorial)</a></div>
+				<br />
+				<ui-bind path="?.items" config="template" class="grid-3">
+					<script type="text/html">
+						{{ foreach m in value }}
+						<figure{{ if m.disabled }} class="disabled"{{ else }} class="exec m" data-exec="?/install" data-id="{{ m.id }}"{{ fi }}>
+							<div class="image"><img src="{{ m.image }}" class="img-responsive" alt="{{ m.name }}" /></div>
+							<div class="name">{{ m.name }}</div>
+						</figure>
+						{{ end }}
+					</script>
+				</ui-bind>
+				<div class="help"><a href="https://docs.totaljs.com/uibuilder/" target="_blank" class="silver"><i class="ti ti-book-open mr5"></i>Documentation</a></div>
+				<br />
+				<br />
+			</div>
+		</ui-component>
 	</div>
 </ui-component>
 

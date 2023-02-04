@@ -409,15 +409,37 @@
 		return obj;
 	};
 
-	IP.replace = function(val, data) {
+	IP.replace = IP.variables = function(val, data) {
 		var self = this;
 		return val.replace(/\{[a-z0-9_-]+\}/gi, function(text) {
 			var key = text.substring(1, text.length - 1).trim();
-			var val = self.args[key];
-			if (val == null && data)
-				val = data[key];
+			var val = '';
+			var five = key.substring(0, 5);
+			if (five === 'user.') {
+				if (W.user) {
+					key = key.substring(5);
+					val = key.indexOf('.') === -1 ? W.user[key] : instance.read(W.user, key);
+				}
+			} else if (key.substring(0, 6) === 'query.') {
+				key = key.substring(6);
+				val = NAV.query[key];
+			} else {
+				val = self.args[key];
+				if (val == null && data)
+					val = data[key];
+			}
 			return val == null ? text : val;
 		});
+	};
+
+	IP.querify = function(url, obj) {
+		var self = this;
+		return self.app.urlify(self.variables(obj ? QUERIFY(url, obj) : url));
+	};
+
+	IP.urlify = function(url) {
+		var self = this;
+		return self.app.urlify(self.variables(url));
 	};
 
 	IP.settings = function() {
@@ -593,6 +615,7 @@
 
 	function app_clean() {
 
+		console.log('SOM TU');
 		var self = this;
 		var index = 0;
 		var counter = 0;
@@ -720,6 +743,7 @@
 		app.dom = container[0];
 		app.pending = [];
 		app.instances = [];
+		app.urlify = url => url;
 
 		container.aclass(app.class);
 

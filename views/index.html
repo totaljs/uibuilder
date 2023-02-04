@@ -29,6 +29,7 @@
 	<ui-component name="LAZY floatingbox"></ui-component>
 	<ui-component name="LAZY sounds" config="volume:10"></ui-component>
 	<ui-component name="LAZY message" config="style:2"></ui-component>
+	<ui-component name="LAZY floatinginput"></ui-component>
 
 	<ui-component name="windows" path="common.windows" config="zindex:30"></ui-component>
 	<ui-component name="markdown"></ui-component>
@@ -250,7 +251,6 @@
 				item.events.refresh && item.emit('refresh', { type: 'configure', item: instance });
 
 			app.refreshio();
-			uibuilder_rebuildpaths();
 			hide();
 		}
 
@@ -483,12 +483,12 @@
 				uibuilder_compile(function(meta) {
 					var data = meta.editor;
 
-					if (meta.csspublish)
-						meta.css = meta.csspublish;
+					if (meta.cssoutput)
+						meta.css = meta.cssoutput;
 
 					delete meta.editor;
-					delete meta.csspublish;
-					delete meta.cssrender;
+					delete meta.cssoutput;
+					delete meta.csspreview;
 					SETTER('loading/hide', 500);
 					FUNC.send({ TYPE: 'publish', data: meta });
 				});
@@ -499,12 +499,12 @@
 				uibuilder_compile(function(meta) {
 					var data = meta.editor;
 
-					if (meta.csspublish)
-						meta.css = meta.csspublish;
+					if (meta.cssoutput)
+						meta.css = meta.cssoutput;
 
 					delete meta.editor;
-					delete meta.csspublish;
-					delete meta.cssrender;
+					delete meta.cssoutput;
+					delete meta.csspreview;
 
 					if (app.schema.editor && app.schema.editor.publish) {
 						AJAX('POST ' + data.publish + ' urlencoded', { data: JSON.stringify(meta) }, ERROR(ASETTER('notify/success @hideloading', '@(Done, published!)')));
@@ -534,8 +534,8 @@
 			data.editor = schema.editor ? CLONE(schema.editor) : {};
 			data.description = schema.description;
 			data.css = schema.css;
-			data.csspublish = schema.csspublish;
-			data.cssrender = schema.cssrender;
+			data.cssoutput = schema.cssoutput;
+			data.csspreview = schema.csspreview;
 
 			SET('appsettingsform @reset', data);
 			SET('common.form', path);
@@ -546,12 +546,12 @@
 
 				var data = meta.editor;
 
-				if (meta.cssrender)
-					meta.css = meta.cssrender;
+				if (meta.csspreview)
+					meta.css = meta.csspreview;
 
 				delete meta.editor;
-				delete meta.csspublish;
-				delete meta.cssrender;
+				delete meta.cssoutput;
+				delete meta.csspreview;
 
 				if (common.iframe) {
 					SETTER('loading/hide', 500);
@@ -589,6 +589,7 @@
 
 					case 'remove':
 						var com = app.components[id];
+
 						for (var item of app.instances) {
 							if (item.component === com && item.protected) {
 								SETTER('message/warning', "@(This component is protected, it can't be removed.)");
@@ -596,6 +597,7 @@
 							}
 						}
 
+					console.log(com);
 						SETTER('approve/show', '@(Are you sure you want to remove "{0}" component?)'.format(com.name), '"ti ti-remove" @(Remove)', function() {
 							delete app.schema.components[id];
 							uibuilder_redraw();
@@ -636,8 +638,25 @@
 			SETTER('menu/show', opt);
 		}
 
-		function uibuilder_components() {
-			SET('common.form', 'componentsform');
+		function uibuilder_components(el) {
+			var opt = {};
+			opt.element = el;
+			opt.items = [];
+			opt.items.push({ id: 'components', name: '@(Download components)', icon: 'ti ti-database', classname: 'b' });
+			opt.items.push('-');
+			opt.items.push({ id: 'add', name: '@(Import custom)', icon: 'ti ti-plus-circle green' });
+			opt.callback = function(sel) {
+				switch (sel.id) {
+					case 'add':
+						uibuilder_addcomponent(el);
+						break;
+					case 'components':
+						SET('common.form', 'componentsform');
+						break;
+				}
+
+			};
+			SETTER('menu/show', opt);
 		}
 
 		function uibuilder_save() {
@@ -665,6 +684,41 @@
 				SETTER('loading/hide', 1000);
 			}
 		}
+
+		function uibuilder_addcomponent(el) {
+			var opt = {};
+			opt.element = el;
+			opt.summary = '@(Enter the URL of the component source:)';
+			opt.placeholder = 'https://www.yourserver.com/component.html';
+			opt.type = 'url';
+			opt.icon = 'ti ti-globe';
+			opt.align = 'left';
+			opt.offsetWidth = 300;
+			opt.callback = function(value) {
+				AJAX('GET ' + value + ' ERROR', function(response) {
+					if (typeof(response) === 'string' && response.indexOf('exports.id') !== -1 && response.indexOf('exports.make') !== -1) {
+
+						var match = response.match(/exports\.id.*?(;|\n)/);
+						if (match) {
+							var obj = {};
+							new Function('exports', match[0])(obj);
+							if (obj.id) {
+								var id = obj.id;
+								if (!app.schema.components[id]) {
+									app.schema.components[id] = value;
+									uibuilder_redraw(true);
+								}
+								SETTER('notify/success', '@(The component has been imported successfully.)');
+								return;
+							}
+						}
+
+					}
+					SETTER('message/warning', '@(Invalid component content)');
+				});
+			};
+			SETTER('floatinginput/show', opt);
+		};
 
 		WATCH('app.schema.editor.paths', function(path, value) {
 
@@ -720,6 +774,7 @@
 			SET('DEF.cl.inputs', app.inputs);
 			SET('DEF.cl.outputs', app.outputs);
 			SET('DEF.cl.list', app.list);
+			uibuilder_rebuildpaths();
 		});
 
 		UIBuilder.on('attr', function(el, callback) {

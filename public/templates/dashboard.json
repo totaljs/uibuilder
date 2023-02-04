@@ -15,6 +15,7 @@
 		"columns": "https://uibuilder.totaljs.com/components/columns/editor.html",
 		"container": "https://uibuilder.totaljs.com/components/container/editor.html",
 		"barchart": "https://uibuilder.totaljs.com/components/barchart/editor.html",
+		"piechart": "https://uibuilder.totaljs.com/components/piechart/editor.html",
 		"columnchart": "https://uibuilder.totaljs.com/components/columnchart/editor.html",
 		"linechart": "https://uibuilder.totaljs.com/components/linechart/editor.html",
 		"datareader": "https://uibuilder.totaljs.com/components/datareader/editor.html"

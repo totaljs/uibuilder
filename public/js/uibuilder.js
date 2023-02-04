@@ -371,8 +371,8 @@
 			return value;
 
 		var arr = path.split('.');
-		for (i = 0; i < arr.length - 1; i++) {
- 			var tmp = obj[arr[i]];
+		for (var i = 0; i < arr.length - 1; i++) {
+			var tmp = obj[arr[i]];
 			if (tmp == null)
 				tmp = obj[arr[i]] = {};
 			obj = tmp;
@@ -401,8 +401,8 @@
 			return obj;
 
 		var arr = path.split('.');
-		for (i = 0; i < arr.length; i++) {
- 			obj = obj[arr[i]];
+		for (var i = 0; i < arr.length; i++) {
+			obj = obj[arr[i]];
 			if (!obj)
 				return;
 		}
@@ -418,7 +418,7 @@
 			if (five === 'user.') {
 				if (W.user) {
 					key = key.substring(5);
-					val = key.indexOf('.') === -1 ? W.user[key] : instance.read(W.user, key);
+					val = key.indexOf('.') === -1 ? W.user[key] : self.read(W.user, key);
 				}
 			} else if (key.substring(0, 6) === 'query.') {
 				key = key.substring(6);
@@ -750,7 +750,11 @@
 		app.dom = container[0];
 		app.pending = [];
 		app.instances = [];
-		app.urlify = url => url;
+
+		if (meta.urlify)
+			app.urlify = meta.urlify;
+		else
+			app.urlify = url => url;
 
 		container.aclass(app.class);
 

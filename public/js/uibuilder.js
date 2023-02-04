@@ -453,6 +453,15 @@
 	Builder.current = 'default';
 	Builder.events = {};
 	Builder.apps = {};
+	Builder.resize = function() {
+		for (var key in Builder.apps) {
+			var app = Builder.apps[key];
+			for (var instance of app.instances)
+				instance.events.resize && instance.emit('resize');
+		}
+	};
+
+	ON('resize + resize2', Builder.resize);
 
 	Builder.on = function(name, fn) {
 		var t = this;
@@ -615,7 +624,6 @@
 
 	function app_clean() {
 
-		console.log('SOM TU');
 		var self = this;
 		var index = 0;
 		var counter = 0;
@@ -685,9 +693,8 @@
 		var containers = findcontainers(self, parentid);
 		if (containers.length) {
 			for (var container of containers) {
-				if (container.index == parentindex) {
+				if (container.index == parentindex)
 					self.compile(container.element, com, parentindex, position);
-				}
 			}
 		}
 

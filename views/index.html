@@ -108,7 +108,7 @@
 			<section data-type="main">
 				<ui-component name="viewbox" path="app" config="parent:window;margin:44;scrollbarshadow:1;visibleX:1;visibleY:1">
 					<div id="dappcontainer">
-						<ui-component id="dapp" name="uibuildereditor" config="exec:func;ondrop:drop_component;dblclick:opensettings"></ui-component>
+						<ui-component id="dapp" name="uibuildereditor" config="exec:func;ondrop:component_drop;dblclick:opensettings"></ui-component>
 					</div>
 				</ui-component>
 			</section>
@@ -386,7 +386,51 @@
 			SET('common.form', 'settingsform');
 		}
 
-		function drop_component(meta) {
+		function component_clone(instance) {
+
+			var meta = app.stringify(instance.element).children;
+			var index = 0;
+
+			meta.id = 'cid' + Date.now().toString(36);
+
+			var updateid = function(children) {
+				for (var item of children) {
+					for (var m of item) {
+						m.id = 'cid' + Math.random().toString(36).substring(2).substring(0, 8);
+						updateid(m.children);
+					}
+				}
+			};
+
+			updateid(meta.children);
+
+			var parent = instance.parent.element;
+			var parentid = parent.attrd('id');
+			var containerindex = instance.element.closest('.UI_components').attrd('index');
+			var target = instance.element;
+			var position = target[0] === parent[0] ? null : (NODEINDEXOF(target[0]) + 1);
+			app.add(parentid, containerindex, meta, position);
+			app.clean();
+		}
+
+		function component_move(instance, up) {
+
+			var meta = app.stringify(instance.element).children;
+			var parent = instance.parent.element;
+			var parentid = parent.attrd('id');
+			var containerindex = instance.element.closest('.UI_components').attrd('index');
+			var target = instance.element;
+			var position = target[0] === parent[0] ? null : (NODEINDEXOF(target[0]) + (up ? -1 : 2));
+
+			if (position === -1)
+				return;
+
+			app.add(parentid, containerindex, meta, position);
+			instance.element.remove();
+			app.clean();
+		}
+
+		function component_drop(meta) {
 
 			var parent = meta.container.closest('.UI_component');
 			var parentid = parent.attrd('id');
@@ -422,7 +466,6 @@
 				app.clean();
 
 			} else {
-
 
 				var comid = ATTRD(meta.element);
 				var com = app.components[comid];
@@ -597,7 +640,6 @@
 							}
 						}
 
-					console.log(com);
 						SETTER('approve/show', '@(Are you sure you want to remove "{0}" component?)'.format(com.name), '"ti ti-remove" @(Remove)', function() {
 							delete app.schema.components[id];
 							uibuilder_redraw();
@@ -615,12 +657,12 @@
 			opt.element = el;
 			opt.align = 'left';
 			opt.items = [];
-			opt.items.push({ id: 'xs', name: 'Extra small display', icon: 'ti ti-mobile' });
-			opt.items.push({ id: 'sm', name: 'Small display', icon: 'ti ti-tablet' });
-			opt.items.push({ id: 'md', name: 'Medium display', icon: 'ti ti-laptop' });
-			opt.items.push({ id: 'lg', name: 'Large display', icon: 'ti ti-desktop' });
+			opt.items.push({ id: 'xs', name: '@(Extra small display)', icon: 'ti ti-mobile' });
+			opt.items.push({ id: 'sm', name: '@(Small display)', icon: 'ti ti-tablet' });
+			opt.items.push({ id: 'md', name: '@(Medium display)', icon: 'ti ti-laptop' });
+			opt.items.push({ id: 'lg', name: '@(Large display)', icon: 'ti ti-desktop' });
 			opt.items.push('-');
-			opt.items.push({ id: 'auto', name: 'Current browser', icon: 'ti ti-window' });
+			opt.items.push({ id: 'auto', name: '@(Current browser)', icon: 'ti ti-window' });
 
 			if (sel) {
 				for (var item of opt.items)
@@ -634,6 +676,7 @@
 				container.aclass('dm-' + selected.id);
 				SET('common.device', selected.id);
 				el.find('i').rclass2('ti').aclass(selected.icon);
+				UIBuilder.resize();
 			};
 			SETTER('menu/show', opt);
 		}
@@ -848,13 +891,27 @@
 						opt.items.push({ id: 'bringback', name: '@(Bring to back)', icon: 'ti ti-minus-circle green' });
 					}
 
+					if (!instance.protected) {
+						opt.items.push('-');
+						opt.items.push({ id: 'up', name: '@(Move up)', icon: 'ti ti-arrow-up' });
+						opt.items.push({ id: 'down', name: '@(Move down)', icon: 'ti ti-arrow-down' });
+						opt.items.push({ id: 'clone', name: '@(Clone)', icon: 'ti ti-clone' });
+					}
+
 					opt.items.push('-');
 					opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
-					opt.callback = function(selected) {
+					opt.callback = function(sel) {
 
 						var tmp;
 
-						switch (selected.id) {
+						switch (sel.id) {
+							case 'up':
+							case 'down':
+								component_move(instance, sel.id === 'up');
+								break;
+							case 'clone':
+								component_clone(instance);
+								break;
 							case 'bringfront':
 								tmp = +instance.element.css('z-index');
 								instance.element.css('z-index', tmp + 1);

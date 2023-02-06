@@ -46,15 +46,18 @@
 			<label><i class="ti ti-link"></i>@(Editor settings)</label>
 		</div>
 		<ui-plugin path="editor">
-			<div>
+			<div class="grid-2">
 				<div class="m">
-					<ui-component name="input" path="?.paths" config="innerlabel:1;icon:ti ti-database;placeholder:@(Enter URL address)">@(URL address for obtaining paths)</ui-component>
+					<ui-component name="input" path="?.paths" config="icon:ti ti-database;placeholder:@(Enter URL address)">@(URL address for obtaining paths)</ui-component>
 				</div>
 				<div class="m">
-					<ui-component name="input" path="?.codes" config="innerlabel:1;icon:ti ti-list;placeholder:@(Enter URL address)">@(URL address for obtaining codes)</ui-component>
+					<ui-component name="input" path="?.codes" config="icon:ti ti-list;placeholder:@(Enter URL address)">@(URL address for obtaining codes)</ui-component>
 				</div>
 				<div class="m">
-					<ui-component name="input" path="?.upload" config="innerlabel:1;icon:ti ti-list;placeholder:@(Enter URL address)">@(URL address for uploading files)</ui-component>
+					<ui-component name="input" path="?.upload" config="icon:ti ti-list;placeholder:@(Enter URL address)">@(URL address for uploading files)</ui-component>
+				</div>
+				<div class="m">
+					<ui-component name="input" path="?.apps" config="icon:ti ti-rocket;placeholder:@(Enter URL address)">@(URL address for obtaining list of apps)</ui-component>
 				</div>
 			</div>
 			<ui-bind path="common.iframe" config="hide" class="hidden block">
@@ -117,9 +120,8 @@
 
 			UPD('app');
 
-			if (tmp !== css) {
+			if (tmp !== css)
 				setTimeout(uibuilder_redraw, 200, true);
-			}
 
 			hide();
 		};

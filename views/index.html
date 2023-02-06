@@ -142,8 +142,10 @@
 
 		common.windows = [];
 		common.components = [];
+		common.iframeapps = [];
 		common.paths = '';
 		common.codes = '';
+		common.apps = '';
 
 		CACHEPATH('common.darkmode', '1 year');
 
@@ -191,8 +193,9 @@
 			switch (msg.TYPE) {
 				case 'init':
 					common.upload = msg.upload;
+					common.iframeapps = msg.apps || [];
 					DEF.cl.usergroups = msg.groups || [];
-					DEF.cl.apps = msg.apps || [];
+					DEF.cl.apps = common.iframeapps.slice(0);
 					if (msg.data && msg.data.id) {
 						UIBuilder.data = msg.data;
 						uibuilder_redraw();
@@ -317,7 +320,7 @@
 			UPD('DEF.cl.datasource');
 
 			for (var instance of app.instances)
-				instance.events.refresh && instance.emit('refresh');
+				instance.events.refresh && instance.emit('refresh', { type: 'paths' });
 		}
 
 		function uibuilder_redraw(el) {
@@ -820,6 +823,35 @@
 				});
 			} else
 				SET('DEF.cl.codes', []);
+
+		});
+
+		WATCH('app.schema.editor.apps', function(path, value) {
+
+			if (value == null)
+				value = '';
+
+			if (common.apps !== value) {
+				common.apps = value;
+				AJAX('GET ' + value, function(response) {
+
+					if (response instanceof Array)
+						response = response.remove(item => !item || !item.name);
+					else
+						response = [];
+
+					if (common.iframeapps.slice(0))
+						response.push.apply(response, common.iframeapps);
+
+					SET('DEF.cl.apps', response);
+
+					for (var item of app.instances)
+						item.events.refresh && item.emit('refresh', { type: 'apps' });
+
+				});
+
+			} else
+				SET('DEF.cl.apps', common.iframeapps.slice(0));
 
 		});
 

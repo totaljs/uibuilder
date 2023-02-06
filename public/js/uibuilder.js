@@ -308,17 +308,22 @@
 	};
 
 	IP.reconfigure = function(config) {
+
 		var t = this;
-		if (t.events.configure) {
+		var changes = {};
+
+		if (config) {
 			for (var key in config) {
 				var prev = t.config[key];
 				var curr = config[key];
 				if (curr !== prev) {
+					changes[key] = prev;
 					t.config[key] = curr;
-					t.emit('configure', key, curr);
 				}
 			}
 		}
+
+		t.events.configure && t.emit('configure', changes);
 		return t;
 	};
 

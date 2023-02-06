@@ -60,7 +60,7 @@
 					</ui-bind>
 
 					<div class="pull-right">
-						<a href="https://docs.totaljs.com/uibuilder/" title="Documentation: Total.js Platform" target="_blank" class="special"><i class="ti ti-book"></i></a>
+						<a href="https://docs.totaljs.com/uibuilder/" title="@(Documentation: Total.js Platform)" target="_blank" class="special"><i class="ti ti-book"></i></a>
 					</div>
 
 					<div>
@@ -94,7 +94,7 @@
 							{{ foreach g in value }}
 								<div class="caption">{{ g.id }}</div>
 								{{ foreach m in g.items }}
-								<figure draggable="true" class="draggable exec3" data-exec3="uibuilder_contextmenu" data-id="{{ m.id }}" data-search="{{ m.name }}">
+								<figure draggable="true" class="draggable exec exec3" data-exec3="uibuilder_contextmenu" data-exec="component_readme" data-id="{{ m.id }}" data-search="{{ m.name }}">
 									<i class="{{ m.icon }}"></i>
 									<div class="name">{{ m.name }}</div>
 								</figure>
@@ -246,8 +246,7 @@
 			var data = CLONE(settingsform[settingsform.componentid]);
 			delete data.$id;
 			var instance = app.instances.findItem('id', settingsform.id);
-			COPY(data, instance.config);
-			instance.emit('configure', instance.config);
+			instance.reconfigure(data);
 
 			for (var item of app.instances)
 				item.events.refresh && item.emit('refresh', { type: 'configure', item: instance });
@@ -389,6 +388,12 @@
 			SET('settingsform.componentid', componentid);
 			SET('settingsform.' + componentid + ' @reset', config);
 			SET('common.form', 'settingsform');
+		}
+
+		function component_readme(el) {
+			var id = ATTRD(el);
+			var com = app.components[id];
+			FUNC.readme(com.name, com.readme || '@(Without readme)');
 		}
 
 		function component_clone(instance) {

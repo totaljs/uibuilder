@@ -112,4 +112,26 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .UI_special { background-color: #F8F8F8; background-image: repeating-linear-gradient(45deg, #F3F3F3, #F3F3F3 10px, #F9F9F9 10px, #F9F9F9 20px); padding: 15px; border-radius: var(--radius); font-size: 12px; position: relative; color: #999; }
 .UI_special label { color: #444; font-size: 14px; font-weight: bold; display: block; }
 .UI_special > i { margin: -24px 0 0 -24px; width: 24px; height: 24px; background-color: #FFF; border-radius: 100px; line-height: 23px; position: absolute; text-align: center; box-shadow: 0 2px 3px rgba(0,0,0,0.05); border: 1px solid #F0F0F0; }
+.UI_special > div { background-color: #FFF; padding: 10px; border-radius: var(--radius); margin-top: 2px; }
 .UI_floating.UI_special { border: 1px solid #E9E9E9; }
+
+/* PLACEHOLDER */
+.ui_placeholder_content { width: 100%; overflow: hidden; }
+.ui_placeholder_content .ui_placeholder_bar { background: #e0e0e0; min-height: 5px; }
+
+.ui_placeholder_columnchart { display: flex; align-items: flex-end; }
+.ui_placeholder_columnchart .ui_placeholder_bar { margin: 0 2px; }
+
+.ui_placeholder_linechart svg { width: 100%; height: auto; }
+/* .ui_placeholder_linechart { display: flex; align-items: flex-end; } */
+/* .ui_placeholder_linechart .ui_placeholder_bar { margin: 0 2px; background: transparent; } */
+/* .ui_placeholder_linechart .ui_placeholder_dot { width: 10px; height: 10px; border-radius: 50%; margin: 0 auto; background-color: #e0e0e0; } */
+
+.ui_placeholder_barchart { display: flex; align-items: flex-start; flex-direction: column; height: 100%; }
+.ui_placeholder_barchart .ui_placeholder_bar { margin: 2px 0; }
+
+.ui_placeholder_checkbox { height: 28px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; line-height: 28px; }
+.ui_placeholder_checkbox i { width: 20px; height: 20px; border-radius: var(--radius); border: 1px solid #E0E0E0; float: left; margin: 4px 7px 0 0; display: block; background-color: #fff; }
+.ui_placeholder_checkbox span { color: #a0a0a0; }
+
+.ui_placeholder_pie { width: 98px; height: 98px; border-radius: 50%; background-image: conic-gradient(#f0f0f0 64%, #e0e0e0 16%, #e0e0e0); margin: 0 auto; }

@@ -233,6 +233,16 @@
 		t.app.clean();
 	};
 
+	IP.readvalue = function(id) {
+		var t = this;
+
+		if (!id)
+			return t.state.value;
+
+		var instance = t.find(id);
+		return instance ? instance.state.value : null;
+	};
+
 	IP.datasource = function(id, callback) {
 
 		var t = this;
@@ -829,6 +839,11 @@
 			}
 		};
 
+		app.build = function(el, submeta, callback) {
+			submeta.urlify = app.urlify;
+			Builder.build(el, submeta, args, callback);
+		};
+
 		var refreshiotimeout = null;
 		var refreshio = function() {
 
@@ -1008,48 +1023,6 @@
 
 		};
 
-		Builder.parsehtml = function(response) {
-
-			var css = '';
-
-			if (response.indexOf('<scr' + 'ipt>') === -1)
-				return { js: response };
-
-			var settings = '';
-			var readme = '';
-			var css = '';
-			var js = '';
-			var html = '';
-
-			var beg = response.indexOf('<sett' + 'ings>');
-			if (beg !== -1) {
-				var end = response.indexOf('</sett' + 'ings>', beg + 10);
-				settings = response.substring(beg + 8, end).trim();
-				response = response.substring(0, beg) + response.substring(end + 11);
-			}
-
-			beg = response.indexOf('<st' +'yle>');
-			if (beg !== -1)
-				css = response.substring(beg + 7, response.indexOf('</st' + 'yle>', beg + 7));
-
-			beg = response.indexOf('<body>');
-			if (beg !== -1)
-				html = response.substring(beg + 6, response.indexOf('</body>', beg + 6));
-
-			beg = response.indexOf('<readme>');
-			if (beg !== -1)
-				readme = response.substring(beg + 8, response.indexOf('</readme>', beg + 8));
-
-			beg = response.indexOf('<scr' + 'ipt>');
-			if (beg !== -1) {
-				var end = response.indexOf('</scr' + 'ipt>', beg + 8);
-				js = response.substring(beg + 8, end).trim();
-			}
-
-			return { js: js, css: css, settings: settings, readme: readme, html: html };
-
-		};
-
 		Builder.apps[Builder.current] = app;
 
 		Object.keys(meta.components).wait(function(key, next) {
@@ -1179,6 +1152,49 @@
 				app.callback = callback;
 			});
 		});
+
+		return app;
+	};
+
+	Builder.parsehtml = function(response) {
+
+		var css = '';
+
+		if (response.indexOf('<scr' + 'ipt>') === -1)
+			return { js: response };
+
+		var settings = '';
+		var readme = '';
+		var css = '';
+		var js = '';
+		var html = '';
+
+		var beg = response.indexOf('<sett' + 'ings>');
+		if (beg !== -1) {
+			var end = response.indexOf('</sett' + 'ings>', beg + 10);
+			settings = response.substring(beg + 8, end).trim();
+			response = response.substring(0, beg) + response.substring(end + 11);
+		}
+
+		beg = response.indexOf('<st' +'yle>');
+		if (beg !== -1)
+			css = response.substring(beg + 7, response.indexOf('</st' + 'yle>', beg + 7));
+
+		beg = response.indexOf('<body>');
+		if (beg !== -1)
+			html = response.substring(beg + 6, response.indexOf('</body>', beg + 6));
+
+		beg = response.indexOf('<readme>');
+		if (beg !== -1)
+			readme = response.substring(beg + 8, response.indexOf('</readme>', beg + 8));
+
+		beg = response.indexOf('<scr' + 'ipt>');
+		if (beg !== -1) {
+			var end = response.indexOf('</scr' + 'ipt>', beg + 8);
+			js = response.substring(beg + 8, end).trim();
+		}
+
+		return { js: js, css: css, settings: settings, readme: readme, html: html };
 
 	};
 

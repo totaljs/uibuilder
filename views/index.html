@@ -36,6 +36,7 @@
 	<ui-component name="exec"></ui-component>
 	<ui-component name="locale"></ui-component>
 	<ui-component name="loading"></ui-component>
+	<ui-component name="shortcuts"></ui-component>
 	<ui-component name="edit"></ui-component>
 
 	<ui-bind path="app.ready" config="visible" class="invisible block">
@@ -191,6 +192,7 @@
 				case 'init':
 					common.upload = msg.upload;
 					DEF.cl.usergroups = msg.groups || [];
+					DEF.cl.apps = msg.apps || [];
 					if (msg.data && msg.data.id) {
 						UIBuilder.data = msg.data;
 						uibuilder_redraw();
@@ -303,7 +305,7 @@
 
 			for (var instance of app.instances) {
 				if (instance.component.follow)
-					arr.push({ id: '@' + instance.id, name: '<span class="badge badge-small mr5 badge-gray monospace">@(component)</span>' + instance.config.name + '<span class="fs11 silver ml5">' + instance.id + ' / ' + instance.component.name + '</span>', sort: instance.config.name, internal: true });
+					arr.push({ id: '@' + instance.id, name: '<span class="badge badge-small mr5 badge-gray monospace">@(component)</span>' + instance.config.name + '<span class="fs11 silver ml5">' + instance.id + ' / ' + instance.component.name + '</span>', sort: instance.config.name, text: instance.config.name, internal: true });
 			}
 
 			arr.quicksort('sort');
@@ -314,6 +316,9 @@
 
 			UPD('DEF.cl.paths');
 			UPD('DEF.cl.datasource');
+
+			for (var instance of app.instances)
+				instance.events.refresh && instance.emit('refresh');
 		}
 
 		function uibuilder_redraw(el) {
@@ -814,6 +819,13 @@
 		});
 
 		UIBuilder.on('io', function(app) {
+
+			for (var m of app.inputs)
+				m.text = m.name;
+
+			for (var m of app.outputs)
+				m.text = m.name;
+
 			SET('DEF.cl.inputs', app.inputs);
 			SET('DEF.cl.outputs', app.outputs);
 			SET('DEF.cl.list', app.list);
@@ -947,6 +959,10 @@
 		function uibuilder_close() {
 			FUNC.send({ TYPE: 'close' });
 		}
+
+		SETTER(true, 'shortcuts/register', 'save', function(e) {
+			uibuilder_save();
+		}, true);
 
 	</script>
 

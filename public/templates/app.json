@@ -22,6 +22,7 @@
 		"comment": "https://uibuilder.totaljs.com/components/comment/editor.html",
 		"container": "https://uibuilder.totaljs.com/components/container/editor.html",
 		"counter": "https://uibuilder.totaljs.com/components/counter/editor.html",
+		"readvalue": "https://uibuilder.totaljs.com/components/readvalue/editor.html",
 		"datagenerator": "https://uibuilder.totaljs.com/components/datagenerator/editor.html",
 		"datagrid": "https://uibuilder.totaljs.com/components/datagrid/editor.html",
 		"datareader": "https://uibuilder.totaljs.com/components/datareader/editor.html",

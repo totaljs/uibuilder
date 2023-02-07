@@ -88,7 +88,18 @@
 		var config = t.config;
 		console.error(t.component.name + ': ' + config.name + (config.path ? ' ({0})'.format(config.path) : ''), e);
 	};
-W.cc = 0;
+
+	IP.clone = function(val) {
+		var tmp = val;
+		switch (typeof(val)) {
+			case 'object':
+				if (value && !(value instanceof Date))
+					tmp = CLONE(value);
+				break;
+		}
+		return val;
+	};
+
 	IP.set = function(type, value, kind, binder) {
 
 		// Supported types:
@@ -129,7 +140,7 @@ W.cc = 0;
 			if (t.binded) {
 				for (var m of t.binded) {
 					if (m !== binder) {
-						var tmp = CLONE(value);
+						var tmp = t.clone(value);
 						if (m.state.notify)
 							m.emit('notify', tmp, t);
 						else
@@ -139,7 +150,7 @@ W.cc = 0;
 			}
 
 			if (t.binder && !t.state.notify && t.binder !== binder)
-				t.binder.set('value', value, binder ? 'noemitstate' : '', t);
+				t.binder.set('value', t.clone(value), binder ? 'noemitstate' : '', t);
 
 			t.check();
 		}

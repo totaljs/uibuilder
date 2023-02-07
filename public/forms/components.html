@@ -89,6 +89,9 @@
 
 					var com = app.components[item.id];
 
+					if (item.type && item.type.length && !item.type.includes(app.schema.type))
+						continue;
+
 					if (!item.group)
 						item.group = '0';
 

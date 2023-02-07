@@ -88,7 +88,7 @@
 		var config = t.config;
 		console.error(t.component.name + ': ' + config.name + (config.path ? ' ({0})'.format(config.path) : ''), e);
 	};
-
+W.cc = 0;
 	IP.set = function(type, value, kind, binder) {
 
 		// Supported types:
@@ -129,10 +129,11 @@
 			if (t.binded) {
 				for (var m of t.binded) {
 					if (m !== binder) {
+						var tmp = CLONE(value);
 						if (m.state.notify)
-							m.emit('notify', value, binder);
+							m.emit('notify', tmp, t);
 						else
-							m.set('value', value, binder ? 'noemitstate' : '', binder);
+							m.set('value', tmp, binder ? 'noemitstate' : '', t);
 					}
 				}
 			}

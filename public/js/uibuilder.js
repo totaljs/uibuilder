@@ -464,9 +464,9 @@
 			} else if (key.substring(0, 5) === 'query') {
 				key = key.substring(5);
 				if (key.indexOf('.') === -1)
-					return QUERIFY(NAV.query).substring(1);
+					return QUERIFY(self.query).substring(1);
 				else
-					val = NAV.query[key.substring(1)];
+					val = self.query[key.substring(1)];
 			}
 
 			if (val == null)
@@ -762,12 +762,7 @@
 		return com;
 	}
 
-	Builder.build = function(target, meta, args, callback) {
-
-		if (typeof(args) === 'function') {
-			callback = args;
-			args = {};
-		}
+	Builder.build = function(target, meta, callback) {
 
 		var prev = Builder.apps[meta.id];
 		if (prev) {
@@ -796,7 +791,8 @@
 
 		app.id = Builder.current;
 		app.components = {};
-		app.args = args;
+		app.args = meta.args || {};
+		app.query = meta.query || CLONE(NAV.query);
 		app.schema = meta;
 		app.events = {};
 		app.cache = {};
@@ -891,7 +887,7 @@
 
 		app.build = function(el, submeta, callback) {
 			submeta.urlify = app.urlify;
-			Builder.build(el, submeta, args, callback);
+			Builder.build(el, submeta, callback);
 		};
 
 		var refreshiotimeout = null;

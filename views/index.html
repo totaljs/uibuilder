@@ -195,7 +195,7 @@
 					common.upload = msg.upload;
 					common.iframeapps = msg.apps || [];
 					DEF.cl.usergroups = msg.groups || [];
-					DEF.cl.apps = common.iframeapps.slice(0);
+					SET('DEF.cl.apps', common.iframeapps.slice(0));
 					if (msg.data && msg.data.id) {
 						UIBuilder.data = msg.data;
 						uibuilder_redraw();

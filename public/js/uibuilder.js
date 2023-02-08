@@ -203,6 +203,8 @@
 			fn && fn(function(err, data) {
 				var obj = {};
 				obj.id = t.id + '_' + output.id;
+				obj.instanceid = t.id;
+				obj.componentid = t.component.id;
 				obj.ref = output.id;
 				obj.icon = output.icon;
 				obj.color = output.color;

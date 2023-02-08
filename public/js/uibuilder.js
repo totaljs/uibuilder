@@ -35,7 +35,7 @@
 
 	function Instance() {
 		var t = this;
-		t.state = { init: 0, value: null, disabled: false, modified: false, readonly: false, touched: false, invalid: false, delay: 10, notify: false, bind: false };
+		t.state = { init: 0, value: null, disabled: false, modified: false, readonly: false, touched: false, invalid: false, delay: 10, notify: false, bind: false, validate: true };
 		t.cache = {};
 		t.events = {};
 		t.$inputs = {};
@@ -51,6 +51,10 @@
 
 	IP.check = function(force) {
 		var t = this;
+
+		if (t.state.validate === false)
+			return;
+
 		t.$checktimeout && clearTimeout(t.$checktimeout);
 
 		if (force)
@@ -1373,6 +1377,10 @@
 			Builder.emit('link', tmp, NOOP);
 		};
 
+		var contextmenu = function(e) {
+			openeditor.close();
+		};
+
 		var clickoutside = function(e) {
 			if (!(e.target === openeditor.parent || openeditor.parent.contains(e.target)))
 				openeditor.close();
@@ -1519,6 +1527,7 @@
 			$(W).off('click', clickoutside);
 			el.rattr('contenteditable');
 			el.off('keydown', keydown);
+			el.off('contextmenu', contextmenu);
 			el.rclass('UI_editing');
 			if (opt.callback) {
 				var arg = {};
@@ -1538,6 +1547,7 @@
 
 		$(W).on('click', clickoutside);
 		el.on('keydown', keydown);
+		el.on('contextmenu', contextmenu);
 	}
 
 	function app_stringify(element, isbuild) {

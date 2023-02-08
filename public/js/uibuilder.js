@@ -558,6 +558,7 @@
 		var instance = new Instance();
 
 		div.setAttribute('is', 'ui-build-component');
+		div.classList.add('ui_' + com.id);
 
 		obj.gap && div.classList.add('UI_gap');
 

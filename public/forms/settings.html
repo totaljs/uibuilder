@@ -83,7 +83,7 @@
 				<div class="help">@(In the absence of a declaration for other modes, these styles will be used as defaults.)</div>
 			</div>
 			<div class="m">
-				<ui-component name="input" path="?.csspublish" config="type:multiline;monospace:1;height:100">@(CSS for publishing)</ui-component>
+				<ui-component name="input" path="?.cssoutput" config="type:multiline;monospace:1;height:100">@(CSS for publishing)</ui-component>
 			</div>
 			<div class="m">
 				<ui-component name="input" path="?.cssrender" config="type:multiline;monospace:1;height:100">@(CSS for rendering)</ui-component>
@@ -106,7 +106,7 @@
 
 		exports.reload = function() {
 			var model = exports.model;
-			css = (model.css || '') + (model.csspublish || '') + (model.cssrender || '');
+			css = (model.css || '');
 		};
 
 		exports.submit = function(hide) {
@@ -116,9 +116,9 @@
 			for (var instance of app.instances)
 				instance.args.upload = app.schema.editor.upload;
 
-			var tmp = (model.css || '') + (model.csspublish || '') + (model.cssrender || '');
+			var tmp = (model.css || '');
 
-			UPD('app');
+			UPD('app.schema');
 
 			if (tmp !== css)
 				setTimeout(uibuilder_redraw, 200, true);

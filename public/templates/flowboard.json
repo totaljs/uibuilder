@@ -12,15 +12,15 @@
 		"upload": ""
 	},
 	"components": {
-		"fbfloorplan": "https://uibuilder.totaljs.com/components/fb-floorplan/editor.html",
-		"fbmarker": "https://uibuilder.totaljs.com/components/fb-marker/editor.html",
+		"fbfloorplan": "https://uibuilder.totaljs.com/components/fbfloorplan/editor.html",
+		"fbmarker": "https://uibuilder.totaljs.com/components/fbmarker/editor.html",
 		"datareader": "https://uibuilder.totaljs.com/components/datareader/editor.html"
 	},
 	"children": [
 		[
 			{
 				"children": [],
-				"id": "1",
+				"id": "root",
 				"config": {
 					"name": "Floor plan"
 				},

@@ -7,8 +7,7 @@
 	{
 		"id": "dashboard",
 		"name": "Dashboard",
-		"image": "/img/dashboard.png",
-		"disabled": false
+		"image": "/img/dashboard.png"
 	},
 	{
 		"id": "flowboard",
@@ -17,10 +16,15 @@
 		"disabled": false
 	},
 	{
-		"id": "uicomponents",
+		"id": "uicomponent",
 		"name": "Componentator",
 		"image": "/img/form.png",
 		"disabled": true
+	},
+	{
+		"id": "part",
+		"name": "Part",
+		"image": "/img/form.png"
 	},
 	{
 		"id": "mobile",

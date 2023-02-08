@@ -91,13 +91,13 @@
 
 	IP.clone = function(val) {
 		var tmp = val;
-		switch (typeof(val)) {
+		switch (typeof(tmp)) {
 			case 'object':
-				if (value && !(value instanceof Date))
-					tmp = CLONE(value);
+				if (tmp && !(tmp instanceof Date))
+					tmp = CLONE(tmp);
 				break;
 		}
-		return val;
+		return tmp;
 	};
 
 	IP.set = function(type, value, kind, binder) {
@@ -436,26 +436,52 @@
 		return obj;
 	};
 
-	IP.replace = IP.variables = function(val, data) {
+	IP.replace = IP.variables = function(val, data, encoder) {
 		var self = this;
-		return val.replace(/\{[a-z0-9_-]+\}/gi, function(text) {
+		return val.replace(/\{[a-z0-9_\.-]+\}/gi, function(text) {
 			var key = text.substring(1, text.length - 1).trim();
 			var val = '';
-			var five = key.substring(0, 5);
-			if (five === 'user.') {
+			var four = key.substring(0, 4);
+			if (four === 'user') {
 				if (W.user) {
 					key = key.substring(5);
 					val = key.indexOf('.') === -1 ? W.user[key] : self.read(W.user, key);
 				}
-			} else if (key.substring(0, 6) === 'query.') {
-				key = key.substring(6);
-				val = NAV.query[key];
-			} else {
+			} else if (four === 'args') {
+				key = key.substring(5);
 				val = self.args[key];
-				if (val == null && data)
-					val = data[key];
+			} else if (four === 'data') {
+				if (data) {
+					key = key.substring(4);
+					val = key.indexOf('.') === -1 ? data : self.read(data, key.substring(1));
+				}
+			} else if (key.substring(0, 5) === 'query') {
+				key = key.substring(5);
+				if (key.indexOf('.') === -1)
+					return QUERIFY(NAV.query).substring(1);
+				else
+					val = NAV.query[key.substring(1)];
 			}
-			return val == null ? text : val;
+
+			if (val == null)
+				return text;
+
+			if (typeof(encoder) === 'function')
+				return encoder(val);
+
+			switch (encoder) {
+				case 'url':
+				case 'urlencode':
+				case 'encode':
+					return encodeURIComponent(val);
+				case 'escape':
+				case 'html':
+					return Thelpers.encode(val);
+				case 'json':
+					return JSON.stringify(val);
+			}
+
+			return val;
 		});
 	};
 

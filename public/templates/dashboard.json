@@ -38,7 +38,7 @@
 						}
 					]
 				],
-				"id": "1",
+				"id": "root",
 				"config": {
 					"name": "Container"
 				},

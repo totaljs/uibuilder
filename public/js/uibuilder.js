@@ -491,6 +491,18 @@
 		});
 	};
 
+	IP.wait = function(fn, callback) {
+		var t = this;
+		var check = function() {
+			if (fn())
+				callback();
+			else
+				setTimeout(check, 300);
+		};
+		check();
+		return t;
+	};
+
 	IP.querify = function(url, obj) {
 		var self = this;
 		return self.app.urlify(self.variables(obj ? QUERIFY(url, obj) : url));

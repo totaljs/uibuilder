@@ -13,14 +13,14 @@
 		"upload": ""
 	},
 	"components": {
-		"gap": "https://uibuilder.totaljs.com/components/gap/editor.html",
-		"checkbox": "https://uibuilder.totaljs.com/components/checkbox/editor.html",
-		"columns": "https://uibuilder.totaljs.com/components/columns/editor.html",
-		"show": "https://uibuilder.totaljs.com/components/show/editor.html",
-		"enable": "https://uibuilder.totaljs.com/components/enable/editor.html",
-		"textarea": "https://uibuilder.totaljs.com/components/textarea/editor.html",
-		"textbox": "https://uibuilder.totaljs.com/components/textbox/editor.html",
-		"partcontainer": "https://uibuilder.totaljs.com/components/partcontainer/editor.html"
+		"gap": "https://cdn.componentator.com/uibuilder/gap-v1/editor.html",
+		"checkbox": "https://cdn.componentator.com/uibuilder/checkbox-v1/editor.html",
+		"columns": "https://cdn.componentator.com/uibuilder/columns-v1/editor.html",
+		"show": "https://cdn.componentator.com/uibuilder/show-v1/editor.html",
+		"enable": "https://cdn.componentator.com/uibuilder/enable-v1/editor.html",
+		"textarea": "https://cdn.componentator.com/uibuilder/textarea-v1/editor.html",
+		"textbox": "https://cdn.componentator.com/uibuilder/textbox-v1/editor.html",
+		"partcontainer": "https://cdn.componentator.com/uibuilder/partcontainer-v1/editor.html"
 	},
 	"children": [
 		[

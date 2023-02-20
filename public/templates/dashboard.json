@@ -12,13 +12,13 @@
 		"upload": ""
 	},
 	"components": {
-		"columns": "https://uibuilder.totaljs.com/components/columns/editor.html",
-		"container": "https://uibuilder.totaljs.com/components/container/editor.html",
-		"barchart": "https://uibuilder.totaljs.com/components/barchart/editor.html",
-		"piechart": "https://uibuilder.totaljs.com/components/piechart/editor.html",
-		"columnchart": "https://uibuilder.totaljs.com/components/columnchart/editor.html",
-		"linechart": "https://uibuilder.totaljs.com/components/linechart/editor.html",
-		"datareader": "https://uibuilder.totaljs.com/components/datareader/editor.html"
+		"columns": "https://cdn.componentator.com/uibuilder/columns-v1/editor.html",
+		"container": "https://cdn.componentator.com/uibuilder/container-v1/editor.html",
+		"barchart": "https://cdn.componentator.com/uibuilder/barchart-v1/editor.html",
+		"piechart": "https://cdn.componentator.com/uibuilder/piechart-v1/editor.html",
+		"columnchart": "https://cdn.componentator.com/uibuilder/columnchart-v1/editor.html",
+		"linechart": "https://cdn.componentator.com/uibuilder/linechart-v1/editor.html",
+		"datareader": "https://cdn.componentator.com/uibuilder/datareader-v1/editor.html"
 	},
 	"children": [
 		[

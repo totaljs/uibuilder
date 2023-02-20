@@ -511,7 +511,7 @@
 
 			for (var instance of app.instances) {
 				if (instance.component.render)
-					used[instance.component.id] = 'https://uibuilder.totaljs.com' + instance.component.render;
+					used[instance.component.id] = (instance.component.render.indexOf('http') === -1 ? 'https://uibuilder.totaljs.com' : '') + instance.component.render;
 			}
 
 			if (meta.editor && meta.editor.download) {
@@ -701,7 +701,7 @@
 			opt.items = [];
 			opt.items.push({ id: 'components', name: '@(Download components)', icon: 'ti ti-database', classname: 'b' });
 			opt.items.push('-');
-			opt.items.push({ id: 'add', name: '@(Import custom)', icon: 'ti ti-plus-circle green' });
+			opt.items.push({ id: 'add', name: '@(Import)', icon: 'ti ti-plus-circle green' });
 			opt.callback = function(sel) {
 				switch (sel.id) {
 					case 'add':
@@ -745,17 +745,17 @@
 		function uibuilder_addcomponent(el) {
 			var opt = {};
 			opt.element = el;
-			opt.summary = '@(Enter the URL of the component source:)';
+			opt.summary = '@(Enter the URL of the component source or list of components:)';
 			opt.placeholder = 'https://www.yourserver.com/component.html';
 			opt.type = 'url';
 			opt.icon = 'ti ti-globe';
 			opt.align = 'left';
 			opt.offsetWidth = 300;
 			opt.callback = function(value) {
-				AJAX('GET ' + value + ' ERROR', function(response) {
-					if (typeof(response) === 'string' && response.indexOf('exports.id') !== -1 && response.indexOf('exports.make') !== -1) {
 
-						var match = response.match(/exports\.id.*?(;|\n)/);
+				var importer = function(html, callback) {
+					if (typeof(html) === 'string' && html.indexOf('exports.id') !== -1 && html.indexOf('exports.make') !== -1) {
+						var match = html.match(/exports\.id.*?(;|\n)/);
 						if (match) {
 							var obj = {};
 							new Function('exports', match[0])(obj);
@@ -764,16 +764,40 @@
 								if (!app.schema.components[id]) {
 									app.schema.components[id] = value;
 									uibuilder_redraw(true);
+									return;
 								}
-								SETTER('notify/success', '@(The component has been imported successfully.)');
-								return;
+								callback(obj);
 							}
 						}
-
 					}
-					SETTER('message/warning', '@(Invalid component content)');
+					callback();
+				}
+
+				AJAX('GET ' + value + ' ERROR', function(response) {
+					if (response instanceof Array) {
+						response.wait(function(item, next) {
+							if (typeof(item) === 'string') {
+								if (item.indexOf('<') === -1)
+									AJAX('GET ' + item, response => importer(response, next));
+								else
+									importer(item, next);
+							} else
+								next();
+
+						}, function() {
+							SETTER('notify/success', '@(Components have been imported successfully.)');
+						});
+					} else {
+						importer(response, function(obj) {
+							if (obj)
+								SETTER('notify/success', '@(The component has been imported successfully.)');
+							else
+								SETTER('message/warning', '@(Invalid component content)');
+						});
+					}
 				});
 			};
+
 			SETTER('floatinginput/show', opt);
 		};
 

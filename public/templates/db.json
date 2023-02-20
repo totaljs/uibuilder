@@ -1,13 +1,56 @@
 [
 	{
+		"id": "accordion",
+		"group": "Content",
+		"name": "Accordion",
+		"url": "/components/accordion/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-layer-plus",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": ""
+	},
+	{
 		"id": "barchart",
 		"group": "Charts",
 		"name": "Bar chart",
 		"url": "/components/barchart/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-chart-bar",
+		"type": [
+			"app",
+			"dashboard"
+		],
+		"color": "",
+		"version": "1",
+		"readme": "__Barchart data-source needs to contain__:\n\n```js\n[\n\t{\n\t\tname: 'name', // name of the serie\n\t\tdata: [{ x: 'DATE', y: 'value' }, { x: 'DATE', y: 'value' }, ...], // series\n\t\tdecimals: 2, // optional, number of decimal places\n\t\tunit: '°C' // optional\n\t}\n]\n```"
+	},
+	{
+		"id": "button",
+		"group": "Controls",
+		"name": "Button",
+		"url": "/components/button/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-pointer",
+		"type": [
+			"app",
+			"dashboard"
+		],
 		"color": "",
 		"version": "1"
+	},
+	{
+		"id": "calendar",
+		"group": "Controls",
+		"name": "Calendar",
+		"url": "/components/calendar/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-calendar",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": ""
 	},
 	{
 		"id": "callout",
@@ -16,6 +59,10 @@
 		"url": "/components/callout/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-info-circle",
+		"type": [
+			"app",
+			"dashboard"
+		],
 		"color": "",
 		"version": "1"
 	},
@@ -26,6 +73,7 @@
 		"url": "/components/captureoutput/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-share-alt",
+		"type": null,
 		"color": "",
 		"version": "1",
 		"readme": "This component can capture data from an output."
@@ -37,8 +85,9 @@
 		"url": "/components/cards/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-menu",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1"
 	},
 	{
 		"id": "checkbox",
@@ -47,8 +96,10 @@
 		"url": "/components/checkbox/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-check-square",
+		"type": null,
 		"color": "",
-		"version": "1"
+		"version": "1",
+		"readme": "The component that switches between two states: `true`/`false`"
 	},
 	{
 		"id": "checkboxlist",
@@ -56,9 +107,11 @@
 		"name": "Checkboxlist",
 		"url": "/components/checkboxlist/editor.html",
 		"author": "Total.js",
-		"icon": "ti ti-list-alt",
+		"icon": "ti ti-list",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1",
+		"readme": "__Checkboxlist data-source needs to contain__:\n\n```js\n[\n\t{ name: 'Ruby', id: 1 },\n\t{ name: 'PHP', id: 2 },\n\t{ name: 'node.js', id: 3 },\n\t{ name: 'Python', id: 4 }\n]\n```"
 	},
 	{
 		"id": "color",
@@ -67,8 +120,9 @@
 		"url": "/components/color/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-palette",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1"
 	},
 	{
 		"id": "columnchart",
@@ -77,8 +131,10 @@
 		"url": "/components/columnchart/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-chart-bar",
+		"type": null,
 		"color": "",
-		"version": "1"
+		"version": "1",
+		"readme": "__Columnchart data-source needs to contain__:\n\n```js\n[\n\t{\n\t\tname: 'name', // name of the serie\n\t\tdata: [{ x: 'DATE', y: 'value' }, { x: 'DATE', y: 'value' }, ...], // series\n\t\tdecimals: 2, // optional, number of decimal places\n\t\tunit: '°C' // optional\n\t}\n]\n```"
 	},
 	{
 		"id": "columns",
@@ -87,6 +143,7 @@
 		"url": "/components/columns/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-columns",
+		"type": null,
 		"color": "",
 		"version": "1"
 	},
@@ -97,8 +154,9 @@
 		"url": "/components/comment/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-comment",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1"
 	},
 	{
 		"id": "container",
@@ -107,8 +165,9 @@
 		"url": "/components/container/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-window",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1"
 	},
 	{
 		"id": "counter",
@@ -117,8 +176,9 @@
 		"url": "/components/counter/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-calculator",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1"
 	},
 	{
 		"id": "datagenerator",
@@ -127,6 +187,7 @@
 		"url": "/components/datagenerator/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-database",
+		"type": null,
 		"color": "",
 		"version": "1",
 		"readme": "Data generator creates data defined in the configuration."
@@ -138,6 +199,7 @@
 		"url": "/components/datareader/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-globe",
+		"type": null,
 		"color": "",
 		"version": "1",
 		"readme": "Data reader reads data from the URL address and stores them in memory. Other components can read this data."
@@ -149,8 +211,21 @@
 		"url": "/components/datasource/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-database-alt",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1"
+	},
+	{
+		"id": "datatransformer",
+		"group": "Data",
+		"name": "Data transformer",
+		"url": "/components/datatransformer/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-robot",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "The data transform component can transform incoming data."
 	},
 	{
 		"id": "datagrid",
@@ -159,8 +234,45 @@
 		"url": "/components/datagrid/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-table-alt",
+		"type": null,
 		"color": "",
 		"version": "1"
+	},
+	{
+		"id": "display",
+		"group": "Layouts",
+		"name": "Display",
+		"url": "/components/display/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-desktop",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "This component sets display sizes according to the current element width. It can affect, for example, the Columns component."
+	},
+	{
+		"id": "donutchart",
+		"group": "Charts",
+		"name": "Donut chart",
+		"url": "/components/donutchart/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-chart-pie",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "__Donutchart data-source needs to contain__:\n\n```js\n[\n\t{\n\t\tdata: 44,\n\t\tname: 'Apple',\n\t\tunit: '',\n\t\tdecimals: 1\n\t},\n\t{\n\t\tdata: 55,\n\t\tname: 'Mango',\n\t\tunit: '',\n\t\tdecimals: 1\n\t}\n```"
+	},
+	{
+		"id": "dropdown",
+		"group": "Controls",
+		"name": "Dropdown",
+		"url": "/components/dropdown/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-angle-down",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "__Dropdown data-source needs to contain__:\n\n```js\n[\n\t{ id: 1, name: 'Nothing' },\n\t{ id: 2, name: 'jComponent' },\n\t{ id: 3, name: 'Angular.js' },\n\t{ id: 4, name: 'React' }\n]\n```"
 	},
 	{
 		"id": "enable",
@@ -169,28 +281,21 @@
 		"url": "/components/enable/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-config",
-		"color": "",
-		"version": ""
-	},
-	{
-		"id": "fb-floorplan",
-		"group": "Flowboard",
-		"name": "Floor plan",
-		"url": "/components/fb-floorplan/editor.html",
-		"author": "Total.js",
-		"icon": "ti ti-object-group",
+		"type": null,
 		"color": "",
 		"version": "1"
 	},
 	{
-		"id": "floorplan",
-		"group": "Content",
-		"name": "Floor plan",
-		"url": "/components/floorplan/editor.html",
+		"id": "fileuploader",
+		"group": "Files",
+		"name": "File uploader",
+		"url": "/components/fileuploader/editor.html",
 		"author": "Total.js",
-		"icon": "ti ti-object-group",
+		"icon": "ti ti-upload",
+		"type": null,
 		"color": "",
-		"version": "1"
+		"version": "1",
+		"readme": "The component allows users to upload files to a specific endpoint. A response will be binded to the path set in the configuration."
 	},
 	{
 		"id": "form",
@@ -199,9 +304,33 @@
 		"url": "/components/form/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-database-alt",
+		"type": null,
 		"color": "",
 		"version": "1",
 		"readme": "The form collects only components with defined paths."
+	},
+	{
+		"id": "gap",
+		"group": "Content",
+		"name": "Gap",
+		"url": "/components/gap/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-enter",
+		"type": null,
+		"color": "",
+		"version": "1"
+	},
+	{
+		"id": "datagps",
+		"group": "Data",
+		"name": "GPS",
+		"url": "/components/datagps/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-earth",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "This component can retrieve GPS position.\n\n__Output__:\n\n```js\n{\n\tlat: Number,\n\tlng: Number,\n\tspeed: Number,\n\taltitude: Number,\n\taccuracy: Number,\n\tpos: String\n}\n```"
 	},
 	{
 		"id": "headline",
@@ -210,8 +339,21 @@
 		"url": "/components/headline/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-heading",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1"
+	},
+	{
+		"id": "hiddencontainer",
+		"group": "Layouts",
+		"name": "Hidden container",
+		"url": "/components/hiddencontainer/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-eye-slash",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "This container will always be hidden in the render and it's targeted for data operations."
 	},
 	{
 		"id": "hr",
@@ -220,8 +362,9 @@
 		"url": "/components/hr/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-minus",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1"
 	},
 	{
 		"id": "icon",
@@ -230,8 +373,9 @@
 		"url": "/components/icon/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-icons",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1"
 	},
 	{
 		"id": "image",
@@ -240,8 +384,9 @@
 		"url": "/components/image/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-image",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1"
 	},
 	{
 		"id": "infocard",
@@ -250,18 +395,32 @@
 		"url": "/components/infocard/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-address-card",
+		"type": null,
 		"color": "",
 		"version": "1"
 	},
 	{
-		"id": "keyvalue",
-		"group": "Content",
-		"name": "Kye/Value",
-		"url": "/components/keyvalue/editor.html",
+		"id": "input",
+		"group": "Data",
+		"name": "Input",
+		"url": "/components/input/editor.html",
 		"author": "Total.js",
-		"icon": "ti ti-address-card",
+		"icon": "ti ti-expand",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1",
+		"readme": "The component processes input data and sets it according to a defined path."
+	},
+	{
+		"id": "lastvalue",
+		"group": "Dashboard",
+		"name": "Last value",
+		"url": "/components/lastvalue/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-stopwatch",
+		"type": null,
+		"color": "",
+		"version": "1"
 	},
 	{
 		"id": "linechart",
@@ -270,18 +429,70 @@
 		"url": "/components/linechart/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-chart-line",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "__Linechart data-source needs to contain__:\n\n```js\n[\n\t{\n\t\tname: 'name', // name of the serie\n\t\tdata: [{ x: 'DATE', y: 'value' }, { x: 'DATE', y: 'value' }, ...], // series\n\t\tdecimals: 2, // optional, number of decimal places\n\t\tunit: '°C' // optional\n\t}\n]\n```"
+	},
+	{
+		"id": "link",
+		"group": "Special",
+		"name": "Link",
+		"url": "/components/link/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-rocket",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "The component can load another app."
+	},
+	{
+		"id": "listview",
+		"group": "List",
+		"name": "Listview",
+		"url": "/components/listview/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-list-alt",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "__Listview data-source needs to contain__:\n\n```js\n[\n\t{ name: 'Ruby' },\n\t{ name: 'PHP' },\n\t{ name: 'Total.js', description: 'Lorem ipsum' // optional },\n\t{ name: 'Python' }\n]\n```"
+	},
+	{
+		"id": "map",
+		"group": "Controls",
+		"name": "Map",
+		"url": "/components/map/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-map-pin",
+		"type": null,
 		"color": "",
 		"version": "1"
 	},
 	{
-		"id": "fb-marker",
+		"id": "fbmarker",
 		"group": "Flowboard",
 		"name": "Marker",
-		"url": "/components/fb-marker/editor.html",
+		"url": "/components/fbmarker/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-pin-alt",
+		"type": [
+			"flowboard"
+		],
 		"color": "",
 		"version": "1"
+	},
+	{
+		"id": "panel",
+		"group": "Content",
+		"name": "Panel",
+		"url": "/components/panel/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-grid",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "The component is suitable to making a better design."
 	},
 	{
 		"id": "paragraph",
@@ -290,8 +501,38 @@
 		"url": "/components/paragraph/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-align-left",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1"
+	},
+	{
+		"id": "part",
+		"group": "Parts",
+		"name": "Part",
+		"url": "/components/part/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-object-group",
+		"type": [
+			"app",
+			"dashboard",
+			"mobile",
+			"uicomponent"
+		],
+		"color": "",
+		"version": "1",
+		"readme": "The form collects only components with defined paths."
+	},
+	{
+		"id": "piechart",
+		"group": "Charts",
+		"name": "Pie chart",
+		"url": "/components/piechart/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-chart-pie",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "__Piechart data-source needs to contain__:\n\n```js\n[\n\t{\n\t\tdata: 44,\n\t\tname: 'Apple',\n\t\tunit: '',\n\t\tdecimals: 1\n\t},\n\t{\n\t\tdata: 55,\n\t\tname: 'Mango',\n\t\tunit: '',\n\t\tdecimals: 1\n\t}\n]\n```"
 	},
 	{
 		"id": "sound",
@@ -300,8 +541,69 @@
 		"url": "/components/sound/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-volume",
+		"type": null,
 		"color": "",
 		"version": "1"
+	},
+	{
+		"id": "progressbar",
+		"group": "Controls",
+		"name": "Progress bar",
+		"url": "/components/progressbar/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-sliders-h",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "Progress bar is used to visualize the progression of an extended operation."
+	},
+	{
+		"id": "radiobutton",
+		"group": "Controls",
+		"name": "Radio button",
+		"url": "/components/radiobutton/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-dot-circle",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "__Radio button__ data-source needs to contain:\n\n```js\n[\n\t{ id: 1, name: 'Ruby', },\n\t{ id: 2, name: 'PHP', },\n\t{ id: 3, name: 'Node' },\n\t{ id: 4, name: 'Python' }\n]\n```"
+	},
+	{
+		"id": "rating",
+		"group": "Content",
+		"name": "Rating",
+		"url": "/components/rating/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-star",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": ""
+	},
+	{
+		"id": "readvalue",
+		"group": "Data",
+		"name": "Read value",
+		"url": "/components/readvalue/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-eye",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "Read value component reads a value according to the path and sets it according to the component's path."
+	},
+	{
+		"id": "restreader",
+		"group": "Data",
+		"name": "REST Reader",
+		"url": "/components/restreader/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-globe",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "This component reads data from a REST service and sets them according to the specified path."
 	},
 	{
 		"id": "sendtoinput",
@@ -310,6 +612,7 @@
 		"url": "/components/sendtoinput/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-compress",
+		"type": null,
 		"color": "",
 		"version": "1",
 		"readme": "This component can send data to an input."
@@ -321,8 +624,21 @@
 		"url": "/components/show/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-eye",
+		"type": null,
 		"color": "",
 		"version": "1"
+	},
+	{
+		"id": "slider",
+		"group": "Controls",
+		"name": "Slider",
+		"url": "/components/slider/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-sliders-h",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "Allows to select a single value, but highlights with a range selection from the min value to the current handle value."
 	},
 	{
 		"id": "stylebox",
@@ -331,6 +647,7 @@
 		"url": "/components/stylebox/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-pencil-paintbrush",
+		"type": null,
 		"color": "",
 		"version": "1"
 	},
@@ -341,6 +658,7 @@
 		"url": "/components/tabs/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-layer-group",
+		"type": null,
 		"color": "",
 		"version": "1"
 	},
@@ -351,6 +669,7 @@
 		"url": "/components/textarea/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-font",
+		"type": null,
 		"color": "",
 		"version": "1"
 	},
@@ -361,6 +680,7 @@
 		"url": "/components/textbox/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-font",
+		"type": null,
 		"color": "",
 		"version": "1"
 	},
@@ -371,9 +691,33 @@
 		"url": "/components/json/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-qrcode",
+		"type": null,
 		"color": "",
 		"version": "1",
 		"readme": "This component prints data in JSON format."
+	},
+	{
+		"id": "togglebutton",
+		"group": "Controls",
+		"name": "Toggle button",
+		"url": "/components/togglebutton/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-config",
+		"type": null,
+		"color": "",
+		"version": "1",
+		"readme": "Button that switches between two states: `true`/`false`"
+	},
+	{
+		"id": "toolbar",
+		"group": "Controls",
+		"name": "Toolbar",
+		"url": "/components/toolbar/editor.html",
+		"author": "Total.js",
+		"icon": "ti ti-wrench",
+		"type": null,
+		"color": "",
+		"version": "1"
 	},
 	{
 		"id": "video",
@@ -382,7 +726,8 @@
 		"url": "/components/video/editor.html",
 		"author": "Total.js",
 		"icon": "ti ti-photo-video",
+		"type": null,
 		"color": "",
-		"version": ""
+		"version": "1"
 	}
 ]

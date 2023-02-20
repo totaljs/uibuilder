@@ -102,6 +102,7 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .ui-dark .controls button:hover { background-color: #303030; }
 #dappcontainer { position: relative; }
 .UI_floating { cursor: grab; }
+.UI_label { display: block; }
 
 .ui-box .search { height: 30px; }
 .ui-box .search .ui-searchinput { border: 0; border-bottom: 1px solid #E0E0E0; padding-left: 15px; }
@@ -122,16 +123,27 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .ui_placeholder_columnchart { display: flex; align-items: flex-end; }
 .ui_placeholder_columnchart .ui_placeholder_bar { margin: 0 2px; }
 
-.ui_placeholder_linechart svg { width: 100%; height: auto; }
-/* .ui_placeholder_linechart { display: flex; align-items: flex-end; } */
-/* .ui_placeholder_linechart .ui_placeholder_bar { margin: 0 2px; background: transparent; } */
-/* .ui_placeholder_linechart .ui_placeholder_dot { width: 10px; height: 10px; border-radius: 50%; margin: 0 auto; background-color: #e0e0e0; } */
-
 .ui_placeholder_barchart { display: flex; align-items: flex-start; flex-direction: column; height: 100%; }
 .ui_placeholder_barchart .ui_placeholder_bar { margin: 2px 0; }
 
-.ui_placeholder_checkbox { height: 28px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; line-height: 28px; }
-.ui_placeholder_checkbox i { width: 20px; height: 20px; border-radius: var(--radius); border: 1px solid #E0E0E0; float: left; margin: 4px 7px 0 0; display: block; background-color: #fff; }
-.ui_placeholder_checkbox span { color: #a0a0a0; }
+.ui_placeholder_checkboxlist div { height: 28px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; line-height: 28px; }
+.ui_placeholder_checkboxlist div i { width: 20px; height: 20px; border-radius: var(--radius); border: 1px solid #E0E0E0; float: left; margin: 4px 7px 0 0; display: block; background-color: #fff; }
+.ui_placeholder_checkboxlist div span { color: #a0a0a0; }
+
+.ui_placeholder_radiobutton div { height: 28px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; line-height: 28px; }
+.ui_placeholder_radiobutton div i { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #E0E0E0; float: left; margin: 4px 7px 0 0; display: block; background-color: #fff; }
+.ui_placeholder_radiobutton div span { color: #a0a0a0; }
 
 .ui_placeholder_pie { width: 98px; height: 98px; border-radius: 50%; background-image: conic-gradient(#f0f0f0 64%, #e0e0e0 16%, #e0e0e0); margin: 0 auto; }
+
+.ui_placeholder_calendar .ui_calendar_year { display: flex; align-items: center; justify-content: center; height: 40px; border-bottom: 1px solid #e0e0e0; }
+.ui_placeholder_calendar .ui_calendar_year span { background-color: #e0e0e0; display: block; width: 80px; height: 20px; border-radius: var(--radius); }
+.ui_placeholder_calendar .ui_calendar_header { display: flex; align-items: center; justify-content: space-between; padding: 10px; }
+.ui_placeholder_calendar .ui_calendar_header span { height: 20px; width: 10%; border-radius: var(--radius); background-color: #d0d0d0; }
+.ui_placeholder_calendar .ui_calendar_days { padding: 0 5px 10px; }
+.ui_placeholder_calendar .ui_calendar_days > div { display: flex; align-items: center; justify-content: space-around; }
+.ui_placeholder_calendar .ui_calendar_days > div span { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin: 8px 4px; background-color: #e0e0e0; }
+.ui_placeholder_calendar .ui_calendar_days > div span.dt_today { background-color: #c0c0c0; }
+.ui_placeholder_calendar .ui_calendar_days > div span.dt_hide { visibility: hidden; }
+.ui_placeholder_calendar .ui_calendar_footer { height: 28px; border-top: 1px solid #e0e0e0; display: flex; align-items: center; padding: 0 10px; }
+.ui_placeholder_calendar .ui_calendar_footer span { background-color: #e0e0e0; height: 15px; width: 40px; border-radius: var(--radius); display: block; }

@@ -8,11 +8,16 @@
 </style>
 
 <ui-component name="centered" path="common.form" config="if:~PATH~;autofocus:true;reload:?/reload;closebutton:1;closeesc:0;close:?/close" class="hidden ~PATH~" plugin="~PATH~">
-	<div style="max-width:600px;width:100%;margin:0 auto">
+	<div style="max-width:780px;width:100%;margin:0 auto">
 		<ui-component name="ready" class="invisible">
 			<div class="padding npt">
 				<div class="b" style="font-size:18px"><i class="ti ti-totaljs green mr10"></i>@(Total.js UI Builder)</div>
+				<!--
 				<div class="gray mt5 m">@(How does UI Builder work?) <a href="https://www.youtube.com/" target="_blank"><i class="ti ti-play-alt mr5"></i>@(Video tutorial)</a></div>
+				-->
+				<div class="mt5 gray m">
+					<i class="ti ti-flask mr5"></i>@(Check out our demos:) <span class="link exec" data-id="https://cdn.componentator.com/uibuilder/demo/dashboard.json" data-exec="?/download">@(Dashboard)</span>, <span class="link exec" data-id="https://cdn.componentator.com/uibuilder/demo/flowboard.json" data-exec="?/download">@(Flowboard)</span>, <span class="link exec" data-id="https://cdn.componentator.com/uibuilder/demo/controls.json" data-exec="?/download">@(Controls)</span>, <span class="link exec" data-id="https://cdn.componentator.com/uibuilder/demo/gps.json" data-exec="?/download">@(GPS)</span>
+				</div>
 				<br />
 				<ui-bind path="?.items" config="template" class="grid-3">
 					<script type="text/html">
@@ -47,6 +52,17 @@
 		exports.install = function(el) {
 			var id = ATTRD(el);
 			exports.ajax('GET /templates/{0}.json'.format(id), function(response) {
+				response.id = Date.now().toString(36);
+				UIBuilder.data = response;
+				uibuilder_redraw();
+				WAIT('app', uibuilder_settings);
+				NUL('common.form');
+			});
+		};
+
+		exports.download = function(el) {
+			var id = ATTRD(el);
+			exports.ajax('GET {0}'.format(id), function(response) {
 				response.id = Date.now().toString(36);
 				UIBuilder.data = response;
 				uibuilder_redraw();

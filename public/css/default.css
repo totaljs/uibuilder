@@ -1,6 +1,8 @@
 html { margin: 0; padding: 0; overflow: hidden; }
 body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 
+.listing .icon, .listing2 .icon { width: 14px; margin-right: 8px; text-align: center; }
+
 .ui-layout-left .ui-searchinput { border: 0; border-bottom: 1px solid #E0E0E0; padding-left: 5px; }
 .ui-dark .ui-layout-left .ui-searchinput { border-bottom-color: #404040; }
 

@@ -23,7 +23,7 @@
 
 		<div class="grid-4">
 			<div class="m">
-				<ui-component name="input" path="?.group" config="dirsource:#usergroups;dircustom:1;dirplaceholder:@(Enter new or search for an existing);dirminwidth:300">@(Group)</ui-component>
+				<ui-component name="input" path="?.group" config="dirsource:#usergroups;dirempty:@(Empty);dircustom:1;dirplaceholder:@(Enter new or search for an existing);dirminwidth:300">@(Group)</ui-component>
 			</div>
 			<div class="m">
 				<ui-component name="input" path="?.author">@(Author)</ui-component>
@@ -46,23 +46,32 @@
 			<label><i class="ti ti-link"></i>@(Editor settings)</label>
 		</div>
 		<ui-plugin path="editor">
-			<div class="grid-2">
-				<div class="m">
+			<p>@(Settings for the editor will be removed from the compiled design.)</p>
+			<div class="padding bg-smoke m">
+				<div>
 					<ui-component name="input" path="?.paths" config="icon:ti ti-database;placeholder:@(Enter URL address)">@(URL address for obtaining paths)</ui-component>
+					<div class="help"><span class="link exec b" data-exec="?1/totaldb"><i class="ti ti-file-import mr5"></i>@(Import from Total DB)</span></div>
+					<div class="help" style="margin-top:2px">@(JSON format and it must be in the form <code>[{ id: String, name: String }]</code>)</div>
 				</div>
-				<div class="m">
+				<hr />
+				<div>
 					<ui-component name="input" path="?.codes" config="icon:ti ti-list;placeholder:@(Enter URL address)">@(URL address for obtaining codes)</ui-component>
+					<div class="help">@(JSON format and it must be in the form <code>[{ id: String, name: String }]</code>)</div>
 				</div>
-				<div class="m">
+				<hr />
+				<div>
+					<ui-component name="input" path="?.apps" config="icon:ti ti-rocket;placeholder:@(Enter URL address)">@(URL address for obtaining list of UI designs)</ui-component>
+					<div class="help">@(JSON format and it must be in the form <code>[{ id: String, name: String }]</code>)</div>
+				</div>
+				<hr />
+				<div>
 					<ui-component name="input" path="?.upload" config="icon:ti ti-list;placeholder:@(Enter URL address)">@(URL address for uploading files)</ui-component>
-				</div>
-				<div class="m">
-					<ui-component name="input" path="?.apps" config="icon:ti ti-rocket;placeholder:@(Enter URL address)">@(URL address for obtaining list of apps)</ui-component>
+					<div class="help">@(Output must be in JSON format and it must be in the form <code>[{ id: String, name: String, url: String, size: Number, ext: String }]</code>)</div>
 				</div>
 			</div>
 			<ui-bind path="common.iframe" config="hide" class="hidden block">
-				<div class="message message-alert" style="margin-bottom:15px"><i class="ti ti-warning mr5"></i>@(Links are not declared in the <b>publishing</b> and <b>rendering</b> data. Data are sent via <b>POST</b> method and serialized via "url encode" in the form <code class="b">data=JSON</code>.)</div>
 				<div>
+					<div class="b m">@(Save & Publish & Render)</div>
 					<div class="m">
 						<ui-component name="input" path="?.save" config="innerlabel:1;icon:ti ti-save;placeholder:@(Enter URL address)">@(URL address for saving data)</ui-component>
 					</div>
@@ -107,6 +116,15 @@
 		exports.reload = function() {
 			var model = exports.model;
 			css = (model.css || '');
+		};
+
+		exports.totaldb = function() {
+			var model = {};
+			model.callback = function(val) {
+				exports.set('editor.paths', val);
+			};
+			SET('formtotaldb @reset', model);
+			SET('common.form2', 'formtotaldb');
 		};
 
 		exports.submit = function(hide) {

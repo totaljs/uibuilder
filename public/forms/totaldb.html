@@ -1,0 +1,53 @@
+<ui-component name="box" path="common.form2" config="if:~PATH~;icon:ti ti-database-alt;title:@(Import Total DB schema);autofocus:true;width:600" class="hidden ~PATH~" plugin="~PATH~">
+	<div class="padding bg-smoke">
+		<img src="/img/totaldb-token.png" alt="@(Total DB token)" class="pull-left img-rounded" style="margin-right:20px" />
+		<p style="margin-top:15px"><strong>@(Copy the URL address with a token)</strong><br />@(Then paste that URL address with the token copied from the Total DB instance in the Tokens section.)</p>
+		<div class="clearfix">&nbsp;</div>
+		<hr />
+		<ui-component name="input" path="?.url" config="required:1;placeholder:https://www.yourtotaldb.com/api/?token=1234567890;type:url">@(URL address)</ui-component>
+	</div>
+	<div class="padding">
+		<ui-bind path="?.types" config="template" class="block listing2">
+			<script type="text/html">
+				{{ if value }}
+					<div class="caption m">
+						<label>@(Choose a type)</label>
+					</div>
+					{{ foreach m in value }}
+						<figure data-id="{{ m.id }}" class="exec" data-exec="?/submit">
+							<section>
+								<i class="{{ m.icon }} icon"></i> {{ m.name }}
+							</section>
+						</figure>
+					{{ end }}
+				{{ fi }}
+			</script>
+		</ui-bind>
+	</div>
+	<nav>
+		<button name="cancel" style="width:100%">@(Close)</button>
+	</nav>
+</ui-component>
+
+<script>
+
+	PLUGIN(function(exports) {
+
+		exports.watch('url', function(value) {
+			if (value && value.isURL()) {
+				exports.ajax('GET ' + value.replace(/api/, '/types/') + ' ERROR', function(response) {
+					exports.set('types', response);
+				});
+			}
+		});
+
+		exports.submit = function(el) {
+			var model = exports.model;
+			var id = ATTRD(el);
+			model.callback(model.url.replace(/api/, '/attrs/{0}/'.format(id)));
+			NULL('common.form2');
+		};
+
+	});
+
+</script>

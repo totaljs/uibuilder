@@ -11,7 +11,6 @@
 	<link href="@{'%cdn'}/spa.min@19.css" rel="stylesheet" type="text/css" />
 	<script src="@{'%cdn'}/spa.min@19.js"></script>
 	<script src="@{REPO.ui}"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
 	@{import('default.css + ui.css', 'ui.js + func.js + uibuilder.js')}
 </head>
 <body>
@@ -30,6 +29,7 @@
 	<ui-component name="LAZY sounds" config="volume:10"></ui-component>
 	<ui-component name="LAZY message" config="style:2"></ui-component>
 	<ui-component name="LAZY floatinginput"></ui-component>
+	<ui-component name="LAZY filesaver"></ui-component>
 
 	<ui-component name="windows" path="common.windows" config="zindex:30"></ui-component>
 	<ui-component name="markdown"></ui-component>
@@ -68,8 +68,8 @@
 					</div>
 
 					<div style="margin-right:8px">
+						<button class="exec" data-exec="uibuilder_render" title="@(Preview)" style="background-color:#FFEBFE"><i class="ti ti-flask"></i></button>
 						<button class="exec" data-exec="uibuilder_publish" title="@(Publish)"><i class="ti ti-box"></i></button>
-						<button class="exec" data-exec="uibuilder_render" title="@(Preview)"><i class="ti ti-flask"></i></button>
 						<button class="exec" data-exec="uibuilder_settings" title="@(Global settings)"><i class="ti ti-cog"></i></button>
 					</div>
 
@@ -126,8 +126,10 @@
 	<ui-component name="importer" path="common.form" config="if:templatesform;url:/forms/templates.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:componentsform;url:/forms/components.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:ioform;url:/forms/io.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:formimport;url:/forms/import.html"></ui-component>
 	<ui-component name="importer" path="common.form2" config="if:formlink;url:/forms/link.html"></ui-component>
 	<ui-component name="importer" path="common.form2" config="if:formattr;url:/forms/attr.html"></ui-component>
+	<ui-component name="importer" path="common.form2" config="if:formtotaldb;url:/forms/totaldb.html"></ui-component>
 
 	<form id="uibuilderrender" method="POST" target="_blank">
 		<input name="data" type="hidden" />
@@ -565,8 +567,7 @@
 					if (app.schema.editor && app.schema.editor.publish) {
 						AJAX('POST ' + data.publish + ' urlencoded', { data: JSON.stringify(meta) }, ERROR(ASETTER('notify/success @hideloading', '@(Done, published!)')));
 					} else {
-						var blob = new Blob([JSON.stringify(meta, null, '\t')], { type: 'text/plain; charset=utf-8' });
-						saveAs(blob, meta.name + '_render.json');
+						SETTER('filesaver/save', meta.name + '_render.json', JSON.stringify(meta, null, '\t'));
 						SETTER('loading/hide', 1000);
 					}
 				});
@@ -701,7 +702,7 @@
 			opt.items = [];
 			opt.items.push({ id: 'components', name: '@(Download components)', icon: 'ti ti-database', classname: 'b' });
 			opt.items.push('-');
-			opt.items.push({ id: 'add', name: '@(Import)', icon: 'ti ti-plus-circle green' });
+			opt.items.push({ id: 'add', name: '@(Import custom)', icon: 'ti ti-plus-circle green' });
 			opt.callback = function(sel) {
 				switch (sel.id) {
 					case 'add':
@@ -736,69 +737,14 @@
 					AJAX('POST ' + meta.editor.save + ' urlencoded', { data: JSON.stringify(meta) }, ERROR(ASETTER('notify/success @hideloading', '@(Done, saved!)')));
 				});
 			} else {
-				var blob = new Blob([JSON.stringify(meta, null, '\t')], { type: 'text/plain; charset=utf-8' });
-				saveAs(blob, meta.name + '_editor.json');
+				SETTER('filesaver/save', meta.name + '_editor.json', JSON.stringify(meta, null, '\t'));
 				SETTER('loading/hide', 1000);
 			}
 		}
 
 		function uibuilder_addcomponent(el) {
-			var opt = {};
-			opt.element = el;
-			opt.summary = '@(Enter the URL of the component source or list of components:)';
-			opt.placeholder = 'https://www.yourserver.com/component.html';
-			opt.type = 'url';
-			opt.icon = 'ti ti-globe';
-			opt.align = 'left';
-			opt.offsetWidth = 300;
-			opt.callback = function(value) {
-
-				var importer = function(html, callback) {
-					if (typeof(html) === 'string' && html.indexOf('exports.id') !== -1 && html.indexOf('exports.make') !== -1) {
-						var match = html.match(/exports\.id.*?(;|\n)/);
-						if (match) {
-							var obj = {};
-							new Function('exports', match[0])(obj);
-							if (obj.id) {
-								var id = obj.id;
-								if (!app.schema.components[id]) {
-									app.schema.components[id] = value;
-									uibuilder_redraw(true);
-									return;
-								}
-								callback(obj);
-							}
-						}
-					}
-					callback();
-				};
-
-				AJAX('GET ' + value + ' ERROR', function(response) {
-					if (response instanceof Array) {
-						response.wait(function(item, next) {
-							if (typeof(item) === 'string') {
-								if (item.indexOf('<') === -1)
-									AJAX('GET ' + item, response => importer(response, next));
-								else
-									importer(item, next);
-							} else
-								next();
-
-						}, function() {
-							SETTER('notify/success', '@(Components have been imported successfully.)');
-						});
-					} else {
-						importer(response, function(obj) {
-							if (obj)
-								SETTER('notify/success', '@(The component has been imported successfully.)');
-							else
-								SETTER('message/warning', '@(Invalid component content)');
-						});
-					}
-				});
-			};
-
-			SETTER('floatinginput/show', opt);
+			SET('formimport @reset', { url: '' });
+			SET('common.form', 'formimport');
 		};
 
 		WATCH('app.schema.editor.paths', function(path, value) {

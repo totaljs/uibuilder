@@ -33,9 +33,13 @@
 
 	PLUGIN(function(exports) {
 
+		var clean = function(url) {
+			return url.substring(0, 10) + url.substring(10).replace(/\/\//g, '/');
+		};
+
 		exports.watch('url', function(value) {
 			if (value && value.isURL()) {
-				exports.ajax('GET ' + value.replace(/api/, '/types/') + ' ERROR', function(response) {
+				exports.ajax('GET ' + clean(value.replace(/api/, '/types/')) + ' ERROR', function(response) {
 					exports.set('types', response);
 				});
 			}
@@ -44,7 +48,7 @@
 		exports.submit = function(el) {
 			var model = exports.model;
 			var id = ATTRD(el);
-			model.callback(model.url.replace(/api/, '/attrs/{0}/'.format(id)));
+			model.callback(clean(model.url.replace(/api/, '/attrs/{0}/'.format(id))));
 			NULL('common.form2');
 		};
 

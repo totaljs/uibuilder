@@ -261,6 +261,21 @@
 		return instance ? instance.state.value : null;
 	};
 
+	IP.view = function(id, query, callback) {
+
+		var t = this;
+		if (!id)
+			return t;
+
+		if (typeof(query) === 'function') {
+			callback = query;
+			query = null;
+		}
+
+		t.app.view(id, query, callback);
+		return t;
+	};
+
 	IP.datasource = function(id, callback) {
 
 		var t = this;
@@ -828,6 +843,18 @@
 
 		// app.outputs = [];
 		// app.inputs = [];
+
+		if (Builder.view) {
+			app.view = Builder.view;
+		} else {
+			app.view = function(id, query, fn) {
+				// It must be declared in the app
+				// @id {String}
+				// @query {Object}
+				// @fn {Function(response)}
+				fn(EMPTYARRAY);
+			};
+		}
 
 		if (Builder.clfind) {
 			app.clfind = Builder.clfind;

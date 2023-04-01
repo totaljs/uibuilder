@@ -51,12 +51,17 @@
 				<div>
 					<ui-component name="input" path="?.paths" config="icon:ti ti-database;placeholder:@(Enter URL address)">@(URL address for obtaining paths)</ui-component>
 					<div class="help"><span class="link exec b" data-exec="?1/totaldb"><i class="ti ti-file-import mr5"></i>@(Import from Total DB)</span></div>
-					<div class="help" style="margin-top:2px">@(JSON format and it must be in the form <code>[{ id: String, name: String }]</code>)</div>
+					<div class="help" style="margin-top:2px">@(JSON format and it must be in the form <code>[{ id: String, name: String, type: String }]</code>)</div>
 				</div>
 				<hr />
 				<div>
 					<ui-component name="input" path="?.codes" config="icon:ti ti-list;placeholder:@(Enter URL address)">@(URL address for obtaining codes)</ui-component>
 					<div class="help">@(JSON format and it must be in the form <code>[{ id: String, name: String }]</code>)</div>
+				</div>
+				<hr />
+				<div>
+					<ui-component name="input" path="?.views" config="icon:ti ti-database;placeholder:@(Enter URL address)">@(URL address for obtaining data views)</ui-component>
+					<div class="help">@(JSON format and it must be in the form <code>[{ id: String, name: String, type: String }]</code>)</div>
 				</div>
 				<hr />
 				<div>

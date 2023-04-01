@@ -8,7 +8,7 @@
 				<ui-bind path="?.inputs" config="template" class="listing2 block">
 					<script type="text/html">
 						{{ if !value || !value.length }}
-							<p class="gray"><i class="ti ti-ban mr5"></i>@(The schema doesn't contain any inputs)</p>
+							<p class="gray"><i class="ti ti-ban mr5"></i>@(The template doesn't contain any inputs)</p>
 						{{ else }}
 							{{ foreach m in value }}
 							<figure data-id="{{ m.id }}" class="exec" data-exec="?/copy">
@@ -29,7 +29,7 @@
 				<ui-bind path="?.outputs" config="template" class="listing2 block">
 					<script type="text/html">
 						{{ if !value || !value.length }}
-							<p class="gray"><i class="ti ti-ban mr5"></i>@(The schema doesn't contain any outputs)</p>
+							<p class="gray"><i class="ti ti-ban mr5"></i>@(The template doesn't contain any outputs)</p>
 						{{ else }}
 							{{ foreach m in value }}
 							<figure data-id="{{ m.id }}" class="exec" data-exec="?/copy">

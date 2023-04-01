@@ -70,7 +70,9 @@
 					<div style="margin-right:8px">
 						<button class="exec" data-exec="uibuilder_render" title="@(Preview)" style="background-color:#FFEBFE"><i class="ti ti-flask"></i></button>
 						<button class="exec" data-exec="uibuilder_publish" title="@(Publish)"><i class="ti ti-box"></i></button>
-						<button class="exec" data-exec="uibuilder_settings" title="@(Global settings)"><i class="ti ti-cog"></i></button>
+						<ui-bind path="app.schema.editor.settings" config="show:value!=false&&value!=0">
+							<button class="exec" data-exec="uibuilder_settings" title="@(Global settings)"><i class="ti ti-cog"></i></button>
+						</ui-bind>
 					</div>
 
 					<button class="exec" data-exec="uibuilder_device" title="@(Display settings)"><i class="ti ti-window"></i></button>
@@ -103,6 +105,7 @@
 							</script>
 						</ui-bind>
 					</ui-component>
+					<br />
 				</ui-component>
 			</section>
 
@@ -140,6 +143,8 @@
 		var common = {};
 		var settingsform = {};
 
+		DEF.language = '';
+
 		UIBuilder.editor = true;
 
 		common.windows = [];
@@ -148,6 +153,7 @@
 		common.paths = '';
 		common.codes = '';
 		common.apps = '';
+		common.views = '';
 
 		CACHEPATH('common.darkmode', '1 year');
 
@@ -217,7 +223,7 @@
 					if (typeof(response) !== 'string')
 						response = '';
 
-					response = response.replace(/CLASS/g, com.cls);
+					response = ADAPT(null, null, response.replace(/CLASS/g, com.cls));
 
 					var beg = response.indexOf('<scr' + 'ipt>');
 					if (beg !== -1) {
@@ -339,6 +345,7 @@
 
 			common.paths = '';
 			common.codes = '';
+			common.views = '';
 
 			UIBuilder.build('#dapp', UIBuilder.data, function(response) {
 
@@ -620,7 +627,7 @@
 				if (data.render) {
 					SETTER('loading/hide', 1000);
 					var form = $('#uibuilderrender');
-					form.attr('action', data.render);
+					form.attr('action', data.render || 'https://preview.totaljs.com');
 					form.find('input').val(JSON.stringify(meta));
 					form.submit();
 				} else
@@ -693,6 +700,7 @@
 				el.find('i').rclass2('ti').aclass(selected.icon);
 				UIBuilder.resize();
 			};
+
 			SETTER('menu/show', opt);
 		}
 
@@ -794,6 +802,25 @@
 				});
 			} else
 				SET('DEF.cl.codes', []);
+
+		});
+
+		WATCH('app.schema.editor.views', function(path, value) {
+
+			if (value == null)
+				value = '';
+
+			if (common.views !== value) {
+				common.views = value;
+				AJAX('GET ' + value, function(response) {
+					if (response instanceof Array)
+						response = response.remove(item => !item || !item.name);
+					else
+						response = [];
+					SET('DEF.cl.views', response);
+				});
+			} else
+				SET('DEF.cl.views', []);
 
 		});
 

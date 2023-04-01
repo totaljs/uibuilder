@@ -1,4 +1,4 @@
-<ui-component name="miniform" path="common.form" config="if:~PATH~;icon:ti ti-layer-plus;title:@(Import UI component);autofocus:true;reload:?/reload;scrollbar:1;submit:?/submit;width:400" class="hidden ~PATH~" plugin="~PATH~">
+<ui-component name="miniform" path="common.form" config="if:~PATH~;icon:ti ti-layer-plus;title:@(Import UI component);autofocus:true;reload:?/reload;scrollbar:1;enter:1;submit:?/submit;width:400" class="hidden ~PATH~" plugin="~PATH~">
 	<div class="padding">
 		<p>@(Enter the URL address for the "editor.html" file or the "list.json" of components.)</p>
 		<div class="padding bg-smoke gray m fs12" style="border-radius:var(--radius)">
@@ -19,7 +19,9 @@
 
 	PLUGIN(function(exports) {
 
-		var importer = function(html, callback) {
+		var reload = false;
+
+		var importer = function(url, html, callback) {
 			if (typeof(html) === 'string' && html.indexOf('exports.id') !== -1 && html.indexOf('exports.make') !== -1) {
 				var match = html.match(/exports\.id.*?(;|\n)/);
 				if (match) {
@@ -28,11 +30,11 @@
 					if (obj.id) {
 						var id = obj.id;
 						if (!app.schema.components[id]) {
-							app.schema.components[id] = value;
-							uibuilder_redraw(true);
-							return;
+							reload = true;
+							app.schema.components[id] = url || ('base64 ' + btoa(encodeURIComponent(html)));
 						}
 						callback(obj);
+						return;
 					}
 				}
 			}
@@ -41,24 +43,27 @@
 
 		exports.submit = function(hide) {
 			var model = exports.form;
+			reload = false;
 			AJAX('GET ' + model.url + ' ERROR', function(response) {
 				if (response instanceof Array) {
 					response.wait(function(item, next) {
 						if (typeof(item) === 'string') {
 							if (item.indexOf('<') === -1)
-								AJAX('GET ' + item, response => importer(response, next));
+								AJAX('GET ' + item, response => importer(item, response, next));
 							else
-								importer(item, next);
+								importer('', item, next);
 						} else
 							next();
 
 					}, function() {
+						reload && uibuilder_redraw(true);
 						hide();
 						SETTER('notify/success', '@(Components have been imported successfully.)');
 					});
 				} else {
-					importer(response, function(obj) {
+					importer(model.url, response, function(obj) {
 						if (obj) {
+							reload && uibuilder_redraw(true);
 							hide();
 							SETTER('notify/success', '@(The component has been imported successfully.)');
 						} else

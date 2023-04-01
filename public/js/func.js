@@ -124,6 +124,12 @@ FUNC.placeholder = function(options) {
 		case 'calendar':
 			builder.push('<div class="ui_calendar_year"><span></span></div><div class="ui_calendar_header"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="ui_calendar_days"><div><span class="dt_hide"></span><span class="dt_hide"></span><span></span><span></span><span></span><span></span><span></span></div><div><span></span><span></span><span class="dt_today"></span><span></span><span></span><span></span><span></span></div><div><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div><span></span><span></span><span></span><span></span><span class="dt_hide"></span><span class="dt_hide"></span><span class="dt_hide"></span></div></div><div class="ui_calendar_footer"><span></span></div>');
 			break;
+		case 'togglegroup':
+			builder.push('<div>Toggle 1</div><div>Toggle 2</div><div>Toggle 3</div>');
+			break;
+		case 'richtext':
+			builder.push('<div class="ui_richtext_header"><span></span><span></span><span class="divider"></span><span class="lg"></span><span class="lg"></span><span class="divider"></span><span></span><span></span><span></span><span class="divider"></span><span></span></div><div class="ui_richtext_area"><span>Rich text editor</span></div>');
+			break;
 	}
 
 	builder.push('</div>');

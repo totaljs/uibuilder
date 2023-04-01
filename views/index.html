@@ -69,7 +69,9 @@
 
 					<div style="margin-right:8px">
 						<button class="exec" data-exec="uibuilder_render" title="@(Preview)" style="background-color:#FFEBFE"><i class="ti ti-flask"></i></button>
-						<button class="exec" data-exec="uibuilder_publish" title="@(Publish)"><i class="ti ti-box"></i></button>
+						<ui-bind path="app.schema.editor.autopublish" config="hide:value">
+							<button class="exec" data-exec="uibuilder_publish" title="@(Publish)"><i class="ti ti-box"></i></button>
+						</ui-bind>
 						<ui-bind path="app.schema.editor.settings" config="show:value!=false&&value!=0">
 							<button class="exec" data-exec="uibuilder_settings" title="@(Global settings)"><i class="ti ti-cog"></i></button>
 						</ui-bind>
@@ -202,8 +204,16 @@
 				case 'init':
 					common.upload = msg.upload;
 					common.iframeapps = msg.apps || [];
+					common.iframeviews = msg.views || [];
+					common.iframecodes = msg.codes || [];
+					common.iframepaths = msg.paths || [];
 					DEF.cl.usergroups = msg.groups || [];
+
+					SET('DEF.cl.views', common.iframeviews.slice(0));
+					SET('DEF.cl.paths', common.iframepaths.slice(0));
+					SET('DEF.cl.codes', common.iframecodes.slice(0));
 					SET('DEF.cl.apps', common.iframeapps.slice(0));
+
 					if (msg.data && msg.data.id) {
 						UIBuilder.data = msg.data;
 						uibuilder_redraw();
@@ -307,7 +317,13 @@
 		}
 
 		function uibuilder_rebuildpaths() {
+			common.rebuildpathstimeout && clearTimeout(common.rebuildpathstimeout);
+			common.rebuildpathstimeout = setTimeout(uibuilder_rebuildpaths_force, 10);
+		}
 
+		function uibuilder_rebuildpaths_force() {
+
+			common.rebuildpathstimeout = null;
 			DEF.cl.paths = DEF.cl.paths.remove('internal', true);
 			DEF.cl.datasource = [];
 
@@ -565,7 +581,7 @@
 				return;
 			}
 
-			SETTER('approve/show', '@(Are you sure you want to publish design?)', '"ti ti-check-circle" @(PUBLISH)', function() {
+			var compile = function() {
 				uibuilder_compile(function(meta) {
 					var data = meta.editor;
 
@@ -583,7 +599,12 @@
 						SETTER('loading/hide', 1000);
 					}
 				});
-			});
+			};
+
+			if (app.schema.editor.autopublish)
+				compile();
+			else
+				SETTER('approve/show', '@(Are you sure you want to publish design?)', '"ti ti-check-circle" @(PUBLISH)', compile);
 		}
 
 		function uibuilder_settings() {
@@ -741,6 +762,7 @@
 
 			if (common.iframe) {
 				FUNC.send({ TYPE: 'save', data: meta });
+				meta.editor.autopublish && uibuilder_publish();
 				return;
 			}
 
@@ -748,6 +770,7 @@
 				SETTER('approve/show', '@(Are you sure you want to save design?)', '"ti ti-check-circle" @(SAVE)', function() {
 					SETTER('loading/show');
 					AJAX('POST ' + meta.editor.save + ' urlencoded', { data: JSON.stringify(meta) }, ERROR(ASETTER('notify/success @hideloading', '@(Done, saved!)')));
+					meta.editor.autopublish && uibuilder_publish();
 				});
 			} else {
 				SETTER('filesaver/save', meta.name + '_editor.json', JSON.stringify(meta, null, '\t'));

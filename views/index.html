@@ -318,6 +318,11 @@
 					arr.push({ id: '@' + instance.id, name: '<span class="badge badge-small mr5 badge-gray monospace">@(component)</span>' + instance.config.name + '<span class="fs11 silver ml5">' + instance.id + ' / ' + instance.component.name + '</span>', sort: instance.config.name, text: instance.config.name, internal: true });
 			}
 
+			if (DEF.cl.views) {
+				for (var view of DEF.cl.views)
+					arr.push({ id: '#' + view.id, name: '<span class="badge badge-small mr5 badge-yellow monospace">@(view)</span>' + view.name, sort: view.name });
+			}
+
 			arr.quicksort('sort');
 			DEF.cl.paths.push.apply(DEF.cl.paths, arr);
 
@@ -818,9 +823,12 @@
 					else
 						response = [];
 					SET('DEF.cl.views', response);
+					uibuilder_rebuildpaths();
 				});
-			} else
+			} else {
 				SET('DEF.cl.views', []);
+				uibuilder_rebuildpaths();
+			}
 
 		});
 

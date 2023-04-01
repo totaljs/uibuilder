@@ -272,6 +272,9 @@
 			query = null;
 		}
 
+		if (id.charAt(0) === '#')
+			id = id.substring(1);
+
 		t.app.view(id, query, callback);
 		return t;
 	};
@@ -288,7 +291,11 @@
 				callback(CLONE(response));
 		};
 
-		if (id.charAt(0) === '@') {
+		var c = id.charAt(0);
+
+		if (c === '#') {
+			t.view(id, null, callback);
+		} else if (c === '@') {
 			var instance = t.find(id);
 			if (instance) {
 				instance.on('value', fn);
@@ -534,7 +541,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1;
+	Builder.version = 1.1;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};

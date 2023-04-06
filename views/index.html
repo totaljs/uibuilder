@@ -334,16 +334,18 @@
 					arr.push({ id: '@' + instance.id, name: '<span class="badge badge-small mr5 badge-gray monospace">@(component)</span>' + instance.config.name + '<span class="fs11 silver ml5">' + instance.id + ' / ' + instance.component.name + '</span>', sort: instance.config.name, text: instance.config.name, internal: true });
 			}
 
+			arr.quicksort('sort');
+
+			DEF.cl.paths.push.apply(DEF.cl.paths, arr);
+
 			if (DEF.cl.views) {
 				for (var view of DEF.cl.views)
 					arr.push({ id: '#' + view.id, name: '<span class="badge badge-small mr5 badge-yellow monospace">@(view)</span>' + view.name, sort: view.name });
 			}
 
-			arr.quicksort('sort');
-			DEF.cl.paths.push.apply(DEF.cl.paths, arr);
-
 			DEF.cl.datasource.push.apply(DEF.cl.datasource, DEF.cl.codes);
 			DEF.cl.datasource.push.apply(DEF.cl.datasource, arr);
+
 
 			UPD('DEF.cl.paths');
 			UPD('DEF.cl.datasource');
@@ -809,7 +811,7 @@
 					uibuilder_rebuildpaths();
 				});
 			} else {
-				SET('DEF.cl.paths', []);
+				SET('DEF.cl.paths', (common.iframepaths || []).slice(0));
 				uibuilder_rebuildpaths();
 			}
 		});
@@ -829,7 +831,7 @@
 					SET('DEF.cl.codes', response);
 				});
 			} else
-				SET('DEF.cl.codes', []);
+				SET('DEF.cl.codes', (common.iframecodes || []).slice(0));
 
 		});
 
@@ -849,7 +851,7 @@
 					uibuilder_rebuildpaths();
 				});
 			} else {
-				SET('DEF.cl.views', []);
+				SET('DEF.cl.views', (common.iframeviews || []).slice(0));
 				uibuilder_rebuildpaths();
 			}
 
@@ -955,13 +957,14 @@
 					opt.y = e.pageY;
 					opt.items = [];
 					opt.items.push(instance.component.name);
+
+					if (instance.component.readme)
+						opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
+
 					opt.items.push({ id: 'settings', name: '@(Settings)', classname: 'b', icon: 'ti ti-cog' });
 
 					if (!instance.component.floating)
 						opt.items.push({ id: 'gap', name: '@(Toggle gap)', selected: instance.element.hclass('UI_gap'), icon: 'ti ti-caret-square-down' });
-
-					if (instance.component.readme)
-						opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
 
 					if (instance.component.floating) {
 						opt.items.push('-');
@@ -1025,6 +1028,10 @@
 		function uibuilder_close() {
 			FUNC.send({ TYPE: 'close' });
 		}
+
+		SETTER(true, 'shortcuts/register', 'F5', function(e) {
+			uibuilder_redraw();
+		}, true);
 
 		SETTER(true, 'shortcuts/register', 'save', function(e) {
 			uibuilder_save();

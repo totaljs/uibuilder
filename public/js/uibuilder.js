@@ -191,6 +191,25 @@
 		return t;
 	};
 
+	function sendoutput(t, output, err, data) {
+		var obj = {};
+		obj.id = t.id + '_' + output.id;
+		obj.instanceid = t.id;
+		obj.componentid = t.component.id;
+		obj.ref = output.id;
+		obj.icon = output.icon;
+		obj.color = output.color;
+		obj.note = output.note;
+		obj.name = output.name;
+		obj.component = t.component;
+		obj.app = t.app;
+		obj.instance = t;
+		obj.err = err;
+		obj.data = data;
+		t.app.emit('output', obj);
+		Builder.emit('output', obj);
+	}
+
 	IP.output = function(name, fn) {
 
 		var t = this;
@@ -201,27 +220,13 @@
 		}
 
 		if (fn) {
-			t.$outputs[name] = fn;
+			if (typeof(fn) === 'function')
+				t.$outputs[name] = fn;
+			else
+				sendoutput(t, output, null, fn);
 		} else {
 			fn = t.$outputs[name];
-			fn && fn(function(err, data) {
-				var obj = {};
-				obj.id = t.id + '_' + output.id;
-				obj.instanceid = t.id;
-				obj.componentid = t.component.id;
-				obj.ref = output.id;
-				obj.icon = output.icon;
-				obj.color = output.color;
-				obj.note = output.note;
-				obj.name = output.name;
-				obj.component = t.component;
-				obj.app = t.app;
-				obj.instance = t;
-				obj.err = err;
-				obj.data = data;
-				t.app.emit('output', obj);
-				Builder.emit('output', obj);
-			});
+			fn && fn((err, data) => sendoutput(t, output, err, data));
 		}
 
 		return t;
@@ -541,7 +546,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.1;
+	Builder.version = 1.2;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};

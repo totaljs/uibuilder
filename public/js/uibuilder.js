@@ -1161,6 +1161,13 @@
 				}
 
 				if (!ext || ext === 'html') {
+
+
+					if (Builder.editor) {
+						if (url.charAt(0) === '/')
+							url = (Builder.origin || '') + url;
+					}
+
 					AJAX('GET ' + url, function(response, err) {
 
 						if (err) {

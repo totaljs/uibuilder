@@ -202,6 +202,8 @@
 
 			switch (msg.TYPE) {
 				case 'init':
+
+					UIBuilder.origin = e.origin;
 					common.upload = msg.upload;
 					common.iframeapps = msg.apps || [];
 					common.iframeviews = msg.views || [];

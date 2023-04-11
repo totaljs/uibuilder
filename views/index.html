@@ -55,7 +55,7 @@
 
 					<span class="beta">beta</span>
 
-					<ui-bind path="common.iframe" config="show" class="hidden pull-right">
+					<ui-bind path="common.allowclose" config="show" class="hidden pull-right">
 						<button class="exec red" data-exec="uibuilder_close" title="@(Close)"><i class="ti ti-times"></i></button>
 					</ui-bind>
 
@@ -156,6 +156,7 @@
 		common.codes = '';
 		common.apps = '';
 		common.views = '';
+		common.componentsdb = NAV.query.components || 'https://cdn.componentator.com/uibuilder/db.json';
 
 		CACHEPATH('common.darkmode', '1 year');
 
@@ -209,6 +210,10 @@
 					common.iframeviews = msg.views || [];
 					common.iframecodes = msg.codes || [];
 					common.iframepaths = msg.paths || [];
+
+					if (msg.components)
+						common.componentsdb = msg.components;
+
 					DEF.cl.usergroups = msg.groups || [];
 
 					SET('DEF.cl.views', common.iframeviews.slice(0));
@@ -285,6 +290,7 @@
 			if (top !== W) {
 				// iframe
 				SET('common.iframe', true);
+				SET('common.allowclose', NAV.query.hideclose !== '1');
 				FUNC.send({ TYPE: 'ready' });
 				return;
 			}

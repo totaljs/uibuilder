@@ -21,7 +21,13 @@ __Instructions__:
 
 ## Good to know
 
+__Custom component list__:
+
+You can use your own component list by adding in the form `https://uibuilder.totaljs.com?components=URL_TO_YOUR_JSON_DB`
+
 __Custom rendering__:
+
+- Web component: <https://componentator.com/components/j-uibuilder/>
 
 ```html
 <ui-component name="uibuilder" config="url:https://uibuilder.totaljs.com/render.json"></ui-component>
@@ -46,7 +52,7 @@ instance.state.notify = true;   // The option will emit only the "notify" event 
 __Methods__:
 
 ```js
-instance.datasource(CLID_OR_@INSTANCEID, function(value) {
+instance.datasource(CLID_OR_@INSTANCEID__OR__#VIEWID, function(value) {
 	// value {Array} [id, name]
 });
 ```
@@ -69,6 +75,8 @@ __Editor properties__:
 - `DEF.cl.list` contains a list of all instances
 - `DEF.cl.inputs` contains all inputs
 - `DEF.cl.outputs` contains all outputs
+- `DEF.cl.views` contains all views
+- `DEF.cl.apps` contains all sibling apps/designs
 
 __Good to know__:
 

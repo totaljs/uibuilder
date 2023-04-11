@@ -545,7 +545,7 @@
 
 			for (var instance of app.instances) {
 				if (instance.component.render)
-					used[instance.component.id] = (instance.component.render.indexOf('http') === -1 ? 'https://uibuilder.totaljs.com' : '') + instance.component.render;
+					used[instance.component.id] = (meta.editor.download && instance.component.render.indexOf('http') === -1 ? 'https://uibuilder.totaljs.com' : '') + instance.component.render;
 			}
 
 			if (meta.editor && meta.editor.download) {

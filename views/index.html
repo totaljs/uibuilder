@@ -226,6 +226,7 @@
 						uibuilder_redraw();
 					} else
 						SET('common.form', 'templatesform');
+
 					break;
 			}
 
@@ -255,9 +256,12 @@
 				};
 
 				if (com.settings) {
-					if (com.settings.indexOf('<') === -1)
-						AJAX('GET ' + com.settings, done);
-					else
+					if (com.settings.indexOf('<') === -1) {
+						var url = com.settings;
+						if (url.charAt(0) === '/')
+							url = UIBuilder.origin + url;
+						AJAX('GET ' + url, done);
+					} else
 						done(com.settings);
 				} else
 					done(com.settings);

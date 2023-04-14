@@ -292,8 +292,12 @@
 			return t;
 
 		var fn = function(response) {
-			if (response && response instanceof Array)
-				callback(CLONE(response));
+			if (response) {
+				if (!(response instanceof Array) && response.items instanceof Array)
+					response = response.items;
+				if (response instanceof Array)
+					callback(CLONE(response));
+			}
 		};
 
 		var c = id.charAt(0);

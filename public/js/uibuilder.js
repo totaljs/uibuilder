@@ -327,7 +327,7 @@
 		if (fn) {
 			var c = clid.charAt(0);
 			if (c === '#') {
-				t.view(clid, { search: search }, function(err, response) {
+				t.view(clid, { search: search }, function(response) {
 					if (response) {
 						if (response.items instanceof Array)
 							response = response.items;
@@ -362,7 +362,7 @@
 		if (fn) {
 			var c = clid.charAt(0);
 			if (c === '#') {
-				t.view(clid, { id: id }, function(err, response) {
+				t.view(clid, { id: id }, function(response) {
 					if (response) {
 						if (response.items instanceof Array)
 							response = response.items;

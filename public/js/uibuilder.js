@@ -325,6 +325,32 @@
 		}
 
 		if (fn) {
+			var c = clid.charAt(0);
+			if (c === '#') {
+				t.view(clid, { search: search }, function(err, response) {
+					if (response) {
+						if (response.items instanceof Array)
+							response = response.items;
+						fn(response);
+					} else
+						fn([]);
+				});
+				return;
+			} else if (c === '@') {
+				var instance = t.find(id);
+				if (instance && instance.state.value instanceof Array) {
+					var arr = [];
+					if (search)
+						search = search.toSearch();
+					for (var m of instance.state.value) {
+						if (m.name && (!search || m.name.toSearch().indexOf(search) !== -1))
+							arr.push(m);
+					}
+					fn(arr);
+				} else
+					fn([]);
+				return;
+			}
 			t.app.clfind(clid, search, fn);
 			return t;
 		} else
@@ -334,6 +360,29 @@
 	IP.clread = function(clid, id, fn) {
 		var t = this;
 		if (fn) {
+			var c = clid.charAt(0);
+			if (c === '#') {
+				t.view(clid, { id: id }, function(err, response) {
+					if (response) {
+						if (response.items instanceof Array)
+							response = response.items;
+						if (response instanceof Array) {
+							fn(response.findItem('id', id));
+							return;
+						}
+						fn(response);
+					} else
+						fn(null);
+				});
+				return;
+			} else if (c === '@') {
+				var instance = t.find(id);
+				if (instance && instance.state.value instanceof Array)
+					fn(instance.state.value.findItem('id', id));
+				else
+					fn(null);
+				return;
+			}
 			t.app.clread(clid, id, fn);
 			return t;
 		} else
@@ -550,7 +599,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.2;
+	Builder.version = 1.3;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};

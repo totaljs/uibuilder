@@ -337,7 +337,7 @@
 				});
 				return;
 			} else if (c === '@') {
-				var instance = t.find(id);
+				var instance = t.find(clid);
 				if (instance && instance.state.value instanceof Array) {
 					var arr = [];
 					if (search)
@@ -1485,7 +1485,7 @@
 			Builder.emit('link', tmp, NOOP);
 		};
 
-		var contextmenu = function(e) {
+		var contextmenu = function() {
 			openeditor.close();
 		};
 

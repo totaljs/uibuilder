@@ -1308,7 +1308,7 @@
 
 				app.callback = callback;
 			});
-		});
+		}, 3);
 
 		return app;
 	};

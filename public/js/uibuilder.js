@@ -599,11 +599,13 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.3;
+	Builder.version = 1.4;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
 	Builder.apps = {};
+	Builder.cache = {};
+
 	Builder.resize = function() {
 		for (var key in Builder.apps) {
 			var app = Builder.apps[key];
@@ -1288,9 +1290,16 @@
 				app.components[item.name] = obj;
 				obj.css && css.push(obj.css.replace(REG_CLASS, obj.cls));
 
-				if (obj.import instanceof Array)
-					obj.import.wait(IMPORT, next);
-				else
+				if (obj.import instanceof Array) {
+					obj.import.wait(function(url, next) {
+						if (Builder.cache[url]) {
+							next();
+						} else {
+							Builder.cache[url] = 1;
+							IMPORT(url, next);
+						}
+					}, next);
+				} else
 					next();
 
 			}, function() {

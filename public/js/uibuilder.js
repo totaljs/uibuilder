@@ -284,15 +284,6 @@
 		return t;
 	};
 
-	IP.import = function(id, el) {
-		var t = this;
-		if (Builder.import)
-			Builder.import.call(t.app, id, $(el || t.element));
-		else
-			WARN('UIBuilder.import() is not defined');
-		return t;
-	};
-
 	IP.datasource = function(id, callback) {
 
 		var t = this;

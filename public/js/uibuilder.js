@@ -1258,6 +1258,13 @@
 								obj.settings = parsed.settings.replace(REG_CLASS, obj.cls);
 
 							new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
+
+							if (obj.render && obj.render.charAt(0) === '/') {
+								var index = url.indexOf('/', 10);
+								if (index !== -1)
+									obj.render = url.substring(0, index) + obj.render;
+							}
+
 							app.pending.push({ name: key, fn: obj });
 
 						} finally {

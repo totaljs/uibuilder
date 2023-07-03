@@ -1177,156 +1177,165 @@
 
 		Builder.apps[Builder.current] = app;
 
-		Object.keys(meta.components).wait(function(key, next) {
-			var fn = meta.components[key];
-			if (typeof(fn) === 'string') {
+		(meta.import || EMPTYARRAY).wait(function(url, next) {
+			if (Builder.cache[url]) {
+				next();
+			} else {
+				Builder.cache[url] = 1;
+				IMPORT(url, next);
+			}
+		}, function() {
+			Object.keys(meta.components).wait(function(key, next) {
+				var fn = meta.components[key];
+				if (typeof(fn) === 'string') {
 
-				var ext = fn.split(' ');
-				var url = (ext[1] || '').trim();
+					var ext = fn.split(' ');
+					var url = (ext[1] || '').trim();
 
-				ext = ext[0].trim();
+					ext = ext[0].trim();
 
-				if (!url) {
-					url = ext;
-					ext = '';
-				}
-
-				if (ext) {
-					if (ext.charAt(0) === '.html')
-						ext = ext.substring(1);
-				}
-
-				if (ext === 'base64') {
-					// A component
-					try {
-						var obj = {};
-						obj.id = key;
-						obj.cls = app.class + '_' + HASH(obj.id).toString(36);
-						var parsed = Builder.parsehtml(decodeURIComponent(atob(url)));
-						if (parsed.css)
-							obj.css = parsed.css;
-						if (parsed.html)
-							obj.html = parsed.html.replace(REG_CLASS, obj.cls);
-						new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
-						app.pending.push({ name: key, fn: obj });
-					} finally {
-						next();
-					}
-					return;
-				}
-
-				if (!ext || ext === 'html') {
-
-
-					if (Builder.editor) {
-						if (url.charAt(0) === '/')
-							url = (Builder.origin || '') + url;
+					if (!url) {
+						url = ext;
+						ext = '';
 					}
 
-					AJAX('GET ' + url, function(response, err) {
+					if (ext) {
+						if (ext.charAt(0) === '.html')
+							ext = ext.substring(1);
+					}
 
-						if (err) {
-							console.error('UI Builder:', url, err);
-							next();
-							return;
-						}
-
-						if (ERROR(response)) {
-							console.error('UI Builder:', url, response);
-							next();
-							return;
-						}
-
-						var parsed = Builder.parsehtml(response);
-
+					if (ext === 'base64') {
+						// A component
 						try {
 							var obj = {};
-
 							obj.id = key;
 							obj.cls = app.class + '_' + HASH(obj.id).toString(36);
-
+							var parsed = Builder.parsehtml(decodeURIComponent(atob(url)));
 							if (parsed.css)
 								obj.css = parsed.css;
-
-							if (parsed.readme)
-								obj.readme = parsed.readme;
-
 							if (parsed.html)
 								obj.html = parsed.html.replace(REG_CLASS, obj.cls);
-
-							if (parsed.settings)
-								obj.settings = parsed.settings.replace(REG_CLASS, obj.cls);
-
 							new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
-
-							var index = url.indexOf('/', 10);
-							if (index !== -1) {
-								if (obj.render && obj.render.charAt(0) === '/')
-									obj.render = url.substring(0, index) + obj.render;
-								if (obj.settings && obj.settings.charAt(0) === '/')
-									obj.settings = url.substring(0, index) + obj.settings;
-							}
-
 							app.pending.push({ name: key, fn: obj });
-
 						} finally {
 							next();
 						}
-						// console.error('UI Builder:', key, e);
-					});
-				}
+						return;
+					}
 
-			} else {
-				app.pending.push({ name: key, fn: fn });
-				next();
-			}
+					if (!ext || ext === 'html') {
 
-		}, function() {
 
-			var items = app.pending.splice(0);
-			items.wait(function(item, next) {
-
-				var obj = null;
-
-				if (typeof(item.fn) === 'function') {
-					obj = {};
-					obj.id = item.name;
-					obj.cls = app.class + '_' + HASH(obj.id).toString(36);
-					item.fn(obj);
-				} else
-					obj = item.fn;
-
-				app.components[item.name] = obj;
-				obj.css && css.push(obj.css.replace(REG_CLASS, obj.cls));
-
-				if (obj.import instanceof Array) {
-					obj.import.wait(function(url, next) {
-						if (Builder.cache[url]) {
-							next();
-						} else {
-							Builder.cache[url] = 1;
-							IMPORT(url, next);
+						if (Builder.editor) {
+							if (url.charAt(0) === '/')
+								url = (Builder.origin || '') + url;
 						}
-					}, next);
-				} else
+
+						AJAX('GET ' + url, function(response, err) {
+
+							if (err) {
+								console.error('UI Builder:', url, err);
+								next();
+								return;
+							}
+
+							if (ERROR(response)) {
+								console.error('UI Builder:', url, response);
+								next();
+								return;
+							}
+
+							var parsed = Builder.parsehtml(response);
+
+							try {
+								var obj = {};
+
+								obj.id = key;
+								obj.cls = app.class + '_' + HASH(obj.id).toString(36);
+
+								if (parsed.css)
+									obj.css = parsed.css;
+
+								if (parsed.readme)
+									obj.readme = parsed.readme;
+
+								if (parsed.html)
+									obj.html = parsed.html.replace(REG_CLASS, obj.cls);
+
+								if (parsed.settings)
+									obj.settings = parsed.settings.replace(REG_CLASS, obj.cls);
+
+								new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
+
+								var index = url.indexOf('/', 10);
+								if (index !== -1) {
+									if (obj.render && obj.render.charAt(0) === '/')
+										obj.render = url.substring(0, index) + obj.render;
+									if (obj.settings && obj.settings.charAt(0) === '/')
+										obj.settings = url.substring(0, index) + obj.settings;
+								}
+
+								app.pending.push({ name: key, fn: obj });
+
+							} finally {
+								next();
+							}
+							// console.error('UI Builder:', key, e);
+						});
+					}
+
+				} else {
+					app.pending.push({ name: key, fn: fn });
 					next();
+				}
 
 			}, function() {
 
-				meta.css && css.unshift(meta.css.replace(REG_CLASS, app.class));
-				CSS(css, app.class);
+				var items = app.pending.splice(0);
+				items.wait(function(item, next) {
 
-				for (var i = 0; i < meta.children.length; i++) {
-					var index = meta.children[i];
-					for (var m of index) {
-						m.protected = true;
-						app.compile(container, m, i);
+					var obj = null;
+
+					if (typeof(item.fn) === 'function') {
+						obj = {};
+						obj.id = item.name;
+						obj.cls = app.class + '_' + HASH(obj.id).toString(36);
+						item.fn(obj);
+					} else
+						obj = item.fn;
+
+					app.components[item.name] = obj;
+					obj.css && css.push(obj.css.replace(REG_CLASS, obj.cls));
+
+					if (obj.import instanceof Array) {
+						obj.import.wait(function(url, next) {
+							if (Builder.cache[url]) {
+								next();
+							} else {
+								Builder.cache[url] = 1;
+								IMPORT(url, next);
+							}
+						}, next);
+					} else
+						next();
+
+				}, function() {
+
+					meta.css && css.unshift(meta.css.replace(REG_CLASS, app.class));
+					CSS(css, app.class);
+
+					for (var i = 0; i < meta.children.length; i++) {
+						var index = meta.children[i];
+						for (var m of index) {
+							m.protected = true;
+							app.compile(container, m, i);
+						}
 					}
-				}
 
-				app.callback = callback;
-			});
-		}, 3);
+					app.callback = callback;
+				});
+			}, 3);
+		});
 
 		return app;
 	};

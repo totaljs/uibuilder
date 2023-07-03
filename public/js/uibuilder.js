@@ -761,7 +761,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.4;
+	Builder.version = 1.5;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};

@@ -663,10 +663,12 @@
 					return;
 				}
 
-				if (data.render) {
+				var url = data.render || 'https://preview.totaljs.com';
+
+				if (url) {
 					SETTER('loading/hide', 1000);
 					var form = $('#uibuilderrender');
-					form.attr('action', data.render || 'https://preview.totaljs.com');
+					form.attr('action', url);
 					form.find('input').val(JSON.stringify(meta));
 					form.submit();
 				} else

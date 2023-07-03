@@ -1,25 +1,5 @@
 (function(Builder) {
 
-	customElements.define('ui-build-root', class extends HTMLDivElement {
-
-		constructor() {
-			super();
-		}
-
-	}, { extends: 'div' });
-
-	customElements.define('ui-build-component', class extends HTMLDivElement {
-		constructor() {
-			super();
-		}
-	}, { extends: 'div' });
-
-	customElements.define('ui-build-children', class extends HTMLDivElement {
-		constructor() {
-			super();
-		}
-	}, { extends: 'div' });
-
 	var REG_CLASS = /CLASS/g;
 
 	// Internal "component" configuration keys:
@@ -651,7 +631,6 @@
 		var div = document.createElement('DIV');
 		var instance = new Instance();
 
-		div.setAttribute('is', 'ui-build-component');
 		div.classList.add('ui_' + com.id);
 
 		obj.gap && div.classList.add('UI_gap');
@@ -869,11 +848,10 @@
 
 		var root = document.createElement('DIV');
 		var container = $(root);
+
 		container.attrd('id', meta.id);
 		container.aclass('UI_app invisible');
 		container.empty();
-
-		root.setAttribute('is', 'ui-build-root');
 
 		// if (meta.css)
 		// 	container[0].style = meta.css;

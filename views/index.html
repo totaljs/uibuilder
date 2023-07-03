@@ -422,7 +422,12 @@
 		}
 
 		function opensettings(el) {
+
 			var com = el[0].uibuilder;
+
+			if (com.meta.readonly)
+				return;
+
 			var componentid = com.component.id;
 
 			var config = CLONE(com.config);
@@ -957,7 +962,20 @@
 
 			if (!instance.protected) {
 
-				if (!instance.component.floating)
+				var readonly = instance.meta.readonly;
+
+				if (!readonly) {
+					var parent = instance.parent;
+					while (parent) {
+						if (parent.meta.readonly) {
+							readonly = true;
+							break;
+						} else
+							parent = parent.parent;
+					}
+				}
+
+				if (!readonly && !instance.component.floating)
 					instance.element.attr('draggable', true);
 
 				instance.element.on('contextmenu', function(e) {
@@ -974,26 +992,30 @@
 					if (instance.component.readme)
 						opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
 
-					opt.items.push({ id: 'settings', name: '@(Settings)', classname: 'b', icon: 'ti ti-cog' });
+					if (!readonly)
+						opt.items.push({ id: 'settings', name: '@(Settings)', classname: 'b', icon: 'ti ti-cog' });
 
-					if (!instance.component.floating)
+					if (!readonly && !instance.component.floating)
 						opt.items.push({ id: 'gap', name: '@(Toggle gap)', selected: instance.element.hclass('UI_gap'), icon: 'ti ti-caret-square-down' });
 
-					if (instance.component.floating) {
+					if (!readonly && instance.component.floating) {
 						opt.items.push('-');
 						opt.items.push({ id: 'bringfront', name: '@(Bring to front)', icon: 'ti ti-plus-circle green' });
 						opt.items.push({ id: 'bringback', name: '@(Bring to back)', icon: 'ti ti-minus-circle green' });
 					}
 
-					if (!instance.protected) {
+					if (!readonly && !instance.protected) {
 						opt.items.push('-');
 						opt.items.push({ id: 'up', name: '@(Move up)', icon: 'ti ti-arrow-up' });
 						opt.items.push({ id: 'down', name: '@(Move down)', icon: 'ti ti-arrow-down' });
 						opt.items.push({ id: 'clone', name: '@(Clone)', icon: 'ti ti-clone' });
 					}
 
-					opt.items.push('-');
-					opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
+					if (!readonly) {
+						opt.items.push('-');
+						opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
+					}
+
 					opt.callback = function(sel) {
 
 						var tmp;

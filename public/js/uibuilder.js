@@ -218,7 +218,9 @@
 
 			com.fork.rebind();
 
-			t.classList.remove('invisible hidden');
+			var clsl = t.classList;
+			clsl.remove('invisible');
+			clsl.remove('hidden');
 
 			if (!is)
 				setTimeout(com => com.emit('fork', com.fork), 1, com);
@@ -1138,7 +1140,8 @@
 			}
 		}
 
-		com.make(instance, instance.config, instance.element, instance.component.cls);
+		com.make && com.make(instance, instance.config, instance.element, instance.component.cls);
+
 		Builder.events.make && Builder.emit('make', instance);
 
 		if (inline)

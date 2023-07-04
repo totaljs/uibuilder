@@ -6,10 +6,228 @@
 	// config.name {String} a component readable name for human
 	// config.path {String} a path for storing of data
 
-	function InstanceEvent() {
+	function Fork(app) {
+		var t = this;
+		t.id = app.id;
+		t.query = app.query;
+		t.app = app;
+		t.cache = app.cache;
+		t.class = app.class;
+		t.components = app.components;
+		t.instances = [];
+		t.events = {};
 	}
 
-	InstanceEvent.prototype.stopPropagation = function() {
+	Fork.prototype.urlify = function() {
+		this.app.urlify.apply(this.app, arguments);
+		return this;
+	};
+
+	Fork.prototype.clfind = function() {
+		this.app.clfind.apply(this.app, arguments);
+		return this;
+	};
+
+	Fork.prototype.clean = function() {
+		this.app.clfind.apply(this.app, arguments);
+		return this;
+	};
+
+	Fork.prototype.clread = function() {
+		this.app.clread.apply(this.app, arguments);
+		return this;
+	};
+
+	Fork.prototype.view = function() {
+		this.app.view.apply(this.app, arguments);
+		return this;
+	};
+
+	Fork.prototype.clean = function() {
+		return this;
+	};
+
+	Fork.prototype.on = function(name, fn) {
+		var t = this;
+		if (t.events[name])
+			t.events[name].push(fn);
+		else
+			t.events[name] = [fn];
+	};
+
+	function rebindforce(t) {
+
+		var binded = {};
+		var binder = {};
+		var isbinded = false;
+
+		t.$rebindtimeout = null;
+
+		// Check binded instances
+		for (var item of t.instances) {
+			if (item.config.path && item.config.path.charAt(0) === '@') {
+				var key = item.config.path.substring(1);
+				if (key != item.id) {
+					if (binded[key])
+						binded[key].push(item);
+					else
+						binded[key] = [item];
+					binder[item.id] = key;
+					isbinded = true;
+				}
+			}
+		}
+
+		// Assign binded instances
+		if (isbinded) {
+			for (var item of t.instances) {
+				item.binded = binded[item.id] || null;
+				item.binder = binder[item.id] ? t.instances.findItem('id', binder[item.id]) : null;
+			}
+		}
+	}
+
+	Fork.prototype.rebind = function() {
+		var t = this;
+		t.$rebindtimeout && clearTimeout(t.$rebindtimeout);
+		t.$rebindtimeout = setTimeout(rebindforce, 50, t);
+	};
+
+	Fork.prototype.emit = function(name, a, b, c, d, e) {
+		var t = this;
+		var items = t.events[name];
+		if (items) {
+			for (var fn of items)
+				fn.call(t, a, b, c, d, e);
+		}
+	};
+
+	Fork.prototype.emitstate = function(e) {
+
+		// @e InstanceEvent
+		// 1. notifies all parents
+		// 2. notifies all other components
+
+		var t = this;
+		var parents = {};
+		var key = 'state';
+		var instance = e.instance;
+
+		// Clears cache
+		e.instance.cache.e = null;
+
+		// notifies all parents
+		var parent = instance.parent;
+
+		e.level = 0;
+
+		while (parent) {
+
+			e.level++;
+			parents[parent.id] = true;
+
+			if (parent.events[key])
+				parent.emit(key, e);
+
+			if (e.$propagation)
+				break;
+
+			parent = parent.parent;
+		}
+
+		e.level = null;
+
+		key = '@state';
+
+		for (var obj of t.instances) {
+			if (!parents[instance.id] && obj !== e.instance)
+				obj.events[key] && obj.emit(key, e);
+		}
+
+	};
+
+	customElements.define('uibuilder-component', class extends HTMLElement {
+
+		constructor() {
+			super();
+			setTimeout(() => this.compile(), 1);
+		}
+
+		compile() {
+
+			var t = this;
+			var parent = t.parentNode;
+			var cls = Builder.selectors.component.substring(1);
+			var com;
+
+			while (parent) {
+
+				if (parent.tagName === 'BODY')
+					return;
+
+				if (parent.classList.contains(cls)) {
+					com = parent.uibuilder;
+					break;
+				} else
+					parent = parent.parentNode;
+			}
+
+			var is = true;
+
+			if (!com.fork) {
+				is = false;
+				com.fork = new Fork(com.app);
+				com.fork.element = com.element;
+				com.fork.compile = app_compile;
+			}
+
+			var config = (t.getAttribute('config') || '').parseConfig();
+			var obj = {};
+			obj.id = t.getAttribute('uid') || 'ui' + GUID(10);
+			obj.config = config;
+			obj.component = t.getAttribute('name');
+
+			var path = t.getAttribute('path');
+			if (path)
+				config.path = path;
+
+			var component = com.fork.components[obj.component];
+			if (!component) {
+				console.error('UI Builder: The component not found: ' + obj.component);
+				return;
+			}
+
+			if (t.innerHTML) {
+				config.name = t.innerHTML.trim();
+				t.innerHTML = '';
+			}
+
+			if (!config.name)
+				config.name = component.name;
+
+			if (config.$bind || t.getAttribute('bind'))
+				instance.state.bind = true;
+
+			if (config.$notify || t.getAttribute('notify'))
+				instance.state.notify = true;
+
+			com.fork.compile(t, obj, null, null, t);
+
+			if (t.uibuilder)
+				t.uibuilder.parent = com;
+
+			com.fork.rebind();
+
+			t.classList.remove('invisible hidden');
+
+			if (!is)
+				setTimeout(com => com.emit('fork', com.fork), 1, com);
+		}
+	});
+
+	function StateEvent() {}
+
+	StateEvent.prototype.stopPropagation = function() {
 		this.$propagation = true;
 	};
 
@@ -27,6 +245,19 @@
 	IP.$forcecheck = function(t) {
 		t.$checktimeout = null;
 		t.set('invalid', t.state.disabled || t.state.readonly ? false : t.validate ? (!t.validate()) : false);
+	};
+
+	IP.$forcechange = function(t) {
+		t.$changetimeout = null;
+		t.app.emit('change', t);
+	};
+
+	IP.change = function() {
+		var t = this;
+		if (t.app.events.change) {
+			t.$changetimeout && clearTimeout(t.$changetimeout);
+			t.$changetimeout = setTimeout(t.$forcechange, 333, t);
+		}
 	};
 
 	IP.check = function(force) {
@@ -116,6 +347,7 @@
 
 		t.state[type] = value;
 		t.events.set && t.emit('set', type, value, kind);
+		t.change();
 
 		if (type === 'value') {
 
@@ -151,7 +383,7 @@
 			t.cache.e.changes[type] = 1;
 			return true;
 		} else {
-			e = t.cache.e = new InstanceEvent();
+			e = t.cache.e = new StateEvent();
 			e.id = t.id;
 			e.instance = t;
 			e.state = t.state;
@@ -195,7 +427,7 @@
 		var t = this;
 		var output = (t.component.outputs || EMPTYARRAY).findItem('id', name);
 		if (!output) {
-			console.error('Output "{0}" not found in the "{1}" component'.format(name, t.component.name));
+			console.error('UI Builder: Output "{0}" not found in the "{1}" component'.format(name, t.component.name));
 			return;
 		}
 
@@ -665,7 +897,7 @@
 		}
 
 		var t = this;
-		var instance = t.app.instance.findItem('id', id);
+		var instance = t.app.instances.findItem('id', id);
 		instance && instance.on(type, callback);
 		return t;
 	};
@@ -761,7 +993,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.5;
+	Builder.version = 1.6;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
@@ -800,7 +1032,7 @@
 		app.pending.push({ name: name, fn: fn });
 	};
 
-	function app_compile(container, obj, index, position) {
+	function app_compile(container, obj, index, position, inline) {
 
 		var self = this;
 		var com = self.components[obj.component];
@@ -810,7 +1042,7 @@
 			return;
 		}
 
-		var div = document.createElement('DIV');
+		var div = inline || document.createElement('DIV');
 		var instance = new Instance();
 
 		div.classList.add('ui_' + com.id);
@@ -844,6 +1076,9 @@
 		instance.meta = obj;
 		instance.edit = app_edit;
 
+		if (inline)
+			instance.forked = true;
+
 		if (obj.config) {
 			for (var key in obj.config)
 				instance.config[key] = obj.config[key];
@@ -854,56 +1089,60 @@
 
 		self.instances.push(instance);
 
-		var tmp = container.closest(Builder.selectors.component);
-		if (tmp && tmp.length) {
-
-			instance.parent = tmp[0].uibuilder;
-
-			if (instance.parent) {
-
-				var parent = instance.parent;
-
-				if (!parent.children)
-					parent.children = [];
-
-				if (!parent.containers)
-					parent.containers = {};
-
-				var key = 'container' + index;
-
-				parent.children.push(instance);
-
-				if (parent.containers[key]) {
-					if (position == null)
-						parent.containers[key].push(instance);
-					else
-						parent.containers[key].splice(position, 0, instance);
-				} else
-					parent.containers[key] = [instance];
-			}
-
-		}
-
 		div.uibuilder = instance;
 
-		tmp = $(container);
-		if (position == null) {
-			tmp.append(div);
-		} else {
-			var is = false;
-			for (var i = 0; i < tmp[0].children.length; i++) {
-				if (i === position) {
-					tmp[0].insertBefore(div, tmp[0].children[i]);
-					is = true;
-					break;
+		if (!inline) {
+			var tmp = container.closest(Builder.selectors.component);
+			if (tmp && tmp.length) {
+
+				instance.parent = tmp[0].uibuilder;
+
+				if (instance.parent) {
+
+					var parent = instance.parent;
+
+					if (!parent.children)
+						parent.children = [];
+
+					if (!parent.containers)
+						parent.containers = {};
+
+					var key = 'container' + index;
+
+					parent.children.push(instance);
+
+					if (parent.containers[key]) {
+						if (position == null)
+							parent.containers[key].push(instance);
+						else
+							parent.containers[key].splice(position, 0, instance);
+					} else
+						parent.containers[key] = [instance];
 				}
 			}
-			if (!is)
+
+			tmp = $(container);
+			if (position == null) {
 				tmp.append(div);
+			} else {
+				var is = false;
+				for (var i = 0; i < tmp[0].children.length; i++) {
+					if (i === position) {
+						tmp[0].insertBefore(div, tmp[0].children[i]);
+						is = true;
+						break;
+					}
+				}
+				if (!is)
+					tmp.append(div);
+			}
 		}
 
 		com.make(instance, instance.config, instance.element, instance.component.cls);
 		Builder.events.make && Builder.emit('make', instance);
+
+		if (inline)
+			return;
 
 		if (!(obj.children instanceof Array)) {
 			self.refreshio();
@@ -995,7 +1234,7 @@
 		if (typeof(com) === 'string') {
 			var tmp = self.components[com];
 			if (!tmp) {
-				console.error('Component "{0}" not found'.format(com));
+				console.error('UI Builder: The component "{0}" not found'.format(com));
 				return;
 			}
 
@@ -1112,22 +1351,9 @@
 			};
 		}
 
-		app.on = function(name, fn) {
-			var t = this;
-			if (t.events[name])
-				t.events[name].push(fn);
-			else
-				t.events[name] = [fn];
-		};
-
-		app.emit = function(name, a, b, c, d, e) {
-			var t = this;
-			var items = t.events[name];
-			if (items) {
-				for (var fn of items)
-					fn.call(t, a, b, c, d, e);
-			}
-		};
+		app.on = Fork.prototype.on;
+		app.emit = Fork.prototype.emit;
+		app.emitstate = Fork.prototype.emitstate;
 
 		app.intervalcounter = 0;
 		app.interval && clearInterval(app.interval);
@@ -1140,8 +1366,13 @@
 
 			app.intervalcounter++;
 
-			for (var item of app.instances)
+			for (var item of app.instances) {
 				item.events.service && item.emit('service', app.intervalcounter);
+				if (item.fork) {
+					for (var item2 of item.fork.instances)
+						item2.events.service && item2.emit('service', app.intervalcounter);
+				}
+			}
 
 		}, 60000, app);
 
@@ -1210,32 +1441,7 @@
 				app.callback && app.callback(app);
 				container.rclass('invisible');
 
-				var binded = {};
-				var binder = {};
-				var isbinded = false;
-
-				// Check binded instances
-				for (var item of app.instances) {
-					if (item.config.path && item.config.path.charAt(0) === '@') {
-						var key = item.config.path.substring(1);
-						if (key != item.id) {
-							if (binded[key])
-								binded[key].push(item);
-							else
-								binded[key] = [item];
-							binder[item.id] = key;
-							isbinded = true;
-						}
-					}
-				}
-
-				// Assign binded instances
-				if (isbinded) {
-					for (var item of app.instances) {
-						item.binded = binded[item.id] || null;
-						item.binder = binder[item.id] ? app.instances.findItem('id', binder[item.id]) : null;
-					}
-				}
+				Fork.prototype.rebind.call(app);
 
 				// Emit ready
 				for (var item of app.instances) {
@@ -1294,49 +1500,6 @@
 				instance.output(outputid);
 			else
 				callback('Instance "{0}" not found'.format(instanceid));
-
-		};
-
-		app.emitstate = function(e) {
-
-			// @e InstanceEvent
-			// 1. notifies all parents
-			// 2. notifies all other components
-
-			var parents = {};
-			var key = 'state';
-			var instance = e.instance;
-
-			// Clears cache
-			e.instance.cache.e = null;
-
-			// notifies all parents
-			var parent = instance.parent;
-
-			e.level = 0;
-
-			while (parent) {
-
-				e.level++;
-				parents[parent.id] = true;
-
-				if (parent.events[key])
-					parent.emit(key, e);
-
-				if (e.$propagation)
-					break;
-
-				parent = parent.parent;
-			}
-
-			e.level = null;
-
-			key = '@state';
-
-			for (var obj of app.instances) {
-				if (!parents[instance.id] && obj !== e.instance)
-					obj.events[key] && obj.emit(key, e);
-			}
 
 		};
 

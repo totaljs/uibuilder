@@ -28,11 +28,6 @@
 		return this;
 	};
 
-	Fork.prototype.clean = function() {
-		this.app.clfind.apply(this.app, arguments);
-		return this;
-	};
-
 	Fork.prototype.clread = function() {
 		this.app.clread.apply(this.app, arguments);
 		return this;
@@ -160,6 +155,8 @@
 			var cls = Builder.selectors.component.substring(1);
 			var com;
 
+			t.classList.add('block');
+
 			while (parent) {
 
 				if (parent.tagName === 'BODY')
@@ -194,6 +191,7 @@
 			var component = com.fork.components[obj.component];
 			if (!component) {
 				console.error('UI Builder: The component not found: ' + obj.component);
+				t.parentNode.removeChild(t);
 				return;
 			}
 
@@ -722,7 +720,9 @@
 				IMPORT(url, next);
 			}
 		}, function() {
-			Object.keys(meta.components).wait(function(key, next) {
+
+			var list = Object.keys(meta.components);
+			list.wait(function(key, next) {
 
 				if (t.app.components[key]) {
 					next();
@@ -759,7 +759,18 @@
 							if (parsed.html)
 								obj.html = parsed.html.replace(REG_CLASS, obj.cls);
 							new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
+
+							if (obj.components) {
+								for (var key2 in obj.components) {
+									if (!meta.components[key2]) {
+										meta.components[key2] = obj.components[key2];
+										list.push(key2);
+									}
+								}
+							}
+
 							pending.push({ name: key, fn: obj });
+
 						} finally {
 							next();
 						}
@@ -808,6 +819,15 @@
 									obj.settings = parsed.settings.replace(REG_CLASS, obj.cls);
 
 								new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
+
+								if (obj.components) {
+									for (var key2 in obj.components) {
+										if (!meta.components[key2]) {
+											meta.components[key2] = obj.components[key2];
+											list.push(key2);
+										}
+									}
+								}
 
 								var index = url.indexOf('/', 10);
 								if (index !== -1) {
@@ -995,7 +1015,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.6;
+	Builder.version = 1.7;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
@@ -1124,6 +1144,7 @@
 			}
 
 			tmp = $(container);
+
 			if (position == null) {
 				tmp.append(div);
 			} else {
@@ -1153,7 +1174,9 @@
 		}
 
 		setTimeout(function(self, obj) {
+
 			var containers = findcontainers(self, obj.id);
+
 			for (var i = 0; i < obj.children.length; i++) {
 				var container = containers.findItem('index', i);
 				if (container) {
@@ -1162,7 +1185,21 @@
 						self.compile(container.element, o, i);
 				}
 			}
+
+			var com = self.components[obj.component];
+			if (com.children) {
+				for (var i = 0; i < com.children.length; i++) {
+					var container = containers.findItem('index', i);
+					if (container) {
+						var arr = com.children[i];
+						for (var o of arr)
+							self.compile(container.element, o, i);
+					}
+				}
+			}
+
 			self.refreshio();
+
 		}, 1, self, obj);
 	}
 
@@ -1516,7 +1553,8 @@
 				IMPORT(url, next);
 			}
 		}, function() {
-			Object.keys(meta.components).wait(function(key, next) {
+			var list = Object.keys(meta.components);
+			list.wait(function(key, next) {
 				var fn = meta.components[key];
 				if (typeof(fn) === 'string') {
 
@@ -1547,6 +1585,16 @@
 							if (parsed.html)
 								obj.html = parsed.html.replace(REG_CLASS, obj.cls);
 							new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
+
+							if (obj.components) {
+								for (var key2 in obj.components) {
+									if (!meta.components[key2]) {
+										meta.components[key2] = obj.components[key2];
+										list.push(key2);
+									}
+								}
+							}
+
 							app.pending.push({ name: key, fn: obj });
 						} finally {
 							next();
@@ -1597,6 +1645,15 @@
 									obj.settings = parsed.settings.replace(REG_CLASS, obj.cls);
 
 								new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
+
+								if (obj.components) {
+									for (var key2 in obj.components) {
+										if (!meta.components[key2]) {
+											meta.components[key2] = obj.components[key2];
+											list.push(key2);
+										}
+									}
+								}
 
 								var index = url.indexOf('/', 10);
 								if (index !== -1) {
@@ -2033,13 +2090,21 @@
 		var arr = element || self.element.find('> ' + Builder.selectors.component);
 		var children = [];
 		var instances = [];
+		var components = {};
 
 		function browse(item, el) {
 
 			var com = el.uibuilder;
+
 			item.id = el.getAttribute('data-id');
 			item.component = com.component.id;
 			item.config = CLONE(com.config);
+
+			if (!components[com.component.id]) {
+				var comdeclaration = self.schema.components[com.component.id];
+				if (comdeclaration)
+					components[com.component.id] = comdeclaration;
+			}
 
 			if (com.component.floating) {
 				var tmp = $(el);
@@ -2062,24 +2127,26 @@
 
 			com.children = [];
 
-			var containers = findcontainers(self, item.id);
+			// Component with components
+			if (!com.component.children) {
+				var containers = findcontainers(self, item.id);
+				for (var container of containers) {
 
-			for (var container of containers) {
+					var items = [];
+					var arr = container.element.find('> ' + Builder.selectors.component);
 
-				var items = [];
-				var arr = container.element.find('> ' + Builder.selectors.component);
+					if (!item.children)
+						item.children = [];
 
-				if (!item.children)
-					item.children = [];
+					item.children.push(items);
 
-				item.children.push(items);
-
-				for (var sub of arr) {
-					var subitem = {};
-					subitem.children = [];
-					items.push(subitem);
-					com.children.push(sub.uibuilder);
-					browse(subitem, sub);
+					for (var sub of arr) {
+						var subitem = {};
+						subitem.children = [];
+						items.push(subitem);
+						com.children.push(sub.uibuilder);
+						browse(subitem, sub);
+					}
 				}
 			}
 
@@ -2087,14 +2154,14 @@
 		}
 
 		for (var el of arr) {
-			var item = {};
-			item.children = [];
-			children.push(item);
-			browse(item, el);
+			var subitem = {};
+			subitem.children = [];
+			children.push(subitem);
+			browse(subitem, el);
 		}
 
 		var children = element ? children[0] : [children];
-		return { instances: instances, children: children };
+		return { instances: instances, children: children, components: components };
 	}
 
 })(W.UIBuilder = {});

@@ -1,0 +1,94 @@
+<ui-component name="miniform" path="common.form" config="if:~PATH~;icon:ti ti-layer-plus;title:@(Export to component);autofocus:true;reload:?/reload;scrollbar:1;submit:?/submit;enter:1;width:400" class="hidden ~PATH~" plugin="~PATH~">
+	<div class="padding">
+		<div class="grid-2">
+			<div class="m">
+				<ui-component name="input" path="?.name" config="required:1">@(Name)</ui-component>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.group" config="required:1" default="'@(Entities)'">@(Group)</ui-component>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.author">@(Author)</ui-component>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.icon" config="type:icon;required:1" default="'ti ti-layer-group'">@(Icon)</ui-component>
+			</div>
+		</div>
+		<hr style="margin-top:10px" />
+		<div class="help">
+			<span class="link exec mr10" data-exec="?/download"><i class="ti ti-download mr5"></i>@(Download)</span>
+			<span class="link exec" data-exec="?/copy"><i class="ti ti-copy mr5"></i>@(Copy to clipboard)</span>
+		</div>
+	</div>
+	<nav>
+		<ui-component name="validate" path="?" config="validonly:1">
+			<button class="exec" name="submit"><i class="ti ti-check-circle"></i>@(Create)</button>
+			<button name="cancel">@(Cancel)</button>
+		</ui-component>
+	</nav>
+</ui-component>
+
+<script type="text/html" id="templatecomponent">
+<SCR>
+	exports.id = '{id}';
+	exports.name = '{name}';
+	exports.group = '{group}';
+	exports.author = '{author}';
+	exports.icon = '{icon}';
+	exports.version = '1';
+	exports.config = { name: '{name}' };
+	exports.components = {{components}};
+	exports.children = [[{children}]];
+	exports.make = function(instance, config, element) {
+		if (UIBuilder.editor)
+			element.append('<div class="UI_label"><i class="{icon}"></i><span>{name}</span></div><div class="UI_border UI_components" data-index="0"></div>');
+		else
+			element.append('<div class="UI_components" data-index="0"></div>');
+	};
+</SCR>
+</script>
+
+<script>
+
+	PLUGIN(function(exports) {
+
+		exports.make = function() {
+
+			var model = exports.model;
+			var template = $('#templatecomponent').html();
+			var obj = {};
+
+			obj.id = model.id;
+			obj.name = model.name.replace(/"|'/g, '');
+			obj.group = model.group;
+			obj.author = model.author || '';
+			obj.icon = model.icon;
+			obj.components = JSON.stringify(model.data.components);
+			obj.children = JSON.stringify(model.data.children);
+
+			template = template.args(obj).replace(/SCR>/g, 'scr' + 'ipt>');
+
+			return template;
+		};
+
+		exports.copy = function() {
+			var model = exports.model;
+			EXEC('-clipboard/copy', 'uibuilder://' + ENCRYPT({ id: model.id, url: exports.make() }, 'uibuilder', 'component'));
+			EXEC('-notify/success', '@(The component has been copied to the clipboard.)');
+		};
+
+		exports.download = function() {
+			var model = exports.model;
+			SETTER('filesaver/save', model.name + '.html', exports.make());
+		};
+
+		exports.submit = function(hide) {
+			var model = exports.model;
+			app.schema.components[model.id] = 'base64 ' + btoa(encodeURIComponent(exports.make()));
+			uibuilder_redraw(true);
+			hide();
+		};
+
+	});
+
+</script>

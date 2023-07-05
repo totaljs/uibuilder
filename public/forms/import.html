@@ -5,7 +5,7 @@
 			<div class="mt5"><i class="ti ti-bull mr5"></i>@(Example:) <a href="https://github.com/totaljs/uibuildercomponents/blob/main/components/paragraph/editor.html" target="_blank">editor.html</a></div>
 			<div><i class="ti ti-bull mr5"></i>@(Example:) <a href="https://cdn.componentator.com/uibuilder/db.json" target="_blank">list.json</a></div>
 		</div>
-		<ui-component name="input" path="?.url" config="required:1;placeholder:https://www.yourserver.com/input/editor.html;type:url">@(URL address)</ui-component>
+		<ui-component name="input" path="?.url" config="required:1;maxlength:0;placeholder:https://www.yourserver.com/input/editor.html">@(URL address)</ui-component>
 	</div>
 	<nav>
 		<ui-component name="validate" path="?">
@@ -43,8 +43,28 @@
 
 		exports.submit = function(hide) {
 			var model = exports.form;
+
 			reload = false;
-			AJAX('GET ' + model.url + ' ERROR', function(response) {
+
+			if (model.url.substring(0, 12) === 'uibuilder://') {
+				var item = DECRYPT(model.url.substring(12), 'uibuilder', 'component');
+				if (item) {
+
+					var done = function() {
+						reload && uibuilder_redraw(true);
+						hide();
+						SETTER('notify/success', '@(The component has been imported successfully.)');
+					};
+
+					if (item.url.indexOf('<') === -1)
+						AJAX('GET ' + item.url, response => importer(item.url, response, done));
+					else
+						importer('', item.url, done);
+				}
+				return;
+			}
+
+			AJAX('GET {url} ERROR'.args(model), function(response) {
 				if (response instanceof Array) {
 					response.wait(function(item, next) {
 						if (typeof(item) === 'string') {

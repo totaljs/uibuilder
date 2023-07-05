@@ -89,7 +89,7 @@
 			<section data-type="left">
 				<ui-component name="searchinput" path="%searchcomponents" config="type:search;placeholder:@(Search components);autofocus:2"></ui-component>
 				<div style="margin:5px 10px 8px 14px" class="fs11">
-					<div><span class="exec link" data-exec="uibuilder_components"><i class="ti ti-cloud-download mr5"></i>@(Download components)</span></div>
+					<div><span class="exec link" data-exec="uibuilder_components"><i class="ti ti-cloud-download mr5"></i>@(Import components)</span></div>
 				</div>
 				<ui-component name="viewbox" config="parent:window;margin:104;scrollbarshadow:1">
 					<ui-component name="search" path="%searchcomponents" config="selector:figure">
@@ -132,6 +132,7 @@
 	<ui-component name="importer" path="common.form" config="if:componentsform;url:/forms/components.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:ioform;url:/forms/io.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:formimport;url:/forms/import.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:formcomponent;url:/forms/component.html"></ui-component>
 	<ui-component name="importer" path="common.form2" config="if:formlink;url:/forms/link.html"></ui-component>
 	<ui-component name="importer" path="common.form2" config="if:formattr;url:/forms/attr.html"></ui-component>
 	<ui-component name="importer" path="common.form2" config="if:formtotaldb;url:/forms/totaldb.html"></ui-component>
@@ -425,7 +426,7 @@
 
 			var com = el[0].uibuilder;
 
-			if (com.meta.readonly)
+			if (com.meta.readonly || com.component.children)
 				return;
 
 			var componentid = com.component.id;
@@ -542,6 +543,16 @@
 			}
 		}
 
+		function uibuilder_compile_fork(app, used, meta) {
+			for (var instance of app.instances) {
+				var declaration = instance.component.render || app.schema.components[instance.component.id];
+				if (declaration)
+					used[instance.component.id] = (meta.editor.download && declaration.indexOf('http') === -1 ? 'https://uibuilder.totaljs.com' : '') + declaration;
+				if (instance.fork)
+					uibuilder_compile_fork(instance.fork, used, meta);
+			}
+		}
+
 		function uibuilder_compile(callback) {
 
 			SETTER('loading/show');
@@ -557,10 +568,7 @@
 
 			var used = {};
 
-			for (var instance of app.instances) {
-				if (instance.component.render)
-					used[instance.component.id] = (meta.editor.download && instance.component.render.indexOf('http') === -1 ? 'https://uibuilder.totaljs.com' : '') + instance.component.render;
-			}
+			uibuilder_compile_fork(app, used, meta);
 
 			if (meta.editor && meta.editor.download) {
 				var arr = Object.keys(used);
@@ -689,9 +697,29 @@
 			opt.align = 'left';
 			opt.items = [];
 			opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
+			opt.items.push({ id: 'copy', name: '@(Export)', icon: 'ti ti-file-export' });
+			opt.items.push({ id: 'download', name: '@(Download source-code)', icon: 'ti ti-file-code' });
 			opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
 			opt.callback = function(selected) {
 				switch (selected.id) {
+
+					case 'copy':
+						var com = app.schema.components[id];
+						var data = 'uibuilder://' + ENCRYPT({ id: id, url: com }, 'uibuilder', 'component');
+						EXEC('-clipboard/copy', data);
+						EXEC('-notify/success', '@(The component has been copied to the clipboard.)');
+						break;
+
+					case 'download':
+						var url = app.schema.components[id];
+						var index = url.indexOf(' ');
+						if (index === -1) {
+							AJAX('GET {0} ERROR'.format(url), function(response) {
+								SETTER('filesaver/save', id + '.html', response);
+							});
+						} else
+							SETTER('filesaver/save', id + '.html', decodeURIComponent(atob(url.substring(index + 1))));
+						break;
 
 					case 'readme':
 						var com = app.components[id];
@@ -754,7 +782,7 @@
 			var opt = {};
 			opt.element = el;
 			opt.items = [];
-			opt.items.push({ id: 'components', name: '@(Download components)', icon: 'ti ti-database', classname: 'b' });
+			opt.items.push({ id: 'components', name: '@(Import components)', icon: 'ti ti-database', classname: 'b' });
 			opt.items.push('-');
 			opt.items.push({ id: 'add', name: '@(Import custom)', icon: 'ti ti-plus-circle green' });
 			opt.callback = function(sel) {
@@ -962,7 +990,7 @@
 
 			if (!instance.protected) {
 
-				var readonly = instance.meta.readonly;
+				var readonly = instance.meta.readonly || instance.component.children;
 
 				if (!readonly) {
 					var parent = instance.parent;
@@ -1013,6 +1041,11 @@
 
 					if (!readonly) {
 						opt.items.push('-');
+						opt.items.push({ id: 'export', name: '@(Export to component)', icon: 'ti ti-box-up' });
+					}
+
+					if (!readonly || instance.component.children) {
+						opt.items.push('-');
 						opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
 					}
 
@@ -1021,6 +1054,11 @@
 						var tmp;
 
 						switch (sel.id) {
+							case 'export':
+								var meta = app.stringify(instance.element);
+								SET('formcomponent @default', { id: 'exp' + Date.now().toString(36) + GUID(2), name: meta.instances[0].config.name, data: meta });
+								SET('common.form', 'formcomponent');
+								break;
 							case 'up':
 							case 'down':
 								component_move(instance, sel.id === 'up');

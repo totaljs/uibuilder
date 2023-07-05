@@ -988,113 +988,110 @@
 
 		UIBuilder.on('make', function(instance) {
 
-			if (!instance.protected) {
+			var readonly = instance.protected || instance.meta.readonly || instance.component.children;
 
-				var readonly = instance.meta.readonly || instance.component.children;
-
-				if (!readonly) {
-					var parent = instance.parent;
-					while (parent) {
-						if (parent.meta.readonly) {
-							readonly = true;
-							break;
-						} else
-							parent = parent.parent;
-					}
+			if (!readonly) {
+				var parent = instance.parent;
+				while (parent) {
+					if (parent.meta.readonly) {
+						readonly = true;
+						break;
+					} else
+						parent = parent.parent;
 				}
+			}
+
+			if (!readonly && !instance.component.floating)
+				instance.element.attr('draggable', true);
+
+			instance.element.on('contextmenu', function(e) {
+
+				e.preventDefault();
+				e.stopPropagation();
+
+				var opt = {};
+				opt.x = e.pageX;
+				opt.y = e.pageY;
+				opt.items = [];
+				opt.items.push(instance.component.name);
+
+				if (instance.component.readme)
+					opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
+
+				if (!readonly)
+					opt.items.push({ id: 'settings', name: '@(Settings)', classname: 'b', icon: 'ti ti-cog' });
 
 				if (!readonly && !instance.component.floating)
-					instance.element.attr('draggable', true);
+					opt.items.push({ id: 'gap', name: '@(Toggle gap)', selected: instance.element.hclass('UI_gap'), icon: 'ti ti-caret-square-down' });
 
-				instance.element.on('contextmenu', function(e) {
+				if (!readonly && instance.component.floating) {
+					opt.items.push('-');
+					opt.items.push({ id: 'bringfront', name: '@(Bring to front)', icon: 'ti ti-plus-circle green' });
+					opt.items.push({ id: 'bringback', name: '@(Bring to back)', icon: 'ti ti-minus-circle green' });
+				}
 
-					e.preventDefault();
-					e.stopPropagation();
+				if (!readonly && !instance.protected) {
+					opt.items.push('-');
+					opt.items.push({ id: 'up', name: '@(Move up)', icon: 'ti ti-arrow-up' });
+					opt.items.push({ id: 'down', name: '@(Move down)', icon: 'ti ti-arrow-down' });
+					opt.items.push({ id: 'clone', name: '@(Clone)', icon: 'ti ti-clone' });
+				}
 
-					var opt = {};
-					opt.x = e.pageX;
-					opt.y = e.pageY;
-					opt.items = [];
-					opt.items.push(instance.component.name);
+				if (!readonly || instance.protected) {
+					opt.items.push('-');
+					opt.items.push({ id: 'export', name: '@(Export to component)', icon: 'ti ti-box-up' });
+				}
 
-					if (instance.component.readme)
-						opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
+				if (!readonly || instance.component.children) {
+					opt.items.push('-');
+					opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
+				}
 
-					if (!readonly)
-						opt.items.push({ id: 'settings', name: '@(Settings)', classname: 'b', icon: 'ti ti-cog' });
+				opt.callback = function(sel) {
 
-					if (!readonly && !instance.component.floating)
-						opt.items.push({ id: 'gap', name: '@(Toggle gap)', selected: instance.element.hclass('UI_gap'), icon: 'ti ti-caret-square-down' });
+					var tmp;
 
-					if (!readonly && instance.component.floating) {
-						opt.items.push('-');
-						opt.items.push({ id: 'bringfront', name: '@(Bring to front)', icon: 'ti ti-plus-circle green' });
-						opt.items.push({ id: 'bringback', name: '@(Bring to back)', icon: 'ti ti-minus-circle green' });
+					switch (sel.id) {
+						case 'export':
+							var meta = app.stringify(instance.element);
+							SET('formcomponent @default', { id: 'exp' + Date.now().toString(36) + GUID(2), name: meta.instances[0].config.name, data: meta });
+							SET('common.form', 'formcomponent');
+							break;
+						case 'up':
+						case 'down':
+							component_move(instance, sel.id === 'up');
+							break;
+						case 'clone':
+							component_clone(instance);
+							break;
+						case 'bringfront':
+							tmp = +instance.element.css('z-index');
+							instance.element.css('z-index', tmp + 1);
+							break;
+						case 'bringback':
+							tmp = +instance.element.css('z-index');
+							if (tmp > 1)
+								instance.element.css('z-index', tmp - 1);
+							break;
+						case 'readme':
+							var com = instance.component;
+							FUNC.readme(com.name, com.readme || '@(Without readme)');
+							break;
+						case 'gap':
+							instance.element.tclass('UI_gap');
+							break;
+						case 'settings':
+							opensettings(instance.element);
+							break;
+						case 'remove':
+							instance.remove();
+							break;
 					}
 
-					if (!readonly && !instance.protected) {
-						opt.items.push('-');
-						opt.items.push({ id: 'up', name: '@(Move up)', icon: 'ti ti-arrow-up' });
-						opt.items.push({ id: 'down', name: '@(Move down)', icon: 'ti ti-arrow-down' });
-						opt.items.push({ id: 'clone', name: '@(Clone)', icon: 'ti ti-clone' });
-					}
+				};
 
-					if (!readonly) {
-						opt.items.push('-');
-						opt.items.push({ id: 'export', name: '@(Export to component)', icon: 'ti ti-box-up' });
-					}
-
-					if (!readonly || instance.component.children) {
-						opt.items.push('-');
-						opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
-					}
-
-					opt.callback = function(sel) {
-
-						var tmp;
-
-						switch (sel.id) {
-							case 'export':
-								var meta = app.stringify(instance.element);
-								SET('formcomponent @default', { id: 'exp' + Date.now().toString(36) + GUID(2), name: meta.instances[0].config.name, data: meta });
-								SET('common.form', 'formcomponent');
-								break;
-							case 'up':
-							case 'down':
-								component_move(instance, sel.id === 'up');
-								break;
-							case 'clone':
-								component_clone(instance);
-								break;
-							case 'bringfront':
-								tmp = +instance.element.css('z-index');
-								instance.element.css('z-index', tmp + 1);
-								break;
-							case 'bringback':
-								tmp = +instance.element.css('z-index');
-								if (tmp > 1)
-									instance.element.css('z-index', tmp - 1);
-								break;
-							case 'readme':
-								var com = instance.component;
-								FUNC.readme(com.name, com.readme || '@(Without readme)');
-								break;
-							case 'gap':
-								instance.element.tclass('UI_gap');
-								break;
-							case 'settings':
-								opensettings(instance.element);
-								break;
-							case 'remove':
-								instance.remove();
-								break;
-						}
-
-					};
-
-					SETTER('menu/show', opt);
-				});
-			}
+				SETTER('menu/show', opt);
+			});
 
 		});
 

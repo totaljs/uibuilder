@@ -33,6 +33,7 @@
 
 	<ui-component name="windows" path="common.windows" config="zindex:30"></ui-component>
 	<ui-component name="markdown"></ui-component>
+	<ui-component name="dropfiles" class="hidden" config="exec:uibuilder_drop">@(Drop .json schema or .html component file)</ui-component>
 	<ui-component name="exec"></ui-component>
 	<ui-component name="locale"></ui-component>
 	<ui-component name="loading"></ui-component>
@@ -53,13 +54,12 @@
 			<section data-type="top">
 				<div class="header">
 
-					<span class="beta">beta</span>
-
 					<ui-bind path="common.allowclose" config="show" class="hidden pull-right">
 						<button class="exec red" data-exec="uibuilder_close" title="@(Close)"><i class="ti ti-times"></i></button>
 					</ui-bind>
 
 					<div class="pull-right">
+						<button class="exec" data-exec="uibuilder_download" title="@(Download source-code)"><i class="ti ti-download"></i></button>
 						<a href="https://docs.totaljs.com/uibuilder/" title="@(Documentation: Total.js Platform)" target="_blank" class="special"><i class="ti ti-book"></i></a>
 					</div>
 
@@ -206,6 +206,7 @@
 				case 'init':
 
 					UIBuilder.origin = e.origin;
+
 					common.upload = msg.upload;
 					common.iframeapps = msg.apps || [];
 					common.iframeviews = msg.views || [];
@@ -993,8 +994,9 @@
 			if (!readonly) {
 				var parent = instance.parent;
 				while (parent) {
-					if (parent.meta.readonly) {
+					if (parent.meta.readonly || parent.component.children) {
 						readonly = true;
+						instance.meta.readonly = true;
 						break;
 					} else
 						parent = parent.parent;
@@ -1003,6 +1005,9 @@
 
 			if (!readonly && !instance.component.floating)
 				instance.element.attr('draggable', true);
+
+			// if (readonly)
+			// 	instance.meta.readonly = readonly;
 
 			instance.element.on('contextmenu', function(e) {
 
@@ -1094,6 +1099,70 @@
 			});
 
 		});
+
+		function uibuilder_download() {
+			var meta = CLONE(app.schema);
+			var data = app.stringify();
+			meta.children = data.children;
+			meta.inputs = app.inputs;
+			meta.outputs = app.outputs;
+			SETTER('filesaver/save', meta.name + '_editor.json', JSON.stringify(meta, null, '\t'));
+			SETTER('loading/hide', 1000);
+		}
+
+		function uibuilder_drop(files) {
+
+			var arr = [];
+			var reload = false;
+
+			for (var file of files)
+				arr.push(file);
+
+			SETTER('loading/show');
+
+			arr.wait(function(file, next) {
+
+				var index = file.name.lastIndexOf('.');
+				var ext = file.name.substring(index + 1).toLowerCase();
+				var reader = new FileReader();
+
+				reader.onload = function() {
+					if (ext === 'json') {
+						app.clean();
+						$('#dapp').empty();
+						var data = PARSE(reader.result);
+						setTimeout(function() {
+							data.id = Date.now().toString(36);
+							UIBuilder.data = data;
+							uibuilder_redraw();
+							NUL('common.form @hideloading');
+						}, 500);
+						next = null;
+					} else {
+						var html = reader.result;
+						if (html.indexOf('exports.id') !== -1 && html.indexOf('exports.make') !== -1) {
+							var match = html.match(/exports\.id.*?(;|\n)/);
+							if (match) {
+								var obj = {};
+								new Function('exports', match[0])(obj);
+								if (obj.id) {
+									var id = obj.id;
+									reload = true;
+									app.schema.components[id] = 'base64 ' + btoa(encodeURIComponent(html));
+								}
+							}
+						}
+						next();
+					}
+				};
+
+				reader.readAsText(file);
+
+			}, function() {
+				reload && uibuilder_redraw(true);
+			});
+
+		}
 
 		function uibuilder_close() {
 			FUNC.send({ TYPE: 'close' });

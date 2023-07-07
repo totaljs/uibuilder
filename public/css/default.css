@@ -65,7 +65,6 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .header button.special, .header a.special { color: #99982F; }
 .header > div, .header > ui-bind { float: left; margin: 0 0 0 8px; padding-right: 6px; border-right: 1px solid #E0E0E0; height: 44px; }
 .header .apply-button { margin-left: 0; }
-.header .beta { background-color: #E73323; color: #FFF; padding: 2px 3px; border-radius: var(--radius); font-size: 11px; top: 9px; position: relative; margin-left: 10px; }
 
 .ui-dark .header { background-color: #202020; }
 .ui-dark .header button, .ui-dark .header a { background-color: transparent; color: #777; }

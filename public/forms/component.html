@@ -53,11 +53,9 @@
 	PLUGIN(function(exports) {
 
 		exports.make = function() {
-
 			var model = exports.model;
 			var template = $('#templatecomponent').html();
 			var obj = {};
-
 			obj.id = model.id;
 			obj.name = model.name.replace(/"|'/g, '');
 			obj.group = model.group;
@@ -65,9 +63,7 @@
 			obj.icon = model.icon;
 			obj.components = JSON.stringify(model.data.components);
 			obj.children = JSON.stringify(model.data.children);
-
 			template = template.args(obj).replace(/SCR>/g, 'scr' + 'ipt>');
-
 			return template;
 		};
 

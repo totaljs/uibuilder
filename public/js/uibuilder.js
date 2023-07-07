@@ -301,7 +301,7 @@
 	IP.error = function(e) {
 		var t = this;
 		var config = t.config;
-		console.error(t.component.name + ': ' + config.name + (config.path ? ' ({0})'.format(config.path) : ''), e);
+		console.error('UIBuilder:', t.component.name + ' - ' + config.name + (config.path ? ' ({0})'.format(config.path) : ''), e);
 	};
 
 	IP.clone = function(val) {
@@ -1188,10 +1188,29 @@
 
 			var com = self.components[obj.component];
 			if (com.children) {
-				for (var i = 0; i < com.children.length; i++) {
+
+				// reidentify
+				var id = {};
+				var children = CLONE(com.children);
+				var reidentify = function(children) {
+					for (var arr of children) {
+						for (var m of arr) {
+							id[m.id] = instance.id + 'X' + HASH(m.id).toString(36);
+							if (m.children && m.children.length)
+								reidentify(m.children);
+						}
+					}
+				};
+
+				reidentify(children);
+				var keys = Object.keys(id);
+				var regexp = new RegExp(keys.join('|'), 'g');
+				children = PARSE(JSON.stringify(children).replace(regexp, text => id[text]));
+
+				for (var i = 0; i < children.length; i++) {
 					var container = containers.findItem('index', i);
 					if (container) {
-						var arr = com.children[i];
+						var arr = children[i];
 						for (var o of arr)
 							self.compile(container.element, o, i);
 					}
@@ -1272,6 +1291,7 @@
 		var self = this;
 
 		if (typeof(com) === 'string') {
+
 			var tmp = self.components[com];
 			if (!tmp) {
 				console.error('UI Builder: The component "{0}" not found'.format(com));
@@ -1481,7 +1501,7 @@
 				app.callback && app.callback(app);
 				container.rclass('invisible');
 
-				Fork.prototype.rebind.call(app);
+				rebindforce(app);
 
 				// Emit ready
 				for (var item of app.instances) {

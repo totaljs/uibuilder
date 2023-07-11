@@ -260,9 +260,13 @@
 				if (com.settings) {
 					if (com.settings.indexOf('<') === -1) {
 						var url = com.settings;
-						if (url.charAt(0) === '/')
-							url = UIBuilder.origin + url;
-						AJAX('GET ' + url, done);
+						if (url.substring(0, 6) === 'base64') {
+							done(decodeURIComponent(atob(url.substring(7))));
+						} else {
+							if (url.charAt(0) === '/')
+								url = UIBuilder.origin + url;
+							AJAX('GET ' + url.format(com.id), done);
+						}
 					} else
 						done(com.settings);
 				} else
@@ -548,7 +552,7 @@
 			for (var instance of app.instances) {
 				var declaration = instance.component.render || app.schema.components[instance.component.id];
 				if (declaration)
-					used[instance.component.id] = (meta.editor.download && declaration.indexOf('http') === -1 ? 'https://uibuilder.totaljs.com' : '') + declaration;
+					used[instance.component.id] = (meta.editor.download && declaration.indexOf('http') === -1 ? 'https://uibuilder.totaljs.com' : '') + declaration.format(instance.component.id);
 				if (instance.fork)
 					uibuilder_compile_fork(instance.fork, used, meta);
 			}
@@ -574,12 +578,20 @@
 			if (meta.editor && meta.editor.download) {
 				var arr = Object.keys(used);
 				arr.wait(function(key, next) {
+
 					var com = app.components[key];
-					AJAX('GET ' + com.render, function(response) {
-						var parsed = UIBuilder.parsehtml(response);
-						used[key] = 'base64 ' + btoa(encodeURIComponent(response));
+
+					if (com.render.substring(0, 6) === 'base64') {
+						used[key] = com.render;
 						next();
-					});
+					} else {
+						AJAX('GET ' + com.render.format(key), function(response) {
+							if (response && typeof(response) === 'string')
+								used[key] = 'base64 ' + btoa(encodeURIComponent(response));
+							next();
+						});
+					}
+
 				}, function() {
 					meta.components = used;
 					callback(meta);

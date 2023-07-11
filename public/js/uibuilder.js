@@ -784,7 +784,7 @@
 								url = (Builder.origin || '') + url;
 						}
 
-						AJAX('GET ' + url, function(response, err) {
+						AJAX('GET ' + url.format(key), function(response, err) {
 
 							if (err) {
 								console.error('UI Builder:', url, err);
@@ -1630,7 +1630,7 @@
 								url = (Builder.origin || '') + url;
 						}
 
-						AJAX('GET ' + url, function(response, err) {
+						AJAX('GET ' + url.format(key), function(response, err) {
 
 							if (err) {
 								console.error('UI Builder:', url, err);

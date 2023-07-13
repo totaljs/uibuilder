@@ -119,7 +119,11 @@
 		while (parent) {
 
 			e.level++;
+
 			parents[parent.id] = true;
+
+			if (parent.fork)
+				break;
 
 			if (parent.events[key])
 				parent.emit(key, e);
@@ -176,6 +180,7 @@
 				com.fork = new Fork(com.app);
 				com.fork.element = com.element;
 				com.fork.compile = app_compile;
+				com.root = com;
 			}
 
 			var config = (t.getAttribute('config') || '').parseConfig();
@@ -461,18 +466,16 @@
 			}
 		};
 
-		if (container) {
+		if (container != null) {
 
 			if (typeof(container) === 'object')
 				container = ATTRD(container, 'index');
 
-			if (container) {
-				var items = t.containers ? t.containers['container' + container] : null;
-				if (items) {
-					for (var m of items) {
-						output.push(m);
-						next(m);
-					}
+			var items = t.containers ? t.containers['container' + container] : null;
+			if (items) {
+				for (var m of items) {
+					output.push(m);
+					next(m);
 				}
 			}
 

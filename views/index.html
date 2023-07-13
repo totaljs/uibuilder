@@ -689,7 +689,7 @@
 					return;
 				}
 
-				var url = data.render || 'https://preview.totaljs.com';
+				var url = data.render || data.preview || 'https://preview.totaljs.com';
 
 				if (url) {
 					SETTER('loading/hide', 1000);

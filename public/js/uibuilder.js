@@ -446,7 +446,7 @@
 		return t;
 	};
 
-	IP.family = function() {
+	IP.family = function(container) {
 
 		var t = this;
 		var output = [];
@@ -461,7 +461,22 @@
 			}
 		};
 
-		next(t);
+		if (container) {
+
+			if (typeof(container) === 'object')
+				container = ATTRD(container, 'index');
+
+			if (container) {
+				var items = instance.containers['container' + container];
+				if (items) {
+					for (var m of items)
+						next(m);
+				}
+			}
+
+		} else
+			next(t);
+
 		return output;
 	};
 
@@ -1429,12 +1444,12 @@
 
 			app.intervalcounter++;
 
+			var servicefork = item => item.events.service && item.emit('service', app.intervalcounter);
+
 			for (var item of app.instances) {
 				item.events.service && item.emit('service', app.intervalcounter);
-				if (item.fork) {
-					for (var item2 of item.fork.instances)
-						item2.events.service && item2.emit('service', app.intervalcounter);
-				}
+				if (item.fork)
+					eachfork(item.fork, servicefork);
 			}
 
 		}, 60000, app);
@@ -1453,6 +1468,13 @@
 		app.build = function(el, submeta, callback) {
 			submeta.urlify = app.urlify;
 			Builder.build(el, submeta, callback);
+		};
+
+		var eachfork = function(instance, fn) {
+			for (var item of instance.fork.instances) {
+				fn(item);
+				item.fork && eachfork(item, fn);
+			}
 		};
 
 		var refreshiotimeout = null;
@@ -1506,15 +1528,16 @@
 
 				rebindforce(app);
 
+				var readyfork = function(item) {
+					item.state.init = 1;
+					item.events.ready && item.emit('ready');
+				};
+
 				// Emit ready
 				for (var item of app.instances) {
 
-					if (item.fork) {
-						for (var item2 of item.fork.instances) {
-							item2.state.init = 1;
-							item2.events.ready && item2.emit('ready');
-						}
-					}
+					if (item.fork)
+						eachfork(item, readyfork);
 
 					item.state.init = 1;
 					item.events.ready && item.emit('ready');

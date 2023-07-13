@@ -453,7 +453,8 @@
 			if (instance.children) {
 				for (var item of instance.children) {
 					output.push(item);
-					next(item);
+					if (!t.component.scope)
+						next(item);
 				}
 			}
 		};
@@ -1015,7 +1016,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.7;
+	Builder.version = 1.8;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};

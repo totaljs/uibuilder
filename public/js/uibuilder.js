@@ -1506,6 +1506,14 @@
 
 				// Emit ready
 				for (var item of app.instances) {
+
+					if (item.fork) {
+						for (var item2 of item.fork.instances) {
+							item2.state.init = 1;
+							item2.events.ready && item2.emit('ready');
+						}
+					}
+
 					item.state.init = 1;
 					item.events.ready && item.emit('ready');
 				}

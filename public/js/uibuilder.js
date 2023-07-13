@@ -467,10 +467,12 @@
 				container = ATTRD(container, 'index');
 
 			if (container) {
-				var items = instance.containers['container' + container];
+				var items = t.containers ? t.containers['container' + container] : null;
 				if (items) {
-					for (var m of items)
+					for (var m of items) {
+						output.push(m);
 						next(m);
+					}
 				}
 			}
 

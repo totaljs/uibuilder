@@ -209,6 +209,8 @@
 			if (config.$notify || t.getAttribute('notify'))
 				instance.state.notify = true;
 
+			obj.readonly = true;
+
 			com.fork.compile(t, obj, null, null, t);
 
 			if (t.uibuilder)

@@ -1006,7 +1006,7 @@
 			if (!readonly) {
 				var parent = instance.parent;
 				while (parent) {
-					if (parent.meta.readonly || parent.component.children) {
+					if (parent.meta.readonly || parent.component.children || parent.component.readonly) {
 						readonly = true;
 						instance.meta.readonly = true;
 						break;

@@ -1449,7 +1449,7 @@
 			for (var item of app.instances) {
 				item.events.service && item.emit('service', app.intervalcounter);
 				if (item.fork)
-					eachfork(item.fork, servicefork);
+					eachfork(item, servicefork);
 			}
 
 		}, 60000, app);

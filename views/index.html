@@ -98,7 +98,7 @@
 							{{ foreach g in value }}
 								<div class="caption">{{ g.id }}</div>
 								{{ foreach m in g.items }}
-								<figure draggable="true" class="draggable exec exec3" data-exec3="uibuilder_contextmenu" data-exec="component_readme" data-id="{{ m.id }}" data-search="{{ m.name }}">
+								<figure draggable="true" class="draggable exec exec3{{ if m.isexternal }} external{{ fi }}" data-exec3="uibuilder_contextmenu" data-exec="component_readme" data-id="{{ m.id }}" data-search="{{ m.name }}">
 									<i class="{{ m.icon }}"></i>
 									<div class="name">{{ m.name }}</div>
 								</figure>
@@ -817,6 +817,12 @@
 			var meta = CLONE(app.schema);
 			var data = app.stringify();
 
+			for (var key in meta.components) {
+				var url = meta.components[key];
+				if (url.charAt(0) === '@')
+					delete meta.components[key];
+			}
+
 			meta.children = data.children;
 			meta.inputs = app.inputs;
 			meta.outputs = app.outputs;
@@ -1115,6 +1121,13 @@
 		function uibuilder_download() {
 			var meta = CLONE(app.schema);
 			var data = app.stringify();
+
+			for (var key in meta.components) {
+				var url = meta.components[key];
+				if (url.charAt(0) === '@')
+					delete meta.components[key];
+			}
+
 			meta.children = data.children;
 			meta.inputs = app.inputs;
 			meta.outputs = app.outputs;

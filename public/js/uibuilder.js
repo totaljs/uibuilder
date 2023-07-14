@@ -766,21 +766,26 @@
 					}
 
 					if (ext) {
-						if (ext.charAt(0) === '.html')
+						if (ext.charAt(0) === '.')
 							ext = ext.substring(1);
 					}
 
 					if (ext === 'base64') {
 						// A component
 						try {
+
+							var parsed = Builder.parsehtml(decodeURIComponent(atob(url)));
 							var obj = {};
+
 							obj.id = key;
 							obj.cls = t.app.class + '_' + HASH(obj.id).toString(36);
-							var parsed = Builder.parsehtml(decodeURIComponent(atob(url)));
+
 							if (parsed.css)
 								obj.css = parsed.css;
+
 							if (parsed.html)
 								obj.html = parsed.html.replace(REG_CLASS, obj.cls);
+
 							new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
 
 							if (obj.components) {
@@ -800,7 +805,7 @@
 						return;
 					}
 
-					if (!ext || ext === 'html') {
+					if (!ext || (ext === 'html' || ext === 'json')) {
 
 						if (Builder.editor) {
 							if (url.charAt(0) === '/')
@@ -821,12 +826,30 @@
 								return;
 							}
 
+							// List of components
+							if (typeof(response) === 'object') {
+								for (var key2 in response) {
+									if (!meta.components[key2]) {
+										meta.components[key2] = '@' + response[key2];
+										list.push(key2);
+									}
+								}
+								next();
+								return;
+							}
+
+							var isexternal = response.charAt(0) === '@';
+							if (isexternal)
+								response = response.substring(1);
+
 							var parsed = Builder.parsehtml(response);
 
 							try {
+
 								var obj = {};
 
 								obj.id = key;
+								obj.isexternal = isexternal;
 								obj.cls = t.app.class + '_' + HASH(obj.id).toString(36);
 
 								if (parsed.css)
@@ -1614,6 +1637,7 @@
 		}, function() {
 			var list = Object.keys(meta.components);
 			list.wait(function(key, next) {
+
 				var fn = meta.components[key];
 				if (typeof(fn) === 'string') {
 
@@ -1669,6 +1693,10 @@
 								url = (Builder.origin || '') + url;
 						}
 
+						var isexternal = url.charAt(0) === '@';
+						if (isexternal)
+							url = url.substring(1);
+
 						AJAX('GET ' + url.format(key), function(response, err) {
 
 							if (err) {
@@ -1683,12 +1711,25 @@
 								return;
 							}
 
+							// List of components
+							if (typeof(response) === 'object') {
+								for (var key2 in response) {
+									if (!meta.components[key2]) {
+										meta.components[key2] = '@' + response[key2];
+										list.push(key2);
+									}
+								}
+								next();
+								return;
+							}
+
 							var parsed = Builder.parsehtml(response);
 
 							try {
 								var obj = {};
 
 								obj.id = key;
+								obj.isexternal = isexternal;
 								obj.cls = app.class + '_' + HASH(obj.id).toString(36);
 
 								if (parsed.css)
@@ -1782,7 +1823,7 @@
 					app.callback = callback;
 				});
 
-			}, 3);
+			}, 1);
 		});
 
 		return app;

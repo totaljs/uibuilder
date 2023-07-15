@@ -1,0 +1,67 @@
+<ui-component name="miniform" path="common.form" config="if:~PATH~;icon:ti ti-paste;title:@(Paste component);autofocus:true;reload:?/reload;scrollbar:1;enter:1;submit:?/submit;width:400" class="hidden ~PATH~" plugin="~PATH~">
+	<div class="padding">
+		<p>@(Paste a copied component from another UI Builder instance. The component will be inserted into the:) <ui-bind path="?.instance.config.name" config="text" class="b"></ui-bind>.</p>
+		<ui-component name="input" path="?.url" config="required:1;maxlength:0;placeholder:uibuilder\://copy7b226368696c6472656e223a7b226368696...">@(Paste from the clipboard)</ui-component>
+	</div>
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit" disabled><i class="ti ti-check-circle"></i>@(IMPORT)</button>
+			<button name="cancel">@(Cancel)</button>
+		</ui-component>
+	</nav>
+</ui-component>
+
+<script>
+
+	PLUGIN(function(exports) {
+
+		exports.submit = function(hide) {
+
+			var model = exports.form;
+			var meta = DECRYPT(model.url.substring(12), 'uibuilder', 'copy');
+
+			if (!meta) {
+				SETTER('message/warning', '@(Invalid data)');
+				return;
+			}
+
+			var instance = model.instance;
+
+			meta.children.id = 'cid' + Date.now().toString(36);
+
+			var updateid = function(children) {
+				for (var item of children) {
+					for (var m of item) {
+						m.id = 'cid' + Math.random().toString(36).substring(2).substring(0, 8);
+						updateid(m.children);
+					}
+				}
+			};
+
+			updateid(meta.children.children);
+
+			var rebuild = false;
+
+			for (var key in meta.components) {
+				if (!app.schema.components[key]) {
+					app.schema.components[key] = meta.components[key];
+					rebuild = true;
+				}
+			}
+
+			var done = function() {
+				var containerindex = model.container.attrd('index');
+				app.add(instance.id, containerindex, meta.children);
+				app.clean();
+				hide();
+			};
+
+			if (rebuild)
+				uibuilder_redraw(null, done);
+			else
+				done();
+		};
+
+	});
+
+</script>

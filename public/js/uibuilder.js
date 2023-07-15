@@ -186,8 +186,34 @@
 			var config = (t.getAttribute('config') || '').parseConfig();
 			var obj = {};
 			obj.id = t.getAttribute('uid') || 'ui' + GUID(10);
-			obj.config = config;
+			obj.config = config || {};
 			obj.component = t.getAttribute('name');
+
+			var isused = false;
+
+			for (var key in config) {
+				var val = config[key];
+				if (val === '#') {
+					var node = t.children[0];
+					if (node && node.tagName === 'SCRIPT') {
+						switch (node.getAttribute('type')) {
+							case 'application/json':
+							case 'text/json':
+								config[key] = PARSE(node.innerHTML.trim());
+								break;
+							case 'text/html':
+							case 'text/plain':
+								config[key] = node.innerHTML.trim();
+								break;
+						}
+					} else
+						config[key] = t.innerHTML;
+					isused = true;
+				}
+			}
+
+			if (isused)
+				t.innerHTML = '';
 
 			var path = t.getAttribute('path');
 			if (path)
@@ -1922,6 +1948,11 @@
 		if (!(el instanceof jQuery))
 			el = $(el);
 
+		var parent = el.closest('.UI_component')[0];
+
+		if (!parent)
+			return;
+
 		if (!opt)
 			opt = {};
 
@@ -1942,6 +1973,9 @@
 		if (opt.format == null)
 			opt.format = true;
 
+		if (opt.format && opt.icon == null)
+			opt.icon = true;
+
 		if (callback)
 			opt.callback = callback;
 
@@ -1961,6 +1995,7 @@
 		openeditor = {};
 		openeditor.element = el;
 		openeditor.dom = el[0];
+		openeditor.instance = parent.uibuilder;
 		openeditor.parent = opt.parent ? opt.parent[0] : openeditor.dom;
 		openeditor.createlink = function() {
 
@@ -2003,7 +2038,7 @@
 			var target = href.indexOf('.') !== -1 && href.indexOf(location.hostname) === -1 ? '_blank' : '';
 			tmp.attr('href', href || '#');
 			tmp.attr('target', target);
-			Builder.emit('link', tmp, NOOP);
+			Builder.emit('link', tmp);
 		};
 
 		var contextmenu = function() {
@@ -2013,6 +2048,12 @@
 		var clickoutside = function(e) {
 			if (!(e.target === openeditor.parent || openeditor.parent.contains(e.target)))
 				openeditor.close();
+		};
+
+		var paste = function(e) {
+			e.preventDefault();
+			var text = (e.originalEvent || e).clipboardData.getData('text/plain');
+			document.execCommand('insertHTML', false, text);
 		};
 
 		var keydown = function(e) {
@@ -2104,7 +2145,6 @@
 			}
 
 			if (e.keyCode === 80) {
-
 				if (opt.format && opt.icon === true) {
 					var tag = el[0].nodeName.toLowerCase();
 					var icon = '<i class="ti ti-totaljs UI_icon" contenteditable="false"></i>';
@@ -2157,6 +2197,7 @@
 			el.rattr('contenteditable');
 			el.off('keydown', keydown);
 			el.off('contextmenu', contextmenu);
+			el.off('paste', paste);
 			el.rclass('UI_editing');
 			if (opt.callback) {
 				var arg = {};
@@ -2174,9 +2215,24 @@
 			openeditor = null;
 		};
 
+		var placeholder = opt.placeholder;
+		var placeholderprev = false;
+
+		openeditor.checkplaceholder = function() {
+			if (placeholder) {
+				var is = el[0].innerHTML.length > 0;
+				if (placeholderprev !== is) {
+					placeholderprev = is;
+					placeholder.classList.toggle('hidden', is);
+				}
+			}
+		};
+
 		$(W).on('click', clickoutside);
 		el.on('keydown', keydown);
 		el.on('contextmenu', contextmenu);
+		opt.placeholder && placeholder && el.on('input', openeditor.checkplaceholder);
+		el.on('paste', paste);
 	}
 
 	function app_stringify(element, isbuild) {

@@ -23,6 +23,7 @@
 	<ui-component name="LAZY datepicker"></ui-component>
 	<ui-component name="LAZY floatinginput"></ui-component>
 	<ui-component name="LAZY notify" config="position:bottom right"></ui-component>
+	<ui-component name="LAZY notifybar"></ui-component>
 	<ui-component name="LAZY clipboard"></ui-component>
 	<ui-component name="LAZY fileuploader"></ui-component>
 	<ui-component name="LAZY floatingbox"></ui-component>
@@ -132,6 +133,7 @@
 	<ui-component name="importer" path="common.form" config="if:componentsform;url:/forms/components.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:ioform;url:/forms/io.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:formimport;url:/forms/import.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:formpaste;url:/forms/paste.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:formcomponent;url:/forms/component.html"></ui-component>
 	<ui-component name="importer" path="common.form2" config="if:formlink;url:/forms/link.html"></ui-component>
 	<ui-component name="importer" path="common.form2" config="if:formattr;url:/forms/attr.html"></ui-component>
@@ -371,7 +373,7 @@
 				instance.events.refresh && instance.emit('refresh', { type: 'paths' });
 		}
 
-		function uibuilder_redraw(el) {
+		function uibuilder_redraw(el, callback) {
 
 			if (el) {
 				if (el instanceof jQuery) {
@@ -424,6 +426,7 @@
 				SET('common.components', arr);
 				SET('common.groups', arr2);
 				UPD('app');
+				callback && callback();
 			});
 		}
 
@@ -453,10 +456,23 @@
 			FUNC.readme(com.name, com.readme || '@(Without readme)');
 		}
 
+		function component_copy(instance) {
+
+			var meta = app.stringify(instance.element);
+			delete meta.instances;
+
+			for (var key in meta.components) {
+				if (meta.components[key].charAt(0) === '@')
+					delete meta.components[key];
+			}
+
+			EXEC('-clipboard/copy', 'uibuilder://' + ENCRYPT(meta, 'uibuilder', 'copy'));
+			EXEC('-notify/success', '@(The component has been copied to the clipboard.)');
+		}
+
 		function component_clone(instance) {
 
 			var meta = app.stringify(instance.element).children;
-			var index = 0;
 
 			meta.id = 'cid' + Date.now().toString(36);
 
@@ -705,26 +721,36 @@
 		function uibuilder_contextmenu(el, e) {
 			var id = ATTRD(el);
 			var opt = {};
+			var url = app.schema.components[id];
+			var isexternal = url.charAt(0) === '@';
+
+			if (isexternal)
+				url = url.substring(1).format(id);
+
 			opt.x = e.pageX;
 			opt.y = e.pageY;
 			opt.align = 'left';
 			opt.items = [];
 			opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
-			opt.items.push({ id: 'copy', name: '@(Export)', icon: 'ti ti-file-export' });
+
+			if (!isexternal)
+				opt.items.push({ id: 'copy', name: '@(Export)', icon: 'ti ti-file-export' });
+
 			opt.items.push({ id: 'download', name: '@(Download source-code)', icon: 'ti ti-file-code' });
-			opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
+
+			if (!isexternal)
+				opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
+
 			opt.callback = function(selected) {
 				switch (selected.id) {
 
 					case 'copy':
-						var com = app.schema.components[id];
-						var data = 'uibuilder://' + ENCRYPT({ id: id, url: com }, 'uibuilder', 'component');
+						var data = 'uibuilder://' + ENCRYPT({ id: id, url: url }, 'uibuilder', 'component');
 						EXEC('-clipboard/copy', data);
 						EXEC('-notify/success', '@(The component has been copied to the clipboard.)');
 						break;
 
 					case 'download':
-						var url = app.schema.components[id];
 						var index = url.indexOf(' ');
 						if (index === -1) {
 							AJAX('GET {0} ERROR'.format(url), function(response) {
@@ -995,12 +1021,18 @@
 		});
 
 		UIBuilder.on('link', function(el, callback) {
+
 			el = $(el);
+
 			var model = {};
 			model.element = el;
 			model.href = el.attr('href');
 			model.target = el.attr('_target') || '';
-			model.callback = () => callback(model.element);
+			model.callback = function() {
+				callback && callback(model.element);
+				var main = el.closest('.UI_component');
+			};
+
 			SET('formlink', model);
 			SET('common.form2', 'formlink');
 		});
@@ -1024,8 +1056,49 @@
 			if (!readonly && !instance.component.floating)
 				instance.element.attr('draggable', true);
 
-			// if (readonly)
-			// 	instance.meta.readonly = readonly;
+			var makemenu = function(opt, instance, readonly) {
+
+				opt.items.push(instance.component.name);
+
+				if (instance.component.readme)
+					opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue', instance: instance });
+
+				if (!readonly)
+					opt.items.push({ id: 'settings', name: '@(Settings)', classname: 'b', icon: 'ti ti-cog', instance: instance });
+
+				if (!readonly && !instance.component.floating)
+					opt.items.push({ id: 'gap', name: '@(Toggle gap)', selected: instance.element.hclass('UI_gap'), icon: 'ti ti-caret-square-down', instance: instance });
+
+				if (!readonly && instance.component.floating) {
+					opt.items.push('-');
+					opt.items.push({ id: 'bringfront', name: '@(Bring to front)', icon: 'ti ti-plus-circle green', instance: instance });
+					opt.items.push({ id: 'bringback', name: '@(Bring to back)', icon: 'ti ti-minus-circle green', instance: instance });
+				}
+
+				if (!readonly && !instance.protected) {
+					opt.items.push('-');
+					opt.items.push({ id: 'up', name: '@(Move up)', icon: 'ti ti-arrow-up', instance: instance });
+					opt.items.push({ id: 'down', name: '@(Move down)', icon: 'ti ti-arrow-down', instance: instance });
+					opt.items.push({ id: 'clone', name: '@(Clone)', icon: 'ti ti-clone', instance: instance });
+					opt.items.push({ id: 'copy', name: '@(Copy)', icon: 'ti ti-copy', instance: instance });
+
+					var container = opt.el.closest('.UI_components');
+					if (container.length) {
+						var ci = container.closest('.UI_component')[0].uibuilder;
+						ci && opt.items.push({ id: 'paste', name: '@(Paste to <strong>{0}</strong>)'.format(ci.config.name), icon: 'ti ti-paste', instance: ci, container: container });
+					}
+				}
+
+				if (!readonly || instance.protected) {
+					opt.items.push('-');
+					opt.items.push({ id: 'export', name: '@(Export to component)', icon: 'ti ti-box-up', instance: instance });
+				}
+
+				if (!readonly || instance.component.children) {
+					opt.items.push('-');
+					opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red', instance: instance });
+				}
+			};
 
 			instance.element.on('contextmenu', function(e) {
 
@@ -1036,42 +1109,22 @@
 				opt.x = e.pageX;
 				opt.y = e.pageY;
 				opt.items = [];
-				opt.items.push(instance.component.name);
+				opt.el = $(e.target);
 
-				if (instance.component.readme)
-					opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
+				makemenu(opt, instance, readonly);
 
-				if (!readonly)
-					opt.items.push({ id: 'settings', name: '@(Settings)', classname: 'b', icon: 'ti ti-cog' });
-
-				if (!readonly && !instance.component.floating)
-					opt.items.push({ id: 'gap', name: '@(Toggle gap)', selected: instance.element.hclass('UI_gap'), icon: 'ti ti-caret-square-down' });
-
-				if (!readonly && instance.component.floating) {
-					opt.items.push('-');
-					opt.items.push({ id: 'bringfront', name: '@(Bring to front)', icon: 'ti ti-plus-circle green' });
-					opt.items.push({ id: 'bringback', name: '@(Bring to back)', icon: 'ti ti-minus-circle green' });
-				}
-
-				if (!readonly && !instance.protected) {
-					opt.items.push('-');
-					opt.items.push({ id: 'up', name: '@(Move up)', icon: 'ti ti-arrow-up' });
-					opt.items.push({ id: 'down', name: '@(Move down)', icon: 'ti ti-arrow-down' });
-					opt.items.push({ id: 'clone', name: '@(Clone)', icon: 'ti ti-clone' });
-				}
-
-				if (!readonly || instance.protected) {
-					opt.items.push('-');
-					opt.items.push({ id: 'export', name: '@(Export to component)', icon: 'ti ti-box-up' });
-				}
-
-				if (!readonly || instance.component.children) {
-					opt.items.push('-');
-					opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
+				if (readonly || instance.component.children) {
+					var parentel = instance.element.closest('[draggable]');
+					if (parentel.length) {
+						var parent = parentel[0].uibuilder;
+						opt.items.push('-');
+						makemenu(opt, parent, false);
+					}
 				}
 
 				opt.callback = function(sel) {
 
+					var instance = sel.instance;
 					var tmp;
 
 					switch (sel.id) {
@@ -1086,6 +1139,9 @@
 							break;
 						case 'clone':
 							component_clone(instance);
+							break;
+						case 'copy':
+							component_copy(instance);
 							break;
 						case 'bringfront':
 							tmp = +instance.element.css('z-index');
@@ -1108,6 +1164,10 @@
 							break;
 						case 'remove':
 							instance.remove();
+							break;
+						case 'paste':
+							SET('formpaste @default', { instance: instance, container: sel.container });
+							SET('common.form', 'formpaste');
 							break;
 					}
 

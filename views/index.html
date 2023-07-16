@@ -1039,7 +1039,7 @@
 
 		UIBuilder.on('make', function(instance) {
 
-			var readonly = instance.protected || instance.meta.readonly || instance.component.children;
+			var readonly = instance.meta.readonly || instance.component.children;
 
 			if (!readonly) {
 				var parent = instance.parent;
@@ -1081,7 +1081,9 @@
 					opt.items.push({ id: 'down', name: '@(Move down)', icon: 'ti ti-arrow-down', instance: instance });
 					opt.items.push({ id: 'clone', name: '@(Clone)', icon: 'ti ti-clone', instance: instance });
 					opt.items.push({ id: 'copy', name: '@(Copy)', icon: 'ti ti-copy', instance: instance });
+				}
 
+				if (!readonly) {
 					var container = opt.el.closest('.UI_components');
 					if (container.length) {
 						var ci = container.closest('.UI_component')[0].uibuilder;
@@ -1089,12 +1091,12 @@
 					}
 				}
 
-				if (!readonly || instance.protected) {
+				if (!instance.protected && !readonly) {
 					opt.items.push('-');
 					opt.items.push({ id: 'export', name: '@(Export to component)', icon: 'ti ti-box-up', instance: instance });
 				}
 
-				if (!readonly || instance.component.children) {
+				if (!instance.protected && (!readonly || instance.component.children)) {
 					opt.items.push('-');
 					opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red', instance: instance });
 				}

@@ -1950,7 +1950,7 @@
 
 		var parent = el.closest('.UI_component')[0];
 
-		if (!parent)
+		if (!parent || parent.uibuilder.meta.readonly || parent.uibuilder.forked)
 			return;
 
 		if (!opt)

@@ -112,10 +112,11 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 
 .icon-right { font-size: 44px; }
 
-.UI_special { background-color: #F8F8F8; background-image: repeating-linear-gradient(45deg, #F3F3F3, #F3F3F3 10px, #F9F9F9 10px, #F9F9F9 20px); padding: 15px; border-radius: var(--radius); font-size: 12px; position: relative; color: #999; }
+.UI_special { background-color: #F8F8F8; background-image: repeating-linear-gradient(45deg, #F5F5F5, #F5F5F5 10px, #F9F9F9 10px, #F9F9F9 20px); padding: 15px; border-radius: var(--radius); font-size: 12px; position: relative; color: #777; }
 .UI_special label { color: #444; font-size: 14px; font-weight: bold; display: block; }
+.UI_special label span { background-color: var(--color); padding: 1px 3px; border-radius: var(--radius); color: #FFF; font-size: 12px; margin-left: 5px; }
 .UI_special > i { margin: -24px 0 0 -24px; width: 24px; height: 24px; background-color: #FFF; border-radius: 100px; line-height: 23px; position: absolute; text-align: center; box-shadow: 0 2px 3px rgba(0,0,0,0.05); border: 1px solid #F0F0F0; }
-.UI_special > div { background-color: #FFF; padding: 10px; border-radius: var(--radius); margin-top: 2px; }
+.UI_special > div { background-color: #FFF; padding: 10px; border-radius: var(--radius); margin-top: 5px; }
 .UI_floating.UI_special { border: 1px solid #E9E9E9; }
 
 /* PLACEHOLDER */

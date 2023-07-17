@@ -426,7 +426,9 @@
 				SET('common.components', arr);
 				SET('common.groups', arr2);
 				UPD('app');
-				callback && callback();
+
+				if (typeof(callback) === 'function')
+					callback();
 			});
 		}
 

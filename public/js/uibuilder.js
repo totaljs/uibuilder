@@ -484,12 +484,13 @@
 
 		var next = function(instance) {
 			if (instance.children) {
-				for (var item of instance.children) {
-					output.push(item);
-					if (!t.component.scope)
-						next(item);
+				for (var m of instance.children) {
+					output.push(m);
+					if (!m.component.scope)
+						next(m);
 				}
 			}
+
 		};
 
 		if (container != null) {

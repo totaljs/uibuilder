@@ -1126,7 +1126,7 @@
 		app.pending.push({ name: name, fn: fn });
 	};
 
-	function app_compile(container, obj, index, position, inline) {
+	function app_compile(container, obj, index, position, inline, newbie) {
 
 		var self = this;
 		var com = self.components[obj.component];
@@ -1159,6 +1159,7 @@
 
 		instance.id = obj.id;
 		instance.args = self.args;
+		instance.newbie = newbie || obj.newbie;
 		instance.element = $(div);
 		instance.element.aclass(Builder.selectors.component.substring(1) + ' ' + com.cls).attrd('id', obj.id);
 		instance.dom = div;
@@ -1169,6 +1170,9 @@
 		instance.protected = obj.protected;
 		instance.meta = obj;
 		instance.edit = app_edit;
+
+		if (obj.newbie)
+			delete obj.newbie;
 
 		if (inline)
 			instance.forked = true;
@@ -1358,7 +1362,7 @@
 		return containers;
 	};
 
-	function app_add(parentid, parentindex, com, position, config, extendmeta) {
+	function app_add(parentid, parentindex, com, position, config, extendmeta, newbie) {
 
 		var self = this;
 
@@ -1384,7 +1388,7 @@
 		if (containers.length) {
 			for (var container of containers) {
 				if (container.index == parentindex)
-					self.compile(container.element, com, parentindex, position);
+					self.compile(container.element, com, parentindex, position, null, newbie);
 			}
 		}
 

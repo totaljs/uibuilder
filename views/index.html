@@ -495,7 +495,7 @@
 			var containerindex = instance.element.closest('.UI_components').attrd('index');
 			var target = instance.element;
 			var position = target[0] === parent[0] ? null : (NODEINDEXOF(target[0]) + 1);
-			app.add(parentid, containerindex, meta, position);
+			app.add(parentid, containerindex, meta, position, null, null, true);
 			app.clean();
 		}
 
@@ -547,7 +547,7 @@
 
 				var data = app.stringify(instance.element);
 				var metadata = data.children;
-				app.add(parentid, containerindex, metadata, position);
+				app.add(parentid, containerindex, metadata, position, null, null, true);
 				node.remove();
 				app.clean();
 
@@ -562,8 +562,7 @@
 					metadata = { x: meta.pageX - offset.left, y: meta.pageY - offset.top, zindex: app.zindex + 1 };
 					parentid = app.instances[0].id;
 				}
-
-				app.add(parentid, containerindex, comid, position, null, metadata);
+				app.add(parentid, containerindex, comid, position, null, metadata, true);
 			}
 		}
 

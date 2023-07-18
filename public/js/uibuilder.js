@@ -1744,6 +1744,12 @@
 								return;
 							}
 
+							if (!response) {
+								console.error('UI Builder:', tmp, 'empty file');
+								next();
+								return;
+							}
+
 							// List of components
 							if (typeof(response) === 'object') {
 								for (var key2 in response) {

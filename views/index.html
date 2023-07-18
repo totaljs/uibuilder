@@ -598,14 +598,15 @@
 				arr.wait(function(key, next) {
 
 					var com = app.components[key];
+					var render = used[key];
 
-					if (com.render.substring(0, 6) === 'base64') {
-						used[key] = com.render;
+					if (render.substring(0, 6) === 'base64') {
+						used[key] = 'base64 ' + btoa(encodeURIComponent(uibuilder_preparerender(com, decodeURIComponent(atob(render)))));
 						next();
 					} else {
-						AJAX('GET ' + com.render.format(key), function(response) {
+						AJAX('GET ' + render.format(key), function(response) {
 							if (response && typeof(response) === 'string')
-								used[key] = 'base64 ' + btoa(encodeURIComponent(response));
+								used[key] = 'base64 ' + btoa(encodeURIComponent(uibuilder_preparerender(com, response)));
 							next();
 						});
 					}
@@ -876,7 +877,11 @@
 		function uibuilder_addcomponent(el) {
 			SET('formimport @reset', { url: '' });
 			SET('common.form', 'formimport');
-		};
+		}
+
+		function uibuilder_preparerender(com, source) {
+			return source;
+		}
 
 		WATCH('app.schema.editor.paths', function(path, value) {
 

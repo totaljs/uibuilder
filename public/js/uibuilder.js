@@ -1238,7 +1238,7 @@
 			}
 		}
 
-		com.make && com.make(instance, instance.config, instance.element, instance.component.cls);
+		com.make && com.make(instance, instance.config, instance.element, instance.component.cls, Builder.iseditor);
 
 		Builder.events.make && Builder.emit('make', instance);
 
@@ -1728,16 +1728,18 @@
 						if (isexternal)
 							url = url.substring(1);
 
-						AJAX('GET ' + url.format(key), function(response, err) {
+						var tmp = url.format(key);
+
+						AJAX('GET ' + tmp, function(response, err) {
 
 							if (err) {
-								console.error('UI Builder:', url, err);
+								console.error('UI Builder:', tmp, err);
 								next();
 								return;
 							}
 
 							if (ERROR(response)) {
-								console.error('UI Builder:', url, response);
+								console.error('UI Builder:', tmp, response);
 								next();
 								return;
 							}

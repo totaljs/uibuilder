@@ -235,10 +235,10 @@
 				config.name = component.name;
 
 			if (config.$bind || t.getAttribute('bind'))
-				instance.state.bind = true;
+				obj.bind = true;
 
 			if (config.$notify || t.getAttribute('notify'))
-				instance.state.notify = true;
+				obj.notify = true;
 
 			obj.readonly = true;
 

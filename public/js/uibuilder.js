@@ -18,6 +18,10 @@
 		t.events = {};
 	}
 
+	Fork.prototype.find = function(id) {
+		return this.instances.findItem('id', id.charAt(0) === '@' ? id.substring(1) : id);
+	};
+
 	Fork.prototype.urlify = function() {
 		this.app.urlify.apply(this.app, arguments);
 		return this;
@@ -97,24 +101,30 @@
 		}
 	};
 
-	Fork.prototype.emitstate = function(e) {
+	Fork.prototype.emitstate = function(e, key) {
 
 		// @e InstanceEvent
 		// 1. notifies all parents
 		// 2. notifies all other components
 
+		if (!key)
+			key = 'state';
+
 		var t = this;
 		var parents = {};
-		var key = 'state';
 		var instance = e.instance;
+		var cachekey = key;
+		var noemitkey = 'noemit' + key;
 
 		// Clears cache
-		e.instance.cache.e = null;
+		e.instance.cache[cachekey] = null;
 
 		// notifies all parents
 		var parent = instance.parent;
+		var count = 0;
 
 		e.level = 0;
+		e.type = key;
 
 		while (parent) {
 
@@ -125,8 +135,10 @@
 			if (parent.fork)
 				break;
 
-			if (parent.events[key])
+			if (parent.events[key]) {
+				count++;
 				parent.emit(key, e);
+			}
 
 			if (e.$propagation)
 				break;
@@ -136,13 +148,18 @@
 
 		e.level = null;
 
-		key = '@state';
+		key = '@' + key;
 
 		for (var obj of t.instances) {
-			if (!parents[instance.id] && obj !== e.instance)
-				obj.events[key] && obj.emit(key, e);
+			if (!parents[instance.id] && obj !== e.instance) {
+				if (obj.events[key]) {
+					count++;
+					obj.emit(key, e);
+				}
+			}
 		}
 
+		instance.state[noemitkey] = count === 0;
 	};
 
 	customElements.define('uibuilder-component', class extends HTMLElement {
@@ -375,7 +392,24 @@
 		if (type === 'touched')
 			t.check();
 
-		if (t.state[type] === value)
+		if (!t.state.noemitsomething) {
+			var e = t.cache.something;
+			if (e) {
+				t.cache.something.changes[type] = 1;
+			} else {
+				e = t.cache.something = new StateEvent();
+				e.id = t.id;
+				e.instance = t;
+				e.state = t.state;
+				e.element = t.element;
+				e.changes = {};
+				e.changes[type] = 1;
+				e.kind = kind;
+				setTimeout(t => t.app.emitstate(t.cache.something, 'something'), 222, t);
+			}
+		}
+
+		if (kind !== 'force' && t.state[type] === value)
 			return false;
 
 		t.state[type] = value;
@@ -407,16 +441,19 @@
 		if (kind === 'noemitstate')
 			return;
 
-		var e = t.cache.e;
-
 		if (tclass)
 			t.element.tclass('UI_' + type, value);
 
+		if (t.state.noemitstate)
+			return true;
+
+		var e = t.cache.state;
+
 		if (e) {
-			t.cache.e.changes[type] = 1;
+			t.cache.state.changes[type] = 1;
 			return true;
 		} else {
-			e = t.cache.e = new StateEvent();
+			e = t.cache.state = new StateEvent();
 			e.id = t.id;
 			e.instance = t;
 			e.state = t.state;
@@ -426,7 +463,7 @@
 			e.kind = kind;
 		}
 
-		setTimeout(t => t.app.emitstate(t.cache.e), t.state.delay, t);
+		setTimeout(t => t.app.emitstate(t.cache.state), t.state.delay, t);
 		return true;
 	};
 
@@ -652,7 +689,7 @@
 	};
 
 	IP.find = function(id) {
-		return this.app.instances.findItem('id', id.charAt(0) === '@' ? id.substring(1) : id);
+		return this.app.find(id);
 	};
 
 	IP.hidden = function() {
@@ -693,25 +730,31 @@
 
 	IP.on = function(name, fn) {
 		var t = this;
-		if (t.events[name])
-			t.events[name].push(fn);
-		else
-			t.events[name] = [fn];
+		var arr = name.split(/\+|\s/).trim();
+		for (var m of arr) {
+			if (t.events[m])
+				t.events[m].push(fn);
+			else
+				t.events[m] = [fn];
+		}
 	};
 
 	IP.off = function(name, fn) {
 		var t = this;
-		var events = t.events[name];
-		if (events) {
-			if (fn) {
-				var index = events.indexOf(fn);
-				if (index !== -1) {
-					events.splice(index, 1);
-					if (!events.length)
-						delete t.events[name];
-				}
-			} else
-				delete t.events[name];
+		var arr = name.split(/\+|\s/).trim();
+		for (var m of arr) {
+			var events = t.events[m];
+			if (events) {
+				if (fn) {
+					var index = events.indexOf(fn);
+					if (index !== -1) {
+						events.splice(index, 1);
+						if (!events.length)
+							delete t.events[m];
+					}
+				} else
+					delete t.events[m];
+			}
 		}
 		return t;
 	};
@@ -1088,7 +1131,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.8;
+	Builder.version = 1.9;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
@@ -1489,6 +1532,7 @@
 		}
 
 		app.on = Fork.prototype.on;
+		app.find = Fork.prototype.find;
 		app.emit = Fork.prototype.emit;
 		app.emitstate = Fork.prototype.emitstate;
 

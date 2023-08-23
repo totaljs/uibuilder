@@ -748,7 +748,7 @@
 				switch (selected.id) {
 
 					case 'copy':
-						var data = 'uibuilder://' + ENCRYPT({ id: id, url: url }, 'uibuilder', 'component');
+						var data = 'uibuilder://' + ENCRYPT({ id: id, url: url.format(id) }, 'uibuilder', 'component');
 						EXEC('-clipboard/copy', data);
 						EXEC('-notify/success', '@(The component has been copied to the clipboard.)');
 						break;
@@ -756,7 +756,7 @@
 					case 'download':
 						var index = url.indexOf(' ');
 						if (index === -1) {
-							AJAX('GET {0} ERROR'.format(url), function(response) {
+							AJAX('GET {0} ERROR'.format(url.format(id)), function(response) {
 								SETTER('filesaver/save', id + '.html', response);
 							});
 						} else

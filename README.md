@@ -1,5 +1,7 @@
 # UI Builder
 
+[![Made in EU](https://cdn.componentator.com/eu-small.png)](https://european-union.europa.eu/)
+
 Total.js UI Builder is a cloud-based editor for creating UI schemas.
 
 - Cloud version: <https://uibuilder.totaljs.com>

@@ -1647,6 +1647,7 @@
 				}
 
 				Builder.emit('app', app);
+				app.emit('ready');
 			}
 
 			app.emit('io', app);

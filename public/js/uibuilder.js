@@ -315,7 +315,7 @@
 		var t = this;
 		if (t.app.events.change) {
 			t.$changetimeout && clearTimeout(t.$changetimeout);
-			t.$changetimeout = setTimeout(t.$forcechange, 333, t);
+			t.$changetimeout = setTimeout(t.$forcechange, 50, t);
 		}
 	};
 
@@ -330,7 +330,7 @@
 		if (force)
 			t.$forcecheck(t);
 		else
-			t.$checktimeout = setTimeout(t.$forcecheck, 150, t);
+			t.$checktimeout = setTimeout(t.$forcecheck, 50, t);
 
 		return t;
 	};
@@ -684,7 +684,7 @@
 				});
 				return;
 			} else if (c === '@') {
-				var instance = t.find(id);
+				var instance = t.find(clid);
 				if (instance && instance.state.value instanceof Array)
 					fn(instance.state.value.findItem('id', id));
 				else

@@ -16,10 +16,19 @@
 		t.components = app.components;
 		t.instances = [];
 		t.events = {};
+		t.refs = {};
 	}
 
 	Fork.prototype.find = function(id) {
-		return this.instances.findItem('id', id.charAt(0) === '@' ? id.substring(1) : id);
+		var path = id.charAt(0) === '.' ? id.substring(1) : '';
+		var id = path ? '' : id.charAt(0) === '@' ? id.substring(1) : id;
+		for (var m of this.instances) {
+			if (path) {
+				if (m.config.path === path)
+					return m;
+			} else if (m.id === id)
+				return m;
+		}
 	};
 
 	Fork.prototype.urlify = function() {
@@ -1131,7 +1140,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.9;
+	Builder.version = 1.11;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
@@ -1230,6 +1239,12 @@
 			instance.config.name = com.name;
 
 		self.instances.push(instance);
+
+		if (inline) {
+			var uid = container.getAttribute('uid');
+			if (uid)
+				self.refs[uid] = instance;
+		}
 
 		div.uibuilder = instance;
 
@@ -1473,6 +1488,7 @@
 		app.schema = meta;
 		app.events = {};
 		app.cache = {};
+		app.refs = {};
 		app.compile = app_compile;
 		app.stringify = app_stringify;
 		app.clean = app_clean;

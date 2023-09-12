@@ -31,6 +31,7 @@
 	<ui-component name="LAZY message" config="style:2"></ui-component>
 	<ui-component name="LAZY floatinginput"></ui-component>
 	<ui-component name="LAZY filesaver"></ui-component>
+	<ui-component name="LAZY filereader"></ui-component>
 
 	<ui-component name="windows" path="common.windows" config="zindex:30"></ui-component>
 	<ui-component name="markdown"></ui-component>
@@ -60,6 +61,9 @@
 					</ui-bind>
 
 					<div class="pull-right">
+						<div class="replace">
+							<button class="exec" data-exec="uibuilder_replace" title="@(Replace source-code)"><i class="ti ti-recycle"></i></button>
+						</div>
 						<button class="exec" data-exec="uibuilder_download" title="@(Download source-code)"><i class="ti ti-download"></i></button>
 						<a href="https://docs.totaljs.com/uibuilder/" title="@(Documentation: Total.js Platform)" target="_blank" class="special"><i class="ti ti-book"></i></a>
 					</div>
@@ -1186,6 +1190,23 @@
 			});
 
 		});
+
+		function uibuilder_replace() {
+			var opt = {};
+			opt.accept = 'application/json';
+			opt.callback = function(file) {
+				var data = PARSE(file.body);
+				if (data && data.id && data.name && data.components && data.children) {
+					SETTER('loading/show');
+					app.remove();
+					setTimeout(function() {
+						UIBuilder.data = data;
+						uibuilder_redraw();
+					}, 500);
+				}
+			};
+			SETTER('filereader/open', opt);
+		}
 
 		function uibuilder_download() {
 			var meta = CLONE(app.schema);

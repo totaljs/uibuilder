@@ -21,18 +21,25 @@
 			<ui-component name="input" path="?.description" config="type:multiline;monospace:1;height:70;innerlabel:1;placeholder:@(App description)">@(Description)</ui-component>
 		</div>
 
-		<div class="grid-4">
+		<div class="grid-2">
 			<div class="m">
 				<ui-component name="input" path="?.group" config="dirsource:#usergroups;dirempty:@(Empty);dircustom:1;dirplaceholder:@(Enter new or search for an existing);dirminwidth:300">@(Group)</ui-component>
 			</div>
 			<div class="m">
 				<ui-component name="input" path="?.author">@(Author)</ui-component>
 			</div>
+		</div>
+		<div class="grid-2">
 			<div class="m">
-				<ui-component name="input" path="?.icon" config="type:icon;placeholder:@(Choose an icon)">@(Icon)</ui-component>
+				<ui-component name="input" path="?.reference">@(Reference)</ui-component>
 			</div>
-			<div class="m">
-				<ui-component name="input" path="?.color" config="type:color;placeholder:@(Choose a color)">@(Color)</ui-component>
+			<div class="grid-2">
+				<div class="m">
+					<ui-component name="input" path="?.icon" config="type:icon;placeholder:@(Choose an icon)">@(Icon)</ui-component>
+				</div>
+				<div class="m">
+					<ui-component name="input" path="?.color" config="type:color;placeholder:@(Choose a color)">@(Color)</ui-component>
+				</div>
 			</div>
 		</div>
 
@@ -47,6 +54,10 @@
 		</div>
 		<ui-plugin path="editor">
 			<p>@(Settings for the editor will be removed from the compiled design.)</p>
+			<div class="m">
+				<ui-component name="input" path="?.download" config="type:checkbox" class="b">@(Download components' to the source in compiling)</ui-component>
+				<ui-component name="input" path="?.autopublish" config="type:checkbox">@(Auto publish after saving the design)</ui-component>
+			</div>
 			<div class="padding bg-smoke m">
 				<div>
 					<ui-component name="input" path="?.paths" config="icon:ti ti-database;placeholder:@(Enter URL address)">@(URL address for obtaining paths)</ui-component>
@@ -88,10 +99,7 @@
 					</div>
 				</div>
 			</ui-bind>
-			<ui-component name="input" path="?.download" config="type:checkbox" class="b">@(Download components' to the source in compiling)</ui-component>
-			<ui-component name="input" path="?.autopublish" config="type:checkbox">@(Auto publish after saving the design)</ui-component>
 		</ui-plugin>
-		<hr />
 		<div>
 			<div class="m">
 				<ui-component name="input" path="?.css" config="type:multiline;monospace:1;height:100">@(CSS for editor)</ui-component>

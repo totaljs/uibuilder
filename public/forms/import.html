@@ -56,15 +56,21 @@
 						SETTER('notify/success', '@(The component has been imported successfully.)');
 					};
 
-					if (item.url.indexOf('<') === -1)
+					if (item.url.indexOf('<') === -1) {
+						if (item.url.charAt(0) === '/')
+							item.url = (UIBuilder.origin || '') + item.url;
 						AJAX('GET ' + item.url, response => importer(item.url, response, done));
-					else
+					} else
 						importer('', item.url, done);
 				}
 				return;
 			}
 
-			AJAX('GET {url} ERROR'.args(model), function(response) {
+			var url2 = model.url;
+			if (url2.charAt(0) === '/')
+				url2 = (UIBuilder.origin || '') + url2;
+
+			AJAX('GET {0} ERROR'.format(url2), function(response) {
 				if (response instanceof Array) {
 					response.wait(function(item, next) {
 						if (typeof(item) === 'string') {

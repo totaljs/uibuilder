@@ -59,6 +59,8 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .header button.labeled i { margin: 8px 7px 0 0; float: left; }
 .header button.changed { color: #FFF !important; background: #68B25B !important; animation: 1s blink infinite alternate forwards; }
 .header button.changed i { color: #FFF; }
+.header .replace button i { color: #999; }
+.header .replace { float: left; border-right: 1px solid #E0E0E0; padding-right: 5px; margin-right: 5px; height: 45px; }
 .header button span { font-size: 12px; }
 .header button:hover, .header a:hover { background-color: #F0F0F0; }
 .header button:disabled { color: #D0D0D0; cursor: not-allowed; background-color: transparent !important; }

@@ -418,7 +418,7 @@
 			}
 		}
 
-		if (kind !== 'force' && t.state[type] === value)
+		if (kind !== 'force' && (value == null || typeof(value) !== 'object') && t.state[type] === value)
 			return false;
 
 		t.state[type] = value;

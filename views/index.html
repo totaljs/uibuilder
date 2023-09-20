@@ -237,6 +237,42 @@
 						SET('common.form', 'templatesform');
 
 					break;
+
+				case 'refresh':
+
+					if (msg.upload)
+						common.upload = msg.upload;
+
+					if (msg.apps) {
+						common.iframeapps = msg.apps;
+						SET('DEF.cl.apps', common.iframeapps.slice(0));
+					}
+
+					if (msg.views) {
+						common.iframeviews = msg.views;
+						SET('DEF.cl.views', common.iframeviews.slice(0));
+					}
+
+					if (msg.codes) {
+						common.iframecodes = msg.codes;
+						SET('DEF.cl.codes', common.iframecodes.slice(0));
+					}
+
+					if (msg.paths) {
+						common.iframepaths = msg.paths;
+						SET('DEF.cl.paths', common.iframepaths.slice(0));
+					}
+
+					if (msg.groups)
+						SET('DEF.cl.usergroups', msg.groups);
+
+					if (msg.components)
+						common.componentsdb = msg.components;
+
+					uibuilder_rebuildpaths();
+
+					console.log(msg);
+					break;
 			}
 
 		});

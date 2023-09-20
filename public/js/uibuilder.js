@@ -956,10 +956,13 @@
 
 								var index = url.indexOf('/', 10);
 								if (index !== -1) {
-									if (obj.render && obj.render.charAt(0) === '/')
-										obj.render = url.substring(0, index) + obj.render;
-									if (obj.settings && obj.settings.charAt(0) === '/')
-										obj.settings = url.substring(0, index) + obj.settings;
+									obj.origin = url.substring(0, index);
+									if (UIBuilder.origin !== obj.origin) {
+										if (obj.render && obj.render.charAt(0) === '/')
+											obj.render = url.substring(0, index) + obj.render;
+										if (obj.settings && obj.settings.charAt(0) === '/')
+											obj.settings = url.substring(0, index) + obj.settings;
+									}
 								}
 
 								pending.push({ name: key, fn: obj });
@@ -1857,10 +1860,13 @@
 
 								var index = url.indexOf('/', 10);
 								if (index !== -1) {
-									if (obj.render && obj.render.charAt(0) === '/')
-										obj.render = url.substring(0, index) + obj.render;
-									if (obj.settings && obj.settings.charAt(0) === '/')
-										obj.settings = url.substring(0, index) + obj.settings;
+									obj.origin = url.substring(0, index);
+									if (UIBuilder.origin !== obj.origin) {
+										if (obj.render && obj.render.charAt(0) === '/')
+											obj.render = url.substring(0, index) + obj.render;
+										if (obj.settings && obj.settings.charAt(0) === '/')
+											obj.settings = url.substring(0, index) + obj.settings;
+									}
 								}
 
 								app.pending.push({ name: key, fn: obj });

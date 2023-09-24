@@ -939,7 +939,7 @@
 								url = (Builder.origin || '') + url;
 						}
 
-						AJAX('GET ' + url.format(key), function(response, err) {
+						AJAX('GET ' + url.format(key) + (Builder.cachecomponents ? ' <{0}>'.format(Builder.cachecomponents == true ? 'session' : Builder.cachecomponents) : ''), function(response, err) {
 
 							if (err) {
 								console.error('UI Builder:', url, err);
@@ -1842,7 +1842,7 @@
 
 						var tmp = url.format(key);
 
-						AJAX('GET ' + tmp, function(response, err) {
+						AJAX('GET ' + tmp + (Builder.cachecomponents ? ' <{0}>'.format(Builder.cachecomponents == true ? 'session' : Builder.cachecomponents) : ''), function(response, err) {
 
 							if (err) {
 								console.error('UI Builder:', tmp, err);

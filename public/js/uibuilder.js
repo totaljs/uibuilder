@@ -311,7 +311,7 @@
 			is = false;
 		} else if (t.validate) {
 			is = t.validate();
-			if (is === true || is === '' || (is instanceof Array && !is.length))
+			if (is === true || is === 1 || is === '' || (is instanceof Array && !is.length))
 				is = false;
 			else if (is === false || is === 0)
 				is = true;

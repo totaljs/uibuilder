@@ -311,8 +311,10 @@
 			is = false;
 		} else if (t.validate) {
 			is = t.validate();
-			if (is == null || is === true || is === '' || is === 1 || (is instanceof Array && !is.length))
+			if (is === true || is === '' || (is instanceof Array && !is.length))
 				is = false;
+			else if (is === false || is === 0)
+				is = true;
 		}
 
 		t.set('invalid', is);

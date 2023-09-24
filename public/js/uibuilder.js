@@ -302,13 +302,56 @@
 	var IP = Instance.prototype;
 
 	IP.$forcecheck = function(t) {
+
 		t.$checktimeout = null;
-		t.set('invalid', t.state.disabled || t.state.readonly ? false : t.validate ? (!t.validate()) : false);
+
+		var is = false;
+
+		if (t.state.disabled || t.state.readonly) {
+			is = false;
+		} else if (t.validate) {
+			is = t.validate();
+			if (is == null || is === true || is === '' || is === 1 || (is instanceof Array && !is.length))
+				is = false;
+		}
+
+		t.set('invalid', is);
 	};
 
 	IP.$forcechange = function(t) {
 		t.$changetimeout = null;
 		t.app.emit('change', t);
+	};
+
+	IP.errors = function() {
+
+		var output = [];
+		var val = this.state.invalid;
+		var type = typeof(val);
+
+		if (!val || type === 'boolean' || type == 'number')
+			return output;
+
+		var err;
+
+		if (type === 'string') {
+			output.push({ error: val });
+		} else if (val instanceof Array) {
+			for (var m of val) {
+				if (m) {
+					if (typeof(m) === 'string') {
+						output.push({ error: m });
+					} else {
+						err = m.error || m.err || m.msg || m.message;
+						err && output.push({ error: err });
+					}
+				}
+			}
+		} else {
+			err = val.error || val.err || val.msg || val.message;
+			err && output.push({ error: err });
+		}
+		return output;
 	};
 
 	IP.change = function() {
@@ -392,9 +435,11 @@
 			case 'modified':
 			case 'readonly':
 			case 'touched':
-			case 'invalid':
 				tclass = true;
 				value = value ? true : false;
+				break;
+			case 'invalid':
+				tclass = true;
 				break;
 		}
 
@@ -450,8 +495,9 @@
 		if (kind === 'noemitstate')
 			return;
 
+		// "invalid" can be object (e.g. array of errors)
 		if (tclass)
-			t.element.tclass('UI_' + type, value);
+			t.element.tclass('UI_' + type, value ? true : false);
 
 		if (t.state.noemitstate)
 			return true;
@@ -1143,7 +1189,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.11;
+	Builder.version = 1.12;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};

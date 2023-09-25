@@ -1672,19 +1672,17 @@
 					var arr = instance.component.inputs;
 					var name = instance.config.name || instance.component.name;
 
-					app.list && app.list.push({ id: instance.id, name: name, icon: instance.component.icon, color: instance.component.color });
+					app.list && app.list.push({ id: instance.id, componentid: instance.component.id, name: name, icon: instance.component.icon, color: instance.component.color });
 
 					if (arr) {
-						for (var m of arr) {
+						for (var m of arr)
 							app.inputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, componentid: instance.component.id, component: name, input: m.name, icon: instance.component.icon, color: instance.component.color, note: m.note, schema: m.schema });
-						}
 					}
 
 					arr = instance.component.outputs;
 					if (arr && arr.length) {
-						for (var m of arr) {
+						for (var m of arr)
 							app.outputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, componentid: instance.component.id, component: name, output: m.name, icon: instance.component.icon, color: instance.component.color, note: m.note, schema: m.schema });
-						}
 					}
 				}
 			} else

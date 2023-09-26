@@ -934,6 +934,9 @@
 
 					if (!ext || (ext === 'html' || ext === 'json')) {
 
+						if (url.charAt(0) === '@')
+							url = url.substring(1);
+
 						if (Builder.editor) {
 							if (url.charAt(0) === '/')
 								url = (Builder.origin || '') + url;
@@ -1828,15 +1831,14 @@
 
 					if (!ext || ext === 'html') {
 
+						var isexternal = url.charAt(0) === '@';
+						if (isexternal)
+							url = url.substring(1);
 
 						if (Builder.editor) {
 							if (url.charAt(0) === '/')
 								url = (Builder.origin || '') + url;
 						}
-
-						var isexternal = url.charAt(0) === '@';
-						if (isexternal)
-							url = url.substring(1);
 
 						var tmp = url.format(key);
 

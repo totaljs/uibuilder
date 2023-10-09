@@ -351,6 +351,17 @@
 			var url = NAV.query.url;
 
 			if (!url) {
+
+				var base64 = NAV.query.base64;
+				if (base64) {
+					var data = PARSE(decodeURIComponent(atob(base64)));
+					if (data) {
+						UIBuilder.data = response;
+						uibuilder_redraw();
+						return;
+					}
+				}
+
 				SET('common.form', 'templatesform');
 				return;
 			}
@@ -1280,7 +1291,7 @@
 
 				reader.onload = function() {
 					if (ext === 'json') {
-						app.clean();
+						W.app && W.app.clean();
 						$('#dapp').empty();
 						var data = PARSE(reader.result);
 						setTimeout(function() {

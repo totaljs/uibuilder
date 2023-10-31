@@ -1783,6 +1783,7 @@
 			list.wait(function(key, next) {
 
 				var fn = meta.components[key];
+
 				if (typeof(fn) === 'string') {
 
 					var ext = fn.split(' ');

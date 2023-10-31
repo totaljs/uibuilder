@@ -101,7 +101,7 @@
 						<ui-bind path="common.groups" config="template" class="block components">
 							<script type="text/html">
 							{{ foreach g in value }}
-								<div class="caption">{{ g.id }}</div>
+								<div class="caption" data-search="">{{ g.id }}</div>
 								{{ foreach m in g.items }}
 								<figure draggable="true" class="draggable exec exec3{{ if m.isexternal }} external{{ fi }}" data-exec3="uibuilder_contextmenu" data-exec="component_readme" data-id="{{ m.id }}" data-search="{{ m.name }}">
 									<i class="{{ m.icon }}"></i>

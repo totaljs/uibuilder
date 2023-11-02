@@ -621,13 +621,13 @@
 			for (var instance of app.instances) {
 				var declaration = instance.component.render || app.schema.components[instance.component.id];
 				if (declaration)
-					used[instance.component.id] = (meta.editor.download && declaration.indexOf('http') === -1 ? 'https://uibuilder.totaljs.com' : '') + declaration.format(instance.component.id);
+					used[instance.component.id] = meta.editor.local ? '@' : ((meta.editor.download && declaration.indexOf('http') === -1 ? 'https://uibuilder.totaljs.com' : '') + declaration.format(instance.component.id));
 				if (instance.fork)
 					uibuilder_compile_fork(instance.fork, used, meta);
 			}
 		}
 
-		function uibuilder_compile(callback) {
+		function uibuilder_compile(callback, skiplocal) {
 
 			SETTER('loading/show');
 
@@ -635,6 +635,9 @@
 			var data = app.stringify(function(item) {
 				return !!item.component.render;
 			}, true);
+
+			if (skiplocal)
+				meta.editor.local = false;
 
 			meta.children = data.children;
 			meta.inputs = app.inputs;
@@ -644,7 +647,7 @@
 
 			uibuilder_compile_fork(app, used, meta);
 
-			if (meta.editor && meta.editor.download) {
+			if (meta.editor && meta.editor.download && !meta.editor.local) {
 				var arr = Object.keys(used);
 				arr.wait(function(key, next) {
 
@@ -770,7 +773,7 @@
 					form.submit();
 				} else
 					SETTER('message/warning @hideloading', '@(You do not have defined a render URL address)');
-			});
+			}, true);
 		}
 
 		function uibuilder_contextmenu(el, e) {

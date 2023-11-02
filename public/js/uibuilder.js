@@ -882,6 +882,16 @@
 				var fn = meta.components[key];
 				if (typeof(fn) === 'string') {
 
+					if (fn === '@' || fn === '#') {
+						// local component
+						if (Builder.components[key])
+							app.pending.push({ name: key, fn: Builder.components[key], local: true });
+						else
+							console.error('UI Builder: The component "{0}" not found.'.format(key));
+						next();
+						return;
+					}
+
 					var ext = fn.split(' ');
 					var url = (ext[1] || '').trim();
 
@@ -1042,25 +1052,30 @@
 					if (typeof(item.fn) === 'function') {
 						obj = {};
 						obj.id = item.name;
-						obj.cls = t.app.class + '_' + HASH(obj.id).toString(36);
+						obj.cls = (item.local ? 'uibuilder' : app.class) + '_' + HASH(obj.id).toString(36);
 						item.fn(obj);
 					} else
 						obj = item.fn;
 
 					t.app.components[item.name] = obj;
-					obj.css && css.push(obj.css.replace(REG_CLASS, obj.cls));
 
-					if (obj.import instanceof Array) {
-						obj.import.wait(function(url, next) {
-							if (Builder.cache[url]) {
-								next();
-							} else {
-								Builder.cache[url] = 1;
-								IMPORT(url, next);
-							}
-						}, next);
-					} else
+					if (item.local) {
 						next();
+					} else {
+						obj.css && css.push(obj.css.replace(REG_CLASS, obj.cls));
+
+						if (obj.import instanceof Array) {
+							obj.import.wait(function(url, next) {
+								if (Builder.cache[url]) {
+									next();
+								} else {
+									Builder.cache[url] = 1;
+									IMPORT(url, next);
+								}
+							}, next);
+						} else
+							next();
+					}
 
 				}, function() {
 
@@ -1200,6 +1215,68 @@
 	Builder.events = {};
 	Builder.apps = {};
 	Builder.cache = {};
+	Builder.components = {};
+
+	function rebuildcss() {
+		rebuildercsstimeout = null;
+		var css = [];
+		for (var key in Builder.components) {
+			var com = Builder.components[key];
+			com.css && css.push(com.css);
+		}
+		CSS(css, 'uibuilder');
+	}
+
+	var rebuildercsstimeout;
+
+	Builder.component = function(id, meta, callback) {
+
+		// @meta {String/Object}
+		// @meta.css {String}
+		// @meta.html {String}
+
+		rebuildercsstimeout && clearTimeout(rebuildercsstimeout);
+
+		if (typeof(meta) === 'string') {
+			var obj = {};
+			obj.id = id;
+			obj.cls = 'uibuilder_' + HASH(obj.id).toString(36);
+			var parsed = Builder.parsehtml(meta.substring(0, 7) === 'base64 ' ? decodeURIComponent(atob(meta.substring(7))) : meta);
+			new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
+			meta = obj;
+		}
+
+		meta.id = id;
+
+		if (!meta.cls)
+			meta.cls = 'uibuilder_' + HASH(meta.id).toString(36);
+
+		if (meta.css)
+			meta.css = meta.css.replace(REG_CLASS, meta.cls);
+
+		if (meta.html)
+			meta.html = meta.html.replace(REG_CLASS, meta.cls);
+
+		if (meta.import instanceof Array) {
+			meta.import.wait(function(url, next) {
+				if (Builder.cache[url]) {
+					next();
+				} else {
+					Builder.cache[url] = 1;
+					IMPORT(url, next);
+				}
+			}, function() {
+				rebuildercsstimeout && clearTimeout(rebuildercsstimeout);
+				rebuildercsstimeout = setTimeout(rebuildcss, 2);
+				Builder.components[id] = meta;
+				callback && callback(null, meta);
+			});
+		} else {
+			rebuildercsstimeout && clearTimeout(rebuildercsstimeout);
+			Builder.components[id] = meta;
+			callback && callback(null, meta);
+		}
+	};
 
 	Builder.resize = function() {
 		for (var key in Builder.apps) {
@@ -1786,6 +1863,16 @@
 
 				if (typeof(fn) === 'string') {
 
+					if (fn === '@' || fn === '#') {
+						// local component
+						if (Builder.components[key])
+							app.pending.push({ name: key, fn: Builder.components[key], local: true });
+						else
+							console.error('UI Builder: The component "{0}" not found.'.format(key));
+						next();
+						return;
+					}
+
 					var ext = fn.split(' ');
 					var url = (ext[1] || '').trim();
 
@@ -1942,25 +2029,29 @@
 					if (typeof(item.fn) === 'function') {
 						obj = {};
 						obj.id = item.name;
-						obj.cls = app.class + '_' + HASH(obj.id).toString(36);
+						obj.cls = (item.local ? 'uibuilder' : app.class) + '_' + HASH(obj.id).toString(36);
 						item.fn(obj);
 					} else
 						obj = item.fn;
 
 					app.components[item.name] = obj;
-					obj.css && css.push(obj.css.replace(REG_CLASS, obj.cls));
 
-					if (obj.import instanceof Array) {
-						obj.import.wait(function(url, next) {
-							if (Builder.cache[url]) {
-								next();
-							} else {
-								Builder.cache[url] = 1;
-								IMPORT(url, next);
-							}
-						}, next);
-					} else
+					if (item.local) {
 						next();
+					} else {
+						obj.css && css.push(obj.css.replace(REG_CLASS, obj.cls));
+						if (obj.import instanceof Array) {
+							obj.import.wait(function(url, next) {
+								if (Builder.cache[url]) {
+									next();
+								} else {
+									Builder.cache[url] = 1;
+									IMPORT(url, next);
+								}
+							}, next);
+						} else
+							next();
+					}
 
 				}, function() {
 

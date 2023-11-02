@@ -1209,7 +1209,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.12;
+	Builder.version = 1.13;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};

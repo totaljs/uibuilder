@@ -74,10 +74,10 @@
 
 					<div style="margin-right:8px">
 						<button class="exec" data-exec="uibuilder_render" title="@(Preview)" style="background-color:#FFEBFE"><i class="ti ti-flask"></i></button>
-						<ui-bind path="app.schema.editor.autopublish" config="hide:value">
+						<ui-bind path="!app.schema.editor" config="hide:value.autopublish || value.compile === false" class="hidden">
 							<button class="exec" data-exec="uibuilder_publish" title="@(Publish)"><i class="ti ti-box"></i></button>
 						</ui-bind>
-						<ui-bind path="app.schema.editor.settings" config="show:value!=false&&value!=0">
+						<ui-bind path="app.schema.editor.settings" config="show:value!=false&&value!=0" class="hidden">
 							<button class="exec" data-exec="uibuilder_settings" title="@(Global settings)"><i class="ti ti-cog"></i></button>
 						</ui-bind>
 					</div>

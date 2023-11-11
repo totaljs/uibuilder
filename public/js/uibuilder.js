@@ -885,7 +885,7 @@
 					if (fn === '@' || fn === '#') {
 						// local component
 						if (Builder.components[key])
-							app.pending.push({ name: key, fn: Builder.components[key], local: true });
+							t.app.pending.push({ name: key, fn: Builder.components[key], local: true });
 						else
 							console.error('UI Builder: The component "{0}" not found.'.format(key));
 						next();
@@ -1018,7 +1018,7 @@
 								var index = url.indexOf('/', 10);
 								if (index !== -1) {
 									obj.origin = url.substring(0, index);
-									if (UIBuilder.origin !== obj.origin) {
+									if (Builder.origin !== obj.origin) {
 										if (obj.render && obj.render.charAt(0) === '/')
 											obj.render = url.substring(0, index) + obj.render;
 										if (obj.settings && obj.settings.charAt(0) === '/')
@@ -1052,7 +1052,7 @@
 					if (typeof(item.fn) === 'function') {
 						obj = {};
 						obj.id = item.name;
-						obj.cls = (item.local ? 'uibuilder' : app.class) + '_' + HASH(obj.id).toString(36);
+						obj.cls = (item.local ? 'uibuilder' : t.app.class) + '_' + HASH(obj.id).toString(36);
 						item.fn(obj);
 					} else
 						obj = item.fn;
@@ -1134,7 +1134,7 @@
 
 	IP.replace = IP.variables = function(val, data, encoder) {
 		var self = this;
-		return val.replace(/\{[a-z0-9_\.-]+\}/gi, function(text) {
+		return val.replace(/\{[a-z0-9_.-]+\}/gi, function(text) {
 			var key = text.substring(1, text.length - 1).trim();
 			var val = '';
 			var four = key.substring(0, 4);
@@ -1997,7 +1997,7 @@
 								var index = url.indexOf('/', 10);
 								if (index !== -1) {
 									obj.origin = url.substring(0, index);
-									if (UIBuilder.origin !== obj.origin) {
+									if (Builder.origin !== obj.origin) {
 										if (obj.render && obj.render.charAt(0) === '/')
 											obj.render = url.substring(0, index) + obj.render;
 										if (obj.settings && obj.settings.charAt(0) === '/')

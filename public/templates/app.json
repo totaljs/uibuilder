@@ -12,37 +12,7 @@
 		"upload": ""
 	},
 	"components": {
-		"gap": "https://cdn.componentator.com/uibuilder/gap-v1/editor.html",
-		"callout": "https://cdn.componentator.com/uibuilder/callout-v1/editor.html",
-		"cards": "https://cdn.componentator.com/uibuilder/cards-v1/editor.html",
-		"checkbox": "https://cdn.componentator.com/uibuilder/checkbox-v1/editor.html",
-		"checkboxlist": "https://cdn.componentator.com/uibuilder/checkboxlist-v1/editor.html",
-		"color": "https://cdn.componentator.com/uibuilder/color-v1/editor.html",
-		"columns": "https://cdn.componentator.com/uibuilder/columns-v1/editor.html",
-		"comment": "https://cdn.componentator.com/uibuilder/comment-v1/editor.html",
-		"container": "https://cdn.componentator.com/uibuilder/container-v1/editor.html",
-		"counter": "https://cdn.componentator.com/uibuilder/counter-v1/editor.html",
-		"readvalue": "https://cdn.componentator.com/uibuilder/readvalue-v1/editor.html",
-		"datagenerator": "https://cdn.componentator.com/uibuilder/datagenerator-v1/editor.html",
-		"datagrid": "https://cdn.componentator.com/uibuilder/datagrid-v1/editor.html",
-		"datareader": "https://cdn.componentator.com/uibuilder/datareader-v1/editor.html",
-		"datasource": "https://cdn.componentator.com/uibuilder/datasource-v1/editor.html",
-		"enable": "https://cdn.componentator.com/uibuilder/enable-v1/editor.html",
-		"fileuploader": "https://cdn.componentator.com/uibuilder/fileuploader-v1/editor.html",
-		"form": "https://cdn.componentator.com/uibuilder/form-v1/editor.html",
-		"headline": "https://cdn.componentator.com/uibuilder/headline-v1/editor.html",
-		"hr": "https://cdn.componentator.com/uibuilder/hr-v1/editor.html",
-		"icon": "https://cdn.componentator.com/uibuilder/icon-v1/editor.html",
-		"image": "https://cdn.componentator.com/uibuilder/image-v1/editor.html",
-		"infocard": "https://cdn.componentator.com/uibuilder/infocard-v1/editor.html",
-		"paragraph": "https://cdn.componentator.com/uibuilder/paragraph-v1/editor.html",
-		"sendtoinput": "https://cdn.componentator.com/uibuilder/sendtoinput-v1/editor.html",
-		"show": "https://cdn.componentator.com/uibuilder/show-v1/editor.html",
-		"sound": "https://cdn.componentator.com/uibuilder/sound-v1/editor.html",
-		"tabs": "https://cdn.componentator.com/uibuilder/tabs-v1/editor.html",
-		"textarea": "https://cdn.componentator.com/uibuilder/textarea-v1/editor.html",
-		"textbox": "https://cdn.componentator.com/uibuilder/textbox-v1/editor.html",
-		"video": "https://cdn.componentator.com/uibuilder/video-v1/editor.html"
+		"cdn": "https://cdn.componentator.com/uibuilder/app.json"
 	},
 	"children": [
 		[

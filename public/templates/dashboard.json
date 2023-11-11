@@ -12,13 +12,7 @@
 		"upload": ""
 	},
 	"components": {
-		"columns": "https://cdn.componentator.com/uibuilder/columns-v1/editor.html",
-		"container": "https://cdn.componentator.com/uibuilder/container-v1/editor.html",
-		"barchart": "https://cdn.componentator.com/uibuilder/barchart-v1/editor.html",
-		"piechart": "https://cdn.componentator.com/uibuilder/piechart-v1/editor.html",
-		"columnchart": "https://cdn.componentator.com/uibuilder/columnchart-v1/editor.html",
-		"linechart": "https://cdn.componentator.com/uibuilder/linechart-v1/editor.html",
-		"datareader": "https://cdn.componentator.com/uibuilder/datareader-v1/editor.html"
+		"cdn": "https://cdn.componentator.com/uibuilder/dashboard.json"
 	},
 	"children": [
 		[

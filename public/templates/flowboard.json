@@ -12,9 +12,7 @@
 		"upload": ""
 	},
 	"components": {
-		"fbfloorplan": "https://cdn.componentator.com/uibuilder/fbfloorplan-v1/editor.html",
-		"fbmarker": "https://cdn.componentator.com/uibuilder/fbmarker-v1/editor.html",
-		"datareader": "https://cdn.componentator.com/uibuilder/datareader-v1/editor.html"
+		"cdn": "https://cdn.componentator.com/uibuilder/flowboard.json"
 	},
 	"children": [
 		[

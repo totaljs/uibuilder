@@ -1209,13 +1209,14 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.13;
+	Builder.version = 1.14;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
 	Builder.apps = {};
 	Builder.cache = {};
 	Builder.components = {};
+	Builder.loader = 0;
 
 	function rebuildcss() {
 		rebuildercsstimeout = null;
@@ -1258,6 +1259,7 @@
 			meta.html = meta.html.replace(REG_CLASS, meta.cls);
 
 		if (meta.import instanceof Array) {
+			Builder.loader++;
 			meta.import.wait(function(url, next) {
 				if (Builder.cache[url]) {
 					next();
@@ -1266,6 +1268,7 @@
 					IMPORT(url, next);
 				}
 			}, function() {
+				Builder.loader--;
 				rebuildercsstimeout && clearTimeout(rebuildercsstimeout);
 				rebuildercsstimeout = setTimeout(rebuildcss, 2);
 				Builder.components[id] = meta;
@@ -1587,6 +1590,11 @@
 	}
 
 	Builder.build = function(target, meta, callback) {
+
+		if (Builder.loader) {
+			setTimeout(Builder.build, 100, target, meta, callback);
+			return;
+		}
 
 		var prev = Builder.apps[meta.id];
 		if (prev) {

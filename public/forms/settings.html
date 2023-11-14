@@ -55,10 +55,10 @@
 		<ui-plugin path="editor">
 			<p>@(Settings for the editor will be removed from the compiled design.)</p>
 			<div class="m">
-				<ui-bind path="?.local" config="hide" class="block">
+				<ui-component name="input" path="?.local" config="type:checkbox">@(Use local components)</ui-component>
+				<ui-bind path="?" config="hide:value && (value.local || value.compile === false)" class="block">
 					<ui-component name="input" path="?.download" config="type:checkbox" class="b">@(Download components' to the source in compiling)</ui-component>
 				</ui-bind>
-				<ui-component name="input" path="?.local" config="type:checkbox">@(Use local components)</ui-component>
 				<ui-bind path="?.compile" config="show:value !== false" class="block">
 					<ui-component name="input" path="?.autopublish" config="type:checkbox">@(Auto publish after saving the design)</ui-component>
 				</ui-bind>

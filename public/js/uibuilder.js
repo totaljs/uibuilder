@@ -1245,6 +1245,12 @@
 			var parsed = Builder.parsehtml(meta.substring(0, 7) === 'base64 ' ? decodeURIComponent(atob(meta.substring(7))) : meta);
 			new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
 			meta = obj;
+
+			if (parsed.css)
+				meta.css = parsed.css;
+
+			if (parsed.html)
+				meta.html = parsed.html;
 		}
 
 		meta.id = id;
@@ -1773,8 +1779,7 @@
 							app.outputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, componentid: instance.component.id, component: name, output: m.name, icon: instance.component.icon, color: instance.component.color, note: m.note, schema: m.schema });
 					}
 				}
-			} else
-				app.outputs = app.inputs = app.schema = null;
+			}
 
 			if (!app.ready) {
 

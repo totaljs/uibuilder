@@ -68,6 +68,7 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .header button.selected { background-color: #F0F0F0; }
 .header button.special, .header a.special { color: #99982F; }
 .header > div { float: left; margin: 9px 0 0 8px; padding-right: 6px; border-right: 1px solid #E0E0E0; height: 32px; }
+.header > ui-bind { margin: 9px 8px 0 8px; }
 .header .apply-button { margin-left: 0; }
 
 .ui-dark .header { background-color: #202020; }

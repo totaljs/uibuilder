@@ -29,7 +29,7 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .ui-layout-section { background: #FFF; }
 .ui-dark { background-color: #404040; }
 
-.components { padding: 0; }
+.components { padding: 0 5px; }
 .components figure { height: 27px; font-size: 11px; padding: 0 5px; margin: 0 10px 5px; border-radius: var(--radius); cursor: grab; line-height: 23px; background-color: #F8F8F8; border: 1px solid transparent; }
 .components .caption i { float: left; font-size: 11px; margin: 2px 5px 0 0; }
 .components figure:hover { border-color: #E0E0E0; }
@@ -45,8 +45,9 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .ui-dark .components figure { background-color: #333; }
 .ui-dark .components figure:hover { border-color: #404040; }
 
-.header { background-color: #FFF; height: 45px; padding-left: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); left: 0; right: 0; }
-.header button, .header a { margin: 6px 2px 0 0; float: left; border: 0; background-color: transparent; border-radius: var(--radius); padding: 0; min-width: 34px; height: 32px; font-size: 16px; line-height: 32px; text-decoration: none !important; text-align: center; color: #000; }
+.header { background-color: #FFF; height: 50px; padding-left: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); left: 0; right: 0; }
+.header button, .header a { margin: 0 2px 0 0; float: left; border: 0; background-color: transparent; border-radius: var(--radius); padding: 0; min-width: 34px; height: 32px; font-size: 16px; line-height: 32px; text-decoration: none !important; text-align: center; color: #000; }
+.header > button, .header > a { margin-top: 9px; }
 .header button b { position: absolute; margin: 12px 0 0 4px; }
 .header button b i { font-size: 8px; }
 .header button.apply { padding: 0 15px 0 13px !important; font-weight: bold; }
@@ -60,13 +61,13 @@ body { padding: 0; margin: 0; background-color: #E0E0E0; font-family: Arial; }
 .header button.changed { color: #FFF !important; background: #68B25B !important; animation: 1s blink infinite alternate forwards; }
 .header button.changed i { color: #FFF; }
 .header .replace button i { color: #999; }
-.header .replace { float: left; border-right: 1px solid #E0E0E0; padding-right: 5px; margin-right: 5px; height: 45px; }
+.header .replace { float: left; border-right: 1px solid #E0E0E0; padding-right: 5px; margin-right: 5px; height: 32px; }
 .header button span { font-size: 12px; }
 .header button:hover, .header a:hover { background-color: #F0F0F0; }
 .header button:disabled { color: #D0D0D0; cursor: not-allowed; background-color: transparent !important; }
 .header button.selected { background-color: #F0F0F0; }
 .header button.special, .header a.special { color: #99982F; }
-.header > div, .header > ui-bind { float: left; margin: 0 0 0 8px; padding-right: 6px; border-right: 1px solid #E0E0E0; height: 44px; }
+.header > div { float: left; margin: 9px 0 0 8px; padding-right: 6px; border-right: 1px solid #E0E0E0; height: 32px; }
 .header .apply-button { margin-left: 0; }
 
 .ui-dark .header { background-color: #202020; }

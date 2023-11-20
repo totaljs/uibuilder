@@ -1609,6 +1609,11 @@
 			return;
 		}
 
+		if (!meta.components || !meta.children) {
+			WARN('Invalid UI Builder metadata:', meta.id);
+			return;
+		}
+
 		Builder.current = meta.id;
 
 		var root = document.createElement('DIV');

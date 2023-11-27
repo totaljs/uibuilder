@@ -1,3 +1,6 @@
-name                  : Total.js UI Builder
-cdn                   : //cdn.componentator.com
-allow_custom_titles   : true
+name           : Total.js UI Builder
+cdn            : //cdn.componentator.com
+
+$customtitles  : true
+$minifyjs      : false
+$minifyhtml    : false

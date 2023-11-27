@@ -868,6 +868,10 @@
 				next();
 			} else {
 				Builder.cache[url] = 1;
+
+				if (url.charAt(0) === '/')
+					url = (Builder.origin || '') + url;
+
 				IMPORT(url, next);
 			}
 		}, function() {
@@ -1071,6 +1075,10 @@
 									next();
 								} else {
 									Builder.cache[url] = 1;
+
+									if (url.charAt(0) === '/')
+										url = (Builder.origin || '') + url;
+
 									IMPORT(url, next);
 								}
 							}, next);
@@ -1272,6 +1280,10 @@
 					next();
 				} else {
 					Builder.cache[url] = 1;
+
+					if (url.charAt(0) === '/')
+						url = (Builder.origin || '') + url;
+
 					IMPORT(url, next);
 				}
 			}, function() {
@@ -1872,6 +1884,10 @@
 				next();
 			} else {
 				Builder.cache[url] = 1;
+
+				if (url.charAt(0) === '/')
+					url = (Builder.origin || '') + url;
+
 				IMPORT(url, next);
 			}
 		}, function() {
@@ -2073,6 +2089,10 @@
 									next();
 								} else {
 									Builder.cache[url] = 1;
+
+									if (url.charAt(0) === '/')
+										url = (Builder.origin || '') + url;
+
 									IMPORT(url, next);
 								}
 							}, next);

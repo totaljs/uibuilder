@@ -64,6 +64,7 @@
 						<div class="replace">
 							<button class="exec" data-exec="uibuilder_replace" title="@(Replace source-code)"><i class="ti ti-recycle"></i></button>
 						</div>
+						<button class="exec" data-exec="uibuilder_edit" title="@(Edit source-code)"><i class="ti ti-pencil"></i></button>
 						<button class="exec" data-exec="uibuilder_download" title="@(Download source-code)"><i class="ti ti-download"></i></button>
 						<a href="https://docs.totaljs.com/uibuilder/" title="@(Documentation: Total.js Platform)" target="_blank" class="special"><i class="ti ti-book"></i></a>
 					</div>
@@ -142,6 +143,8 @@
 	<ui-component name="importer" path="common.form2" config="if:formlink;url:/forms/link.html"></ui-component>
 	<ui-component name="importer" path="common.form2" config="if:formattr;url:/forms/attr.html"></ui-component>
 	<ui-component name="importer" path="common.form2" config="if:formtotaldb;url:/forms/totaldb.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:formcode;url:/forms/code.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:formschema;url:/forms/schema.html"></ui-component>
 
 	<form id="uibuilderrender" method="POST" target="_blank">
 		<input name="data" type="hidden" />
@@ -270,8 +273,6 @@
 						common.componentsdb = msg.components;
 
 					uibuilder_rebuildpaths();
-
-					console.log(msg);
 					break;
 			}
 
@@ -655,7 +656,7 @@
 					var render = used[key];
 
 					if (render.substring(0, 6) === 'base64') {
-						used[key] = 'base64 ' + btoa(encodeURIComponent(uibuilder_preparerender(com, decodeURIComponent(atob(render)))));
+						used[key] = 'base64 ' + btoa(encodeURIComponent(uibuilder_preparerender(com, decodeURIComponent(atob(render.substring(7).trim())))));
 						next();
 					} else {
 						AJAX('GET ' + render.format(key), function(response) {
@@ -670,6 +671,13 @@
 					callback(meta);
 				}, 3);
 			} else {
+
+				for (var key in used) {
+					var render = used[key];
+					if (render.substring(0, 6) === 'base64')
+						used[key] = 'base64 ' + btoa(encodeURIComponent(uibuilder_preparerender(app.components[key], decodeURIComponent(atob(render.substring(7).trim())))));
+				}
+
 				meta.components = used;
 				callback(meta);
 			}
@@ -791,8 +799,10 @@
 			opt.items = [];
 			opt.items.push({ id: 'readme', name: '@(Read information)', icon: 'ti ti-info-circle blue' });
 
-			if (!isexternal)
+			if (!isexternal) {
+				opt.items.push({ id: 'edit', name: '@(Edit source-code)', icon: 'ti ti-code' });
 				opt.items.push({ id: 'copy', name: '@(Export)', icon: 'ti ti-file-export' });
+			}
 
 			opt.items.push({ id: 'download', name: '@(Download source-code)', icon: 'ti ti-file-code' });
 
@@ -801,6 +811,13 @@
 
 			opt.callback = function(selected) {
 				switch (selected.id) {
+
+					case 'edit':
+						if (url.substring(0, 7) === 'base64 ')
+							url = decodeURIComponent(atob(url.substring(7)));
+						SET('formcode @reset', { id: id, body: url });
+						SET('common.form', 'formcode');
+						break;
 
 					case 'copy':
 						var data = 'uibuilder://' + ENCRYPT({ id: id, url: url.format(id) }, 'uibuilder', 'component');
@@ -882,8 +899,16 @@
 			opt.items.push({ id: 'components', name: '@(Import components)', icon: 'ti ti-database', classname: 'b' });
 			opt.items.push('-');
 			opt.items.push({ id: 'add', name: '@(Import custom)', icon: 'ti ti-plus-circle green' });
+			opt.items.push({ id: 'create', name: '@(Create)', icon: 'ti ti-code' });
 			opt.callback = function(sel) {
 				switch (sel.id) {
+					case 'create':
+						AJAX('GET /template.txt', function(response) {
+							var id = 'inline' + GUID(5);
+							SET('formcode @reset', { id: id, body: response.replace('.id = \'\'', '.id = \'{0}\''.format(id)) });
+							SET('common.form', 'formcode');
+						});
+						break;
 					case 'add':
 						uibuilder_addcomponent(el);
 						break;
@@ -935,7 +960,9 @@
 		}
 
 		function uibuilder_preparerender(com, source) {
-			return source;
+			// remove readme
+			// remove settings
+			return (source || '').replace(/<readme\b[^<]*(?:(?!<\/readme>)<[^<]*)*<\/readme>/gi, '').replace(/<settings\b[^<]*(?:(?!<\/settings>)<[^<]*)*<\/settings>/gi, '').trim();
 		}
 
 		WATCH('app.schema.editor.paths', function(path, value) {
@@ -1257,6 +1284,23 @@
 				}
 			};
 			SETTER('filereader/open', opt);
+		}
+
+		function uibuilder_edit() {
+			var meta = CLONE(app.schema);
+			var data = app.stringify();
+
+			for (var key in meta.components) {
+				var url = meta.components[key];
+				if (url.charAt(0) === '@')
+					delete meta.components[key];
+			}
+
+			meta.children = data.children;
+			meta.inputs = app.inputs;
+			meta.outputs = app.outputs;
+			SET('formschema @reset', { body: JSON.stringify(meta, null, '\t') });
+			SET('common.form', 'formschema');
 		}
 
 		function uibuilder_download() {

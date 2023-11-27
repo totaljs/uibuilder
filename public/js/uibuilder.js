@@ -297,6 +297,7 @@
 		t.events = {};
 		t.$inputs = {};
 		t.$outputs = {};
+		t.iseditor = Builder.iseditor;
 	}
 
 	var IP = Instance.prototype;
@@ -1915,8 +1916,16 @@
 							var parsed = Builder.parsehtml(decodeURIComponent(atob(url)));
 							if (parsed.css)
 								obj.css = parsed.css;
+
+							if (parsed.readme)
+								obj.readme = parsed.readme;
+
 							if (parsed.html)
 								obj.html = parsed.html.replace(REG_CLASS, obj.cls);
+
+							if (parsed.settings)
+								obj.settings = parsed.settings.replace(REG_CLASS, obj.cls);
+
 							new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
 
 							if (obj.components) {
@@ -2109,7 +2118,7 @@
 		var beg = response.indexOf('<sett' + 'ings>');
 		if (beg !== -1) {
 			var end = response.indexOf('</sett' + 'ings>', beg + 10);
-			settings = response.substring(beg + 8, end).trim();
+			settings = response.substring(beg + 10, end).trim();
 			response = response.substring(0, beg) + response.substring(end + 11);
 		}
 

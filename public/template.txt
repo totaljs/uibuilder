@@ -1,0 +1,71 @@
+<style>
+	.CLASS { font-size: 14px; }
+</style>
+
+<script>
+
+	// Documentation: https://docs.totaljs.com/uibuilder/swyj001cs41d/
+
+	exports.id = '';
+	exports.name = 'Clock';
+	exports.group = 'Controls';
+	exports.author = 'Total.js';
+	exports.icon = 'ti ti-clock';
+	exports.config = { bold: false, flash: true, seconds: true };
+	exports.version = '1';
+	exports.follow = true;
+
+	exports.make = function(instance, config, element, cls, iseditor) {
+
+		var counter = 0;
+		var format = '';
+
+		var render = function() {
+
+			counter++;
+
+			var date = new Date();
+			element.html(date.format(format).replace(/\s/g, config.flash ? (counter % 2 === 0 ? ':' : ' ') : ':'));
+
+			instance.set('value', date);
+
+			if (counter > 100000)
+				counter = 0;
+
+		};
+
+		var interval = setInterval(render, 1000);
+
+		instance.on('destroy', function() {
+			interval && clearInterval(interval);
+			interval = null;
+		});
+
+		instance.on('configure', function() {
+			format = 'HH mm' + (config.seconds ? ' ss' : '');
+			element.tclass('b', config.bold);
+		});
+
+		instance.emit('configure');
+
+		if (!iseditor) {
+			instance.state.validate = false;
+			instance.state.bind = true;
+		}
+
+		render();
+	};
+
+</script>
+
+<readme>
+The component renders the current time and the model contains a `Date` object.
+</readme>
+
+<settings>
+	<div class="padding">
+		<ui-component name="input" path="?.bold" config="type:checkbox">Apply bold font</ui-component>
+		<ui-component name="input" path="?.flash" config="type:checkbox">Flash the time separators</ui-component>
+		<ui-component name="input" path="?.seconds" config="type:checkbox">Display the time with seconds</ui-component>
+	</div>
+</settings>

@@ -1,0 +1,37 @@
+<ui-component name="box" path="common.form" config="if:~PATH~;icon:ti ti-laptop-code;title:@(Edit source-code);autofocus:true;reload:?/reload;scrollbar:0;submit:?/submit;width:1200" class="hidden ~PATH~" plugin="~PATH~">
+	<div>
+		<ui-component name="cloudeditorsimple" path="?.body" config="realtime:1;type:application/ld+json"></ui-component>
+	</div>
+	<nav>
+		<ui-bind name="validate" path="?.body" config="enabled .submit:value && value.length > 0" class="block">
+			<button name="submit" disabled class="submit"><i class="ti ti-check-circle"></i>@(SUBMIT)</button>
+			<button name="cancel">@(Cancel)</button>
+		</ui-bind>
+	</nav>
+</ui-component>
+
+<script>
+
+	PLUGIN(function(exports) {
+
+		exports.reload = function(com) {
+			var model = exports.model;
+		};
+
+		exports.submit = function(hide) {
+			var model = exports.model;
+			SETTER('loading/show');
+			setTimeout(function() {
+				var schema = PARSE(model.body);
+				if (schema) {
+					UIBuilder.data = schema;
+					uibuilder_redraw();
+				} else
+					SETTER('loading/hide', 1000);
+				hide();
+			}, 1000);
+		};
+
+	});
+
+</script>

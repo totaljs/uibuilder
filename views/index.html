@@ -60,7 +60,7 @@
 						<button class="exec red" data-exec="uibuilder_close" title="@(Close)"><i class="ti ti-times"></i></button>
 					</ui-bind>
 
-					<div class="pull-right">
+					<div class="pull-right" style="border-right:0">
 						<div class="replace">
 							<button class="exec" data-exec="uibuilder_replace" title="@(Replace source-code)"><i class="ti ti-recycle"></i></button>
 						</div>
@@ -241,6 +241,12 @@
 
 					break;
 
+				case 'redraw':
+					if (msg.data)
+						UIBuilder.data = msg.data;
+					uibuilder_redraw(msg.data ? false : true);
+					break;
+
 				case 'refresh':
 
 					if (msg.upload)
@@ -325,8 +331,10 @@
 		}
 
 		function settings_submit(hide) {
+
 			var data = CLONE(settingsform[settingsform.componentid]);
 			delete data.$id;
+
 			var instance = app.instances.findItem('id', settingsform.id);
 			instance.reconfigure(data);
 
@@ -813,10 +821,20 @@
 				switch (selected.id) {
 
 					case 'edit':
+
+						var open = function(body) {
+							SET('formcode @reset', { id: id, body: body });
+							SET('common.form', 'formcode');
+						};
+
 						if (url.substring(0, 7) === 'base64 ')
 							url = decodeURIComponent(atob(url.substring(7)));
-						SET('formcode @reset', { id: id, body: url });
-						SET('common.form', 'formcode');
+						else if ((/^http(s)?\:/i).test(url)) {
+							AJAX('GET {0} ERROR'.format(url), response => open(response));
+							return;
+						}
+
+						open(url);
 						break;
 
 					case 'copy':
@@ -1274,10 +1292,13 @@
 			opt.accept = 'application/json';
 			opt.callback = function(file) {
 				var data = PARSE(file.body);
-				if (data && data.id && data.name && data.components && data.children) {
+				if (data && data.name && data.components && data.children) {
 					SETTER('loading/show');
+					var prev = UIBuilder.data || EMPTYOBJECT;
+					var id = prev.id || data.id;
 					app.remove();
 					setTimeout(function() {
+						data.id = id;
 						UIBuilder.data = data;
 						uibuilder_redraw();
 					}, 500);

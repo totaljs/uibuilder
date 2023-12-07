@@ -900,8 +900,10 @@
 			opt.callback = function(selected) {
 				var container = $('#dappcontainer');
 				container.rclass2('dm-');
+				container.rclass2('d-');
 				container.tclass('dm', selected.id !== 'auto');
 				container.aclass('dm-' + selected.id);
+				container.aclass('d-' + selected.id);
 				SET('common.device', selected.id);
 				el.find('i').rclass2('ti').aclass(selected.icon);
 				UIBuilder.resize();

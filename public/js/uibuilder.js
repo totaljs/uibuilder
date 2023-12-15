@@ -63,6 +63,18 @@
 			t.events[name] = [fn];
 	};
 
+	function parseorigin(url) {
+
+		var origin = '';
+
+		if (url.charAt(0) !== '/') {
+			var index = url.indexOf('/', 9);
+			origin = index === -1 ? url : url.substring(0, index);
+		}
+
+		return origin;
+	}
+
 	function rebindforce(t) {
 
 		var binded = {};
@@ -973,9 +985,17 @@
 
 							// List of components
 							if (typeof(response) === 'object') {
+
+								var origintmp = parseorigin(tmp);
+
 								for (var key2 in response) {
+
+									var urltmp = response[key2];
+									if (urltmp.charAt(0) === '/')
+										urltmp = origintmp + urltmp;
+
 									if (!meta.components[key2]) {
-										meta.components[key2] = '@' + response[key2];
+										meta.components[key2] = '@' + urltmp;
 										list.push(key2);
 									}
 								}
@@ -1218,7 +1238,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.14;
+	Builder.version = 1.15;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
@@ -1674,17 +1694,18 @@
 		// app.outputs = [];
 		// app.inputs = [];
 
-		if (Builder.view) {
-			app.view = Builder.view;
-		} else {
-			app.view = function(id, query, fn) {
-				// It must be declared in the app
-				// @id {String}
-				// @query {Object}
-				// @fn {Function(response)}
+		app.view = function(id, query, fn) {
+
+			// It must be declared in the app
+			// @id {String}
+			// @query {Object}
+			// @fn {Function(response)}
+
+			if (Builder.view)
+				Builder.view.call(app, id, query, fn);
+			else
 				fn(EMPTYARRAY);
-			};
-		}
+		};
 
 		if (Builder.clfind) {
 			app.clfind = Builder.clfind;
@@ -1995,9 +2016,15 @@
 
 							// List of components
 							if (typeof(response) === 'object') {
+								var origintmp = parseorigin(tmp);
 								for (var key2 in response) {
+
+									var urltmp = response[key2];
+									if (urltmp.charAt(0) === '/')
+										urltmp = origintmp + urltmp;
+
 									if (!meta.components[key2]) {
-										meta.components[key2] = '@' + response[key2];
+										meta.components[key2] = '@' + urltmp;
 										list.push(key2);
 									}
 								}

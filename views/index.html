@@ -288,7 +288,10 @@
 			var com = app.components[id];
 			if (com) {
 
-				var done = function(response) {
+				var done = function(response, err) {
+
+					if (err)
+						response = '';
 
 					if (typeof(response) !== 'string')
 						response = '';

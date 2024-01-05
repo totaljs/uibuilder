@@ -1,0 +1,97 @@
+<ui-component name="form" path="common.form" config="if:~PATH~;width:900;reload:?/reload;submit:?/submit;scrollbar:true;$id:~PATH~;title:@(Image editor);icon:camera" class="hidden" plugin="~PATH~">
+	<div>
+		<br />
+		<ui-component name="crop" path="?.url" config="width:200;height:100;$id:imagecrop"></ui-component>
+		<hr class="nmt nmb" />
+		<div class="padding">
+			<ui-component name="input" path="?.alt" config="placeholder:@(Describe the picture)">@(Alternate text)</ui-component>
+		</div>
+	</div>
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit"><i class="ti ti-check-circle"></i>@(APPLY)</button>
+			<button name="cancel">@(Cancel)</button>
+		</ui-component>
+	</nav>
+</ui-component>
+
+<script>
+
+	PLUGIN(function(exports) {
+
+		exports.reload = function() {
+			var model = exports.model;
+			if (model.files && model.files[0] && model.files[0].type.substring(0, 6) === 'image/')
+				setTimeout(ASETTER(true, '#imagecrop/load', model.files[0]), 1500);
+		};
+
+		exports.browse = function(set) {
+			var model = exports.model;
+			var config = model.instance.config;
+			config.files && model.instance.EXEC(config.files, { isimage: true, width: model.width, height: model.height }, function(response) {
+				set(typeof(response) === 'string' ? response : response.url);
+			});
+		};
+
+		function dataURLtoFile(dataurl, filename) {
+			var arr = dataurl.split(',');
+			var mime = arr[0].match(/:(.*?);/)[1];
+			var bstr = atob(arr[arr.length - 1]);
+			var n = bstr.length;
+			var u8arr = new Uint8Array(n);
+			while (n--)
+				u8arr[n] = bstr.charCodeAt(n);
+			return new File([u8arr], filename, {type:mime});
+		}
+
+		exports.submit = function(hide) {
+
+			var cropper = FIND('#imagecrop');
+			var model = exports.model;
+			var target = model.element;
+
+			target.attr('alt', model.alt);
+
+			// Is the picture changed?
+			if (cropper.dirty()) {
+				model.callback(target);
+				hide();
+				return;
+			}
+
+			var url = cropper.samesize;
+			if (url) {
+				var size = target.attrd('cms-size');
+				if (size) {
+					target.attrd('cms-src', url);
+					target.attr('src', url + '?s=' + size.replace('%', ''));
+				} else
+					target.attr('src', url);
+				model.callback(target);
+				hide();
+				return;
+			}
+
+			var data = cropper.output(true);
+			var opt = {};
+
+			opt.files = [dataURLtoFile(data.data, data.filename)];
+			opt.multiple = false;
+			opt.accept = 'image/*';
+
+			FUNC.upload(opt, function(file) {
+				var url = file.url;
+				var size = target.attrd('cms-size');
+				if (size) {
+					target.attrd('cms-src', url);
+					target.attr('src', url + (url.indexOf('?') === -1 ? '?' : '&') + 's=' + size.replace('%', ''));
+				} else
+					target.attr('src', url);
+				model.callback(target);
+				hide();
+			});
+
+		};
+	});
+
+</script>

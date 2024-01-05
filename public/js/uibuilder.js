@@ -791,6 +791,13 @@
 		}
 
 		t.events.configure && t.emit('configure', changes);
+
+		if (Builder.editor) {
+			for (var item of t.app.instances)
+				item.events.refresh && item.emit('refresh', { type: 'configure', item: instance });
+			t.app.refreshio();
+		}
+
 		return t;
 	};
 
@@ -836,6 +843,16 @@
 			for (var fn of items)
 				fn.call(t, a, b, c, d, e);
 		}
+	};
+
+	Builder.makeimage = IP.makeimage = function(width, height, bg) {
+		var canvas = document.createElement('CANVAS');
+		canvas.width = width;
+		canvas.height = height;
+		var ctx = canvas.getContext('2d');
+		ctx.fillStyle = bg || '#D91500';
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		return canvas.toDataURL('image/png');
 	};
 
 	IP.bindable = function(path) {
@@ -1238,7 +1255,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.15;
+	Builder.version = 1.16;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
@@ -2322,6 +2339,9 @@
 
 			tmp.aclass('UI_link');
 
+			if (opt.cms)
+				tmp.aclass('CMS_edit CMS_remove');
+
 			if (content.indexOf('@') !== -1)
 				href = 'mailto:' + content;
 			else if ((/\d+/).test(content))
@@ -2441,7 +2461,7 @@
 			if (e.keyCode === 80) {
 				if (opt.format && opt.icon === true) {
 					var tag = el[0].nodeName.toLowerCase();
-					var icon = '<i class="ti ti-totaljs UI_icon" contenteditable="false"></i>';
+					var icon = '<i class="ti ti-totaljs UI_icon' + (opt.cms ? ' CMS_edit CMS_remove' : '') + '" contenteditable="false"></i>';
 					switch (tag) {
 						case 'span':
 							el.parent().prepend(icon);
@@ -2503,6 +2523,7 @@
 				arg.backup = opt.backup;
 				arg.key = openeditor.key;
 				arg.param = opt.param;
+				arg.instance = openeditor.instance;
 				opt.callback(arg);
 			}
 			openeditor.timeout && clearTimeout(openeditor.timeout);
@@ -2613,5 +2634,7 @@
 		var children = element ? children[0] : [children];
 		return { instances: instances, children: children, components: components };
 	}
+
+	Builder.edit = app_edit;
 
 })(W.UIBuilder = {});

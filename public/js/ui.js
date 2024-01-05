@@ -9,6 +9,7 @@ COMPONENT('uibuildereditor', 'container:UI_components;selector:.UI_component', f
 
 	var drag = {};
 	var events = {};
+	var cms = { time: 0, target: null, selected: null };
 
 	self.make = function() {
 
@@ -50,6 +51,7 @@ COMPONENT('uibuildereditor', 'container:UI_components;selector:.UI_component', f
 			meta.container = $(drag.container);
 			meta.target = $(e.target);
 			meta.parent = self.element;
+			self.closecms();
 			config.ondrop && self.EXEC(config.ondrop, meta, self);
 		};
 
@@ -90,7 +92,14 @@ COMPONENT('uibuildereditor', 'container:UI_components;selector:.UI_component', f
 			config.click && self.SEEX(config.click, $(el));
 		});*/
 
+		self.element.on('dblclick', '.CMS_edit', function(e) {
+			config.cms && self.EXEC(config.cms, $(this), e.type);
+			e.preventDefault();
+			e.stopPropagation();
+		});
+
 		self.element.on('dblclick', config.selector, function(e) {
+			self.closecms();
 			config.dblclick && self.SEEX(config.dblclick, $(this));
 			e.preventDefault();
 			e.stopPropagation();
@@ -200,9 +209,44 @@ COMPONENT('uibuildereditor', 'container:UI_components;selector:.UI_component', f
 			drag.posX = pos.left;
 			drag.posY = pos.top;
 
+			self.closecms();
 			events.bind();
 		});
 
 	};
+
+	self.closecms = function() {
+		cms.selected = null;
+		self.find('.CMS_selected').rclass('CMS_selected').rattr('contenteditable');
+		config.cms && self.EXEC(config.cms, null);
+	};
+
+	self.event('click touchstart touchmove touchend', '.CMS_edit,.CMS_repeat,.CMS_remove,.CMS_attribute', function(e) {
+
+		var t = this;
+
+		if (e.type === 'touchstart') {
+			cms.time = Date.now();
+			cms.target = t;
+			return;
+		} else if (e.type === 'touchmove' || e.type === 'touchend') {
+			if (Date.now() - cms.time < 300)
+				return;
+			cms.time = 0;
+		}
+
+		e.preventDefault();
+		e.stopPropagation();
+
+		var el = $(t);
+
+		if (el.hclass('CMS_selected'))
+			return;
+
+		self.find('.CMS_selected').rclass('CMS_selected').rattr('contenteditable');
+		cms.selected = el.aclass('CMS_selected');
+		config.cms && self.EXEC(config.cms, cms.selected);
+
+	});
 
 });

@@ -35,7 +35,7 @@
 
 	<ui-component name="windows" path="common.windows" config="zindex:30"></ui-component>
 	<ui-component name="markdown"></ui-component>
-	<ui-component name="dropfiles" class="hidden" config="exec:uibuilder_drop">@(Drop .json schema or .html component file)</ui-component>
+	<ui-component name="dropfiles" class="hidden" config="check:uibuilder_drop_check;exec:uibuilder_drop">@(Drop .json schema or .html component file)</ui-component>
 	<ui-component name="exec"></ui-component>
 	<ui-component name="locale"></ui-component>
 	<ui-component name="loading"></ui-component>
@@ -118,9 +118,9 @@
 			</section>
 
 			<section data-type="main">
-				<ui-component name="viewbox" path="app" config="parent:window;margin:44;scrollbarshadow:1;visibleX:1;visibleY:1">
+				<ui-component name="viewbox" path="app" config="parent:window;margin:44;scrollbarshadow:1;visibleX:1;visibleY:1;$id:mainviewbox">
 					<div id="dappcontainer">
-						<ui-component id="dapp" name="uibuildereditor" config="exec:func;ondrop:component_drop;dblclick:opensettings"></ui-component>
+						<ui-component id="dapp" name="uibuildereditor" config="exec:func;ondrop:component_drop;dblclick:opensettings;cms:cms_selected"></ui-component>
 					</div>
 				</ui-component>
 			</section>
@@ -138,6 +138,7 @@
 	<ui-component name="importer" path="common.form" config="if:componentsform;url:/forms/components.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:ioform;url:/forms/io.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:formimport;url:/forms/import.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:formimage;url:/forms/image.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:formpaste;url:/forms/paste.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:formcomponent;url:/forms/component.html"></ui-component>
 	<ui-component name="importer" path="common.form2" config="if:formlink;url:/forms/link.html"></ui-component>
@@ -145,6 +146,17 @@
 	<ui-component name="importer" path="common.form2" config="if:formtotaldb;url:/forms/totaldb.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:formcode;url:/forms/code.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:formschema;url:/forms/schema.html"></ui-component>
+
+	<div id="CMS_panel" class="hidden">
+		<nav>
+			<button class="exec" data-exec="cms_edit" name="edit" title="@(Edit content)"><i class="ti ti-pencil"></i></button>
+			<button class="exec" data-exec="cms_link" name="link" title="@(Edit link)"><i class="ti ti-link"></i></button>
+			<button class="exec" data-exec="cms_attrs" name="attrs" title="@(Change attributes)"><i class="ti ti-quote-left"></i></button>
+			<button class="exec" data-exec="cms_repeat" name="repeat" title="@(Clone)"><i class="ti ti-clone"></i></button>
+			<button class="exec" data-exec="cms_remove" name="remove" title="@(Remove)"><i class="ti ti-trash"></i></button>
+			<button class="exec red" data-exec="cms_hide" name="hide" title="@(Hide)"><i class="ti ti-caret-square-down"></i></button>
+		</nav>
+	</div>
 
 	<form id="uibuilderrender" method="POST" target="_blank">
 		<input name="data" type="hidden" />
@@ -188,6 +200,8 @@
 		});
 
 		function settings_reload(form) {
+
+			cms_hide();
 
 			var id = settingsform.componentid;
 			var data = settingsform[id];
@@ -346,10 +360,13 @@
 			var instance = app.instances.findItem('id', settingsform.id);
 			instance.reconfigure(data);
 
-			for (var item of app.instances)
-				item.events.refresh && item.emit('refresh', { type: 'configure', item: instance });
+			if (UIBuilder.version < 1.16) {
+				// It's part of UI builder in +1.16
+				for (var item of app.instances)
+					item.events.refresh && item.emit('refresh', { type: 'configure', item: instance });
+				app.refreshio();
+			}
 
-			app.refreshio();
 			hide();
 		}
 
@@ -513,6 +530,8 @@
 			var config = CLONE(com.config);
 			config.$id = com.id;
 
+			cms_hide();
+
 			UIBuilder.selected = com;
 
 			SET('settingsform.id', com.id);
@@ -537,6 +556,7 @@
 					delete meta.components[key];
 			}
 
+			cms_hide();
 			EXEC('-clipboard/copy', 'uibuilder://' + ENCRYPT(meta, 'uibuilder', 'copy'));
 			EXEC('-notify/success', '@(The component has been copied to the clipboard.)');
 		}
@@ -556,6 +576,7 @@
 				}
 			};
 
+			cms_hide();
 			updateid(meta.children);
 
 			var parent = instance.parent.element;
@@ -579,12 +600,15 @@
 			if (position === -1)
 				return;
 
+			cms_hide();
 			app.add(parentid, containerindex, meta, position);
 			instance.element.remove();
 			app.clean();
 		}
 
 		function component_drop(meta) {
+
+			cms_hide();
 
 			var parent = meta.container.closest('.UI_component');
 			var parentid = parent.attrd('id');
@@ -623,6 +647,12 @@
 
 				var comid = ATTRD(meta.element);
 				var com = app.components[comid];
+
+				if (!com) {
+					WARN('The component "{0}" not found in the component list'.format(comid));
+					return;
+				}
+
 				var metadata = null;
 
 				if (com.floating) {
@@ -648,6 +678,7 @@
 		function uibuilder_compile(callback, skiplocal) {
 
 			SETTER('loading/show');
+			cms_hide();
 
 			var meta = CLONE(app.schema);
 			var data = app.stringify(function(item) {
@@ -702,6 +733,8 @@
 
 		function uibuilder_publish() {
 
+			cms_hide();
+
 			if (common.iframe) {
 				uibuilder_compile(function(meta) {
 					var data = meta.editor;
@@ -745,6 +778,8 @@
 		}
 
 		function uibuilder_settings() {
+
+			cms_hide();
 
 			var path = 'appsettingsform';
 			var data = {};
@@ -802,6 +837,9 @@
 		}
 
 		function uibuilder_contextmenu(el, e) {
+
+			cms_hide();
+
 			var id = ATTRD(el);
 			var opt = {};
 			var url = app.schema.components[id];
@@ -889,6 +927,9 @@
 		}
 
 		function uibuilder_device(el) {
+
+			cms_hide();
+
 			var opt = {};
 			var sel = common.device || 'auto';
 			opt.element = el;
@@ -922,6 +963,9 @@
 		}
 
 		function uibuilder_components(el) {
+
+			cms_hide();
+
 			var opt = {};
 			opt.element = el;
 			opt.items = [];
@@ -929,6 +973,12 @@
 			opt.items.push('-');
 			opt.items.push({ id: 'add', name: '@(Import custom)', icon: 'ti ti-plus-circle green' });
 			opt.items.push({ id: 'create', name: '@(Create)', icon: 'ti ti-code' });
+
+			if (NAV.query.admin) {
+				opt.items.push('-');
+				opt.items.push({ id: 'widget', name: '@(Import CMS widget)', icon: 'ti ti-layout blue' });
+			}
+
 			opt.callback = function(sel) {
 				switch (sel.id) {
 					case 'create':
@@ -941,6 +991,9 @@
 					case 'add':
 						uibuilder_addcomponent(el);
 						break;
+					case 'widget':
+						SET('common.form', 'formwidget');
+						break;
 					case 'components':
 						SET('common.form', 'componentsform');
 						break;
@@ -951,6 +1004,8 @@
 		}
 
 		function uibuilder_save() {
+
+			cms_hide();
 
 			var meta = CLONE(app.schema);
 			var data = app.stringify();
@@ -984,6 +1039,7 @@
 		}
 
 		function uibuilder_addcomponent(el) {
+			cms_hide();
 			SET('formimport @reset', { url: '' });
 			SET('common.form', 'formimport');
 		}
@@ -1128,6 +1184,7 @@
 		});
 
 		UIBuilder.on('icon', function(el, callback) {
+
 			var opt = {};
 			opt.element = $(el);
 			opt.empty = true;
@@ -1145,7 +1202,7 @@
 			var model = {};
 			model.element = el;
 			model.href = el.attr('href');
-			model.target = el.attr('_target') || '';
+			model.target = el.attr('target') || '';
 			model.callback = function() {
 				callback && callback(model.element);
 				var main = el.closest('.UI_component');
@@ -1156,6 +1213,8 @@
 		});
 
 		UIBuilder.on('make', function(instance) {
+
+			cms_hide();
 
 			var readonly = instance.meta.readonly || instance.component.children;
 
@@ -1221,6 +1280,8 @@
 			};
 
 			instance.element.on('contextmenu', function(e) {
+
+				cms_hide();
 
 				e.preventDefault();
 				e.stopPropagation();
@@ -1304,6 +1365,7 @@
 			opt.callback = function(file) {
 				var data = PARSE(file.body);
 				if (data && data.name && data.components && data.children) {
+					cms_hide();
 					SETTER('loading/show');
 					var prev = UIBuilder.data || EMPTYOBJECT;
 					var id = prev.id || data.id;
@@ -1319,6 +1381,9 @@
 		}
 
 		function uibuilder_edit() {
+
+			cms_hide();
+
 			var meta = CLONE(app.schema);
 			var data = app.stringify();
 
@@ -1336,6 +1401,9 @@
 		}
 
 		function uibuilder_download() {
+
+			cms_hide();
+
 			var meta = CLONE(app.schema);
 			var data = app.stringify();
 
@@ -1352,7 +1420,14 @@
 			SETTER('loading/hide', 1000);
 		}
 
+		function uibuilder_drop_check() {
+			if (common.form)
+				return false;
+		}
+
 		function uibuilder_drop(files) {
+
+			cms_hide();
 
 			var arr = [];
 			var reload = false;
@@ -1417,6 +1492,222 @@
 		SETTER(true, 'shortcuts/register', 'save', function(e) {
 			uibuilder_save();
 		}, true);
+
+		// A simple CMS implementation
+
+		function cms_selected(el, type) {
+
+			var panel = $('#CMS_panel');
+
+			if (!el) {
+				panel.aclass('hidden');
+				SET('*cms', {});
+				return;
+			}
+
+			var pos = el.offset();
+
+			if (type === 'scroll') {
+				if (pos.top < 90) {
+					panel.aclass('hidden');
+					SET('*cms', {});
+					return;
+				}
+			}
+
+			panel.css({ left: pos.left, top: pos.top - 40 });
+			panel.rclass('hidden');
+
+			var findtag = function(el, tag) {
+
+				var node = el[0];
+
+				if (node.tagName === tag)
+					return node;
+
+				for (var i = 0; i < 10; i++) {
+					node = node.parentNode;
+					if (node) {
+						if (node.tagName === tag)
+							return node;
+					} else
+						break;
+				}
+			};
+
+			var opt = {};
+
+			opt.instance = el.closest('.UI_component')[0].uibuilder;
+			opt.element = el;
+			opt.edit = el.hclass('CMS_edit');
+			opt.attrs = opt.edit || el.hclass('CMS_attribute');
+			opt.repeat = el.hclass('CMS_repeat');
+			opt.link = findtag(el, 'A');
+			opt.remove = el.hclass('CMS_remove');
+			opt.multiline = el.hclass('CMS_multiline');
+			opt.hide = true;
+
+			if (!opt.remove && opt.repeat)
+				opt.remove = el.parent().find('> .CMS_repeat').length > 1;
+
+			var buttons = panel.find('nav > button');
+
+			for (var button of buttons)
+				$(button).prop('disabled', !opt[button.name]);
+
+			SET('*cms', opt);
+
+			if (type === 'dblclick')
+				cms_edit();
+		}
+
+		function cms_edit() {
+
+			var obj = GET('*cms');
+			var opt = {};
+
+			if (obj.element.hclass('ti')) {
+				UIBuilder.emit('icon', obj.element, function(el) {
+					obj.instance.emit('cms', el, 'icon');
+				});
+				return;
+			}
+
+			if (obj.element[0].tagName === 'IMG') {
+				cms_image();
+				return;
+			}
+
+			opt.multiline = obj.multiline;
+			opt.cms = true;
+
+			setTimeout(function() {
+				UIBuilder.edit(obj.element, opt, function(response) {
+					response.instance.emit('cms', response.element, 'html');
+				});
+			}, 100);
+		}
+
+		function cms_repeat() {
+			var obj = GET('*cms');
+			obj.element.rclass('CMS_selected');
+			var cloned = obj.element.clone();
+			obj.element.aclass('CMS_selected');
+			obj.element.after(cloned);
+			obj.instance.emit('cms', cloned, 'clone');
+			cms_selected(obj.element);
+		}
+
+		function cms_remove() {
+
+			var obj = GET('*cms');
+			var dom = obj.element[0];
+
+			var index = NODEINDEXOF(dom);
+			var parent = dom.parentNode;
+			var tmp = parent.children[index + 1];
+			if (!tmp)
+				tmp = parent.children[index - 1];
+
+			obj.element.remove();
+			obj.instance.emit('cms', obj.element, 'remove');
+
+			if (tmp) {
+				tmp = $(tmp);
+				if (tmp.hclass('CMS_edit') || tmp.hclass('CMS_repeat') || tmp.hclass('CMS_remove') || tmp.hclass('CMS_attribute')) {
+					tmp.aclass('CMS_selected');
+					cms_selected(tmp);
+					return;
+				}
+			}
+
+			SETTER('uibuildereditor/closecms');
+		}
+
+		function cms_attrs() {
+			var obj = GET('*cms');
+			obj.element.rclass('CMS_selected');
+			UIBuilder.emit('attr', obj.element, function(element) {
+				element.aclass('CMS_selected');
+				cms_selected(element);
+				obj.instance.emit('cms', element, 'attrs');
+			});
+		}
+
+		function cms_image() {
+			var obj = GET('*cms');
+			var element = obj.element;
+			var w = (element.attrd('cms-width') || '').parseFloat();
+			var h = (element.attrd('cms-height') || '').parseFloat();
+
+			var opt = {};
+			opt.accept = (/^image\/*/);
+			opt.element = element;
+			opt.isimage = true;
+			opt.size = element.attrd('cms-size');
+			opt.url = element.attrd('cms-src') || element.attr('src');
+			opt.alt = element.attr('alt');
+			opt.bg = element.attrd('cms-bg');
+
+			if (w)
+				opt.width = w;
+
+			if (h)
+				opt.height = h;
+
+			var parent = element.parent('a');
+			if (parent.length)
+				opt.href = parent.attr('href');
+
+			opt.ishref = !!opt.href;
+			opt.callback = function() {
+				obj.instance.emit('cms', element, 'image');
+			};
+
+			if (opt.width && opt.height) {
+				FIND('#imagecrop', com => com.reconfigure('width:{0};height:{1};background:{2}'.format(opt.width, opt.height, opt.bg)));
+				SET('formimage @default', opt);
+				SET('common.form', 'formimage');
+			} else {
+				// Upload
+				FUNC.upload({ accept: 'image/*' }, function(file) {
+					var url = file.url;
+					if (opt.size) {
+						opt.element.attrd('cms-src', url);
+						opt.element.attr('src', url + '?s=' + opt.size.replace('%', ''));
+					} else
+						opt.element.attr('src', url);
+					opt.callback(opt.element);
+				});
+			}
+		}
+
+		function cms_link() {
+			var obj = GET('*cms');
+			obj.element.rclass('CMS_selected');
+			UIBuilder.emit('link', obj.link ? $(obj.link) : obj.element, function(model) {
+
+				if (model.element) {
+					model.element.aclass('CMS_selected');
+					cms_selected(model.element);
+				}
+
+				obj.instance.emit('cms', obj.element, model.element ? 'link' : 'remove');
+			});
+		}
+
+		function cms_hide() {
+			SETTER('uibuildereditor/closecms');
+			$('#CMS_panel').aclass('hidden');
+		}
+
+		FIND('#mainviewbox', function(com) {
+			com.scrollbar.area.on('scroll', function() {
+				var cms = DEF.common.cms;
+				if (cms && cms.element)
+					cms_selected(cms.element, 'scroll');
+			});
+		});
 
 	</script>
 

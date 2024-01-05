@@ -309,7 +309,7 @@
 		t.events = {};
 		t.$inputs = {};
 		t.$outputs = {};
-		t.iseditor = Builder.iseditor;
+		t.iseditor = Builder.editor;
 	}
 
 	var IP = Instance.prototype;
@@ -794,7 +794,7 @@
 
 		if (Builder.editor) {
 			for (var item of t.app.instances)
-				item.events.refresh && item.emit('refresh', { type: 'configure', item: instance });
+				item.events.refresh && item.emit('refresh', { type: 'configure', item: t });
 			t.app.refreshio();
 		}
 
@@ -1486,7 +1486,7 @@
 			}
 		}
 
-		com.make && com.make(instance, instance.config, instance.element, instance.component.cls, Builder.iseditor);
+		com.make && com.make(instance, instance.config, instance.element, instance.component.cls, Builder.editor);
 
 		Builder.events.make && Builder.emit('make', instance);
 

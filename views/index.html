@@ -243,7 +243,7 @@
 					DEF.cl.usergroups = msg.groups || [];
 
 					SET('DEF.cl.views', common.iframeviews.slice(0));
-					SET('DEF.cl.paths', common.iframepaths.slice(0));
+					SET('DEF.cl.paths', prepare_external_paths(common.iframepaths.slice(0)));
 					SET('DEF.cl.codes', common.iframecodes.slice(0));
 					SET('DEF.cl.apps', common.iframeapps.slice(0));
 
@@ -283,7 +283,7 @@
 
 					if (msg.paths) {
 						common.iframepaths = msg.paths;
-						SET('DEF.cl.paths', common.iframepaths.slice(0));
+						SET('DEF.cl.paths', prepare_external_paths(common.iframepaths.slice(0)));
 					}
 
 					if (msg.groups)
@@ -1050,6 +1050,13 @@
 			return (source || '').replace(/<readme\b[^<]*(?:(?!<\/readme>)<[^<]*)*<\/readme>/gi, '').replace(/<settings\b[^<]*(?:(?!<\/settings>)<[^<]*)*<\/settings>/gi, '').trim();
 		}
 
+		function prepare_external_paths(arr) {
+			arr = CLONE(arr);
+			for (var item of arr)
+				item.name = item.name.encode() + (item.type ? '<span class="badge badge-small ml5 monospace" style="background:{0}">{1}</span>'.format(Thelpers.color(item.type), item.type) : '');
+			return arr;
+		}
+
 		WATCH('app.schema.editor.paths', function(path, value) {
 
 			if (value == null)
@@ -1058,25 +1065,12 @@
 			if (common.paths !== value) {
 				common.paths = value;
 				AJAX('GET ' + value, function(response) {
-
-					if (response instanceof Array) {
-
-						response = response.remove(item => !item || !item.name);
-
-						for (var item of response) {
-							if (item.type)
-								item.name = item.name.encode() + (item.type ? '<span class="badge badge-small ml5 monospace" style="background:{0}">{1}</span>'.format(Thelpers.color(item.type), item.type) : '');
-							else
-								item.name = item.name.encode();
-						}
-					} else
-						response = [];
-
-					SET('DEF.cl.paths', response);
+					response = response instanceof Array ? response.remove(item => !item || !item.name) : [];
+					SET('DEF.cl.paths', prepare_external_paths(response));
 					uibuilder_rebuildpaths();
 				});
 			} else {
-				SET('DEF.cl.paths', (common.iframepaths || []).slice(0));
+				SET('DEF.cl.paths', prepare_external_paths((common.iframepaths || []).slice(0)));
 				uibuilder_rebuildpaths();
 			}
 		});

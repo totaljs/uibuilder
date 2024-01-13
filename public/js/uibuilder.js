@@ -571,7 +571,7 @@
 			return;
 		}
 
-		if (fn) {
+		if (fn !== undefined) {
 			if (typeof(fn) === 'function')
 				t.$outputs[name] = fn;
 			else
@@ -1255,7 +1255,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.16;
+	Builder.version = 1.17;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};

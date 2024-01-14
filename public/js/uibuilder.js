@@ -986,7 +986,9 @@
 								url = (Builder.origin || '') + url;
 						}
 
-						AJAX('GET ' + url.format(key) + (Builder.cachecomponents ? ' <{0}>'.format(Builder.cachecomponents == true ? 'session' : Builder.cachecomponents) : ''), function(response, err) {
+						var source = url.format(key);
+
+						AJAX('GET ' + source + (Builder.cachecomponents ? ' <{0}>'.format(Builder.cachecomponents == true ? 'session' : Builder.cachecomponents) : ''), function(response, err) {
 
 							if (err) {
 								console.error('UI Builder:', url, err);
@@ -1062,11 +1064,17 @@
 									obj.origin = url.substring(0, index);
 									if (Builder.origin !== obj.origin) {
 										if (obj.render && obj.render.charAt(0) === '/')
-											obj.render = url.substring(0, index) + obj.render;
+											obj.render = obj.origin + obj.render;
 										if (obj.settings && obj.settings.charAt(0) === '/')
-											obj.settings = url.substring(0, index) + obj.settings;
+											obj.settings = obj.origin + obj.settings;
 									}
 								}
+
+								if (obj.render === 'auto')
+									obj.render = source.replace('editor.html', 'render.html');
+
+								if (obj.settings === 'auto')
+									obj.settings = source.replace('editor.html', 'settings.html');
 
 								pending.push({ name: key, fn: obj });
 
@@ -1255,7 +1263,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.17;
+	Builder.version = 1.18;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
@@ -2086,11 +2094,17 @@
 									obj.origin = url.substring(0, index);
 									if (Builder.origin !== obj.origin) {
 										if (obj.render && obj.render.charAt(0) === '/')
-											obj.render = url.substring(0, index) + obj.render;
+											obj.render = obj.origin + obj.render;
 										if (obj.settings && obj.settings.charAt(0) === '/')
-											obj.settings = url.substring(0, index) + obj.settings;
+											obj.settings = obj.origin + obj.settings;
 									}
 								}
+
+								if (obj.render === 'auto')
+									obj.render = tmp.replace('editor.html', 'render.html');
+
+								if (obj.settings === 'auto')
+									obj.settings = tmp.replace('editor.html', 'settings.html');
 
 								app.pending.push({ name: key, fn: obj });
 

@@ -164,6 +164,11 @@
 
 	<script>
 
+		EXTENSION('input', function(instance, config) {
+			if (config.dirsource === '#outputs' || config.dirsource === '#inputs' || config.dirsource === '#paths' || config.dirsource === 'DEF.cl.inputs' || config.dirsource === 'DEF.cl.outputs' || config.dirsource === 'DEF.cl.paths')
+				config.dirraw = 1;
+		});
+
 		var common = {};
 		var settingsform = {};
 
@@ -180,6 +185,9 @@
 		common.apps = '';
 		common.views = '';
 		common.componentsdb = NAV.query.components || 'https://cdn.componentator.com/uibuilder/db.json';
+
+		if (NAV.query.color)
+			APPEARANCE({ color: NAV.query.color });
 
 		CACHEPATH('common.darkmode', '1 year');
 
@@ -1147,16 +1155,22 @@
 
 		UIBuilder.on('io', function(app) {
 
-			for (var m of app.inputs)
+			for (var m of app.inputs) {
 				m.text = m.name;
+				m.name = m.name + '<span class="badge badge-medium badge-color ml5">{0}</span>'.format(m.component.encode());
+			}
 
-			for (var m of app.outputs)
+			for (var m of app.outputs) {
 				m.text = m.name;
+				m.name = m.name + '<span class="badge badge-medium badge-color ml5">{0}</span>'.format(m.component.encode());
+			}
 
 			SET('DEF.cl.inputs', app.inputs);
 			SET('DEF.cl.outputs', app.outputs);
 			SET('DEF.cl.list', app.list);
+
 			uibuilder_rebuildpaths();
+
 		});
 
 		UIBuilder.on('attr', function(el, callback) {
@@ -1697,7 +1711,7 @@
 
 		FIND('#mainviewbox', function(com) {
 			com.scrollbar.area.on('scroll', function() {
-				var cms = DEF.common.cms;
+				var cms = common.cms;
 				if (cms && cms.element)
 					cms_selected(cms.element, 'scroll');
 			});

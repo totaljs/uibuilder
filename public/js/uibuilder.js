@@ -1821,26 +1821,28 @@
 					if (!instance.dom.parentNode)
 						continue;
 
-					if (instance.component.floating) {
+					var com = instance.component;
+
+					if (com.floating) {
 						app.zindex = (instance.element.css('z-index') || '').parseInt();
 						if (app.zindex <= 0)
 							app.zindex = 1;
 					}
 
-					var arr = instance.component.inputs;
-					var name = instance.config.name || instance.component.name;
+					var arr = com.inputs;
+					var name = instance.config.name || com.name;
 
-					app.list && app.list.push({ id: instance.id, componentid: instance.component.id, name: name, icon: instance.component.icon, color: instance.component.color });
+					app.list && app.list.push({ id: instance.id, componentid: com.id, name: name, icon: com.icon, color: com.color });
 
 					if (arr) {
 						for (var m of arr)
-							app.inputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, componentid: instance.component.id, component: instance.component.name, input: m.name, icon: instance.component.icon, color: instance.component.color, note: m.note, schema: m.schema });
+							app.inputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + (arr.length > 1 ? (': ' + m.name) : ''), componentid: com.id, component: com.name, input: m.name, icon: com.icon, color: com.color, note: m.note, schema: m.schema });
 					}
 
-					arr = instance.component.outputs;
+					arr = com.outputs;
 					if (arr && arr.length) {
 						for (var m of arr)
-							app.outputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + ': ' + m.name, componentid: instance.component.id, component: instance.component.name, output: m.name, icon: instance.component.icon, color: instance.component.color, note: m.note, schema: m.schema });
+							app.outputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + (arr.length > 1 ? (': ' + m.name) : ''), componentid: com.id, component: com.name, output: m.name, icon: com.icon, color: com.color, note: m.note, schema: m.schema });
 					}
 				}
 			}

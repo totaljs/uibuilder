@@ -1181,7 +1181,7 @@
 		for (var i = 0; i < arr.length; i++) {
 			obj = obj[arr[i]];
 			if (!obj)
-				return;
+				return obj;
 		}
 		return obj;
 	};
@@ -1263,7 +1263,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.18;
+	Builder.version = 1.19;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};

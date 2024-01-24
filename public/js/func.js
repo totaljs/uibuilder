@@ -25,6 +25,21 @@ FUNC.upload = function(opt, callback) {
 
 	opt.url = app.schema.editor.upload || common.upload;
 
+	if (opt.url === true) {
+		opt.base64 = true;
+		opt.callback = function(file) {
+			var id = Date.now().toString(36) + GUID(5);
+			common.callbacks[id] = function(response) {
+				if (!opt.multiple && response instanceof Array)
+					response = response[0];
+				callback(response);
+			};
+			FUNC.send({ TYPE: 'upload', data: file, callbackid: id });
+		};
+		SETTER('filereader/open', opt);
+		return;
+	}
+
 	if (opt.query) {
 		opt.url = QUERIFY(opt.url, opt.query);
 		opt.query = undefined;

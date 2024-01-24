@@ -185,6 +185,7 @@
 		common.codes = '';
 		common.apps = '';
 		common.views = '';
+		common.callbacks = {};
 		common.componentsdb = NAV.query.components || 'https://cdn.componentator.com/uibuilder/db.json';
 
 		if (NAV.query.color)
@@ -302,6 +303,14 @@
 						common.componentsdb = msg.components;
 
 					uibuilder_rebuildpaths();
+					break;
+
+				case 'callback':
+					var cb = common.callbacks[msg.id];
+					if (cb) {
+						cb(msg.data);
+						delete common.callbacks[msg.id];
+					}
 					break;
 			}
 

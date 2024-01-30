@@ -1348,8 +1348,13 @@
 	Builder.resize = function() {
 		for (var key in Builder.apps) {
 			var app = Builder.apps[key];
+			var el = app.element;
+			var w = el.width();
+			var h = el.height();
+			var d = WIDTH(el);
+			var meta = { width: w, height: h, display: d };
 			for (var instance of app.instances)
-				instance.events.resize && instance.emit('resize');
+				instance.events.resize && instance.emit('resize', meta);
 		}
 	};
 

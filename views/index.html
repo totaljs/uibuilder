@@ -700,7 +700,7 @@
 			for (var instance of app.instances) {
 				var declaration = instance.component.render || app.schema.components[instance.component.id];
 				if (declaration)
-					used[instance.component.id] = meta.editor.local ? '@' : ((meta.editor.download && declaration.indexOf('http') === -1 ? 'https://uibuilder.totaljs.com' : '') + declaration.format(instance.component.id));
+					used[instance.component.id] = meta.editor.local ? '@' : ((meta.editor.download && declaration.indexOf('http') === -1 ? (UIBuilder.origin || 'https://uibuilder.totaljs.com') : '') + declaration.format(instance.component.id));
 				if (instance.fork)
 					uibuilder_compile_fork(instance.fork, used, meta);
 			}

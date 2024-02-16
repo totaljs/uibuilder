@@ -1239,7 +1239,6 @@
 			model.target = el.attr('target') || '';
 			model.callback = function() {
 				callback && callback(model.element);
-				var main = el.closest('.UI_component');
 			};
 
 			SET('formlink', model);

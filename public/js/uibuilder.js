@@ -1263,7 +1263,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.19;
+	Builder.version = 1.20;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
@@ -2329,6 +2329,13 @@
 		openeditor.dom = el[0];
 		openeditor.instance = parent.uibuilder;
 		openeditor.parent = opt.parent ? opt.parent[0] : openeditor.dom;
+
+		if (!opt.callback) {
+			opt.callback = function() {
+				openeditor.instance && openeditor.instance.emit('html', el);
+			};
+		}
+
 		openeditor.createlink = function() {
 
 			var sel = getSelection2().trim();
@@ -2353,6 +2360,7 @@
 			if (!tmp.length)
 				return;
 
+			var instance = openeditor.instance;
 			openeditor && openeditor.close();
 
 			var content = tmp.text();
@@ -2461,11 +2469,10 @@
 			}
 
 			if (e.keyCode === 76) {
+				e.preventDefault();
+				e.stopPropagation();
 				// link
-				if (!opt.format || opt.link === false) {
-					e.preventDefault();
-					e.stopPropagation();
-				} else
+				if (opt.format && opt.link !== false)
 					openeditor.createlink();
 				return;
 			}

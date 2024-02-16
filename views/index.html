@@ -174,6 +174,8 @@
 		var settingsform = {};
 
 		DEF.language = '';
+		DEF.cl.inputs = [];
+		DEF.cl.outputs = [];
 
 		UIBuilder.editor = true;
 		UIBuilder.origin = location.origin;
@@ -1212,19 +1214,43 @@
 			model.src = el.attr('src') || '';
 			model.css = el.attr('style') || '';
 			model.cls = el.attr('class') || '';
-			model.callback = () => callback(model.element);
+			model.callback = function() {
+				if (callback && callback !== NOOP) {
+					callback(model.element)
+				} else {
+					var el = model.element.closest('.UI_component');
+					if (el) {
+						var instance = el[0].uibuilder;
+						instance && instance.emit('html', model.element);
+					}
+				}
+			};
 			SET('formattr', model);
 			SET('common.form2', 'formattr');
 		});
 
 		UIBuilder.on('icon', function(el, callback) {
 
+			el = $(el);
+
+			var com = el.closest('.UI_component');
 			var opt = {};
-			opt.element = $(el);
+
+			opt.element = el;
 			opt.empty = true;
+
 			opt.callback = function(val) {
 				opt.element.rclass2('ti').aclass(val);
-				callback(opt.element, val);
+				if (callback && callback !== NOOP) {
+					callback(opt.element, val);
+				} else {
+					if (com) {
+						if (!val)
+							opt.element.remove();
+						var instance = com[0].uibuilder;
+						instance && instance.emit('html', opt.element);
+					}
+				}
 			};
 			SETTER('icons/show', opt);
 		});
@@ -1234,11 +1260,20 @@
 			el = $(el);
 
 			var model = {};
+			var com = el.closest('.UI_component');
+
 			model.element = el;
 			model.href = el.attr('href');
 			model.target = el.attr('target') || '';
 			model.callback = function() {
-				callback && callback(model.element);
+				if (callback && callback !== NOOP) {
+					callback(model.element);
+				} else {
+					if (com) {
+						var instance = com[0].uibuilder;
+						instance && instance.emit('html', model.element);
+					}
+				}
 			};
 
 			SET('formlink', model);

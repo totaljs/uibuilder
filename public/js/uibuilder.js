@@ -501,8 +501,18 @@
 				}
 			}
 
-			if (t.binder && !t.state.notify && t.binder !== binder)
+			/*
+			if (t.binder && !t.state.notify && t.binder !== binder) {
 				t.binder.set('value', t.clone(value), binder ? 'noemitstate' : '', t);
+			}*/
+
+			if (t.binder && t.binder !== binder) {
+				var tmpval = t.clone(value);
+				if (t.binder.state.notify)
+					t.binder.emit('notify', tmpval, t);
+				else
+					t.binder.set('value', tmpval, binder ? 'noemitstate' : '', t);
+			}
 
 			t.check();
 		}
@@ -1167,7 +1177,7 @@
 		}
 
 		var t = this;
-		var instance = t.app.instances.findItem('id', id);
+		var instance = t.find(id);
 		instance && instance.on(type, callback);
 		return t;
 	};
@@ -1263,7 +1273,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.20;
+	Builder.version = 1.21;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};

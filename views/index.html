@@ -1489,8 +1489,9 @@
 		}
 
 		function uibuilder_drop_check() {
-			if (common.form)
+			if (common.form && common.form !== 'templatesform')
 				return false;
+			return true;
 		}
 
 		function uibuilder_drop(files) {

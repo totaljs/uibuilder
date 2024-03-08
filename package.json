@@ -7,7 +7,7 @@
       "url": "https://github.com/totaljs/uibuilder"
   },
   "dependencies": {
-    "total4": "latest"
+    "total5": "beta"
   },
   "scripts": {
     "start": "node index.js 8000"

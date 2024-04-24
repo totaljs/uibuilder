@@ -1,6 +1,7 @@
 (function(Builder) {
 
 	var REG_CLASS = /CLASS/g;
+	var ERR = 'UIBuilder:';
 
 	// Internal "component" configuration keys:
 	// config.name {String} a component readable name for human
@@ -259,7 +260,7 @@
 
 			var component = com.fork.components[obj.component];
 			if (!component) {
-				console.error('UI Builder: The component not found: ' + obj.component);
+				console.error(ERR, 'The component not found: ' + obj.component);
 				t.parentNode.removeChild(t);
 				return;
 			}
@@ -418,7 +419,7 @@
 	IP.error = function(e) {
 		var t = this;
 		var config = t.config;
-		console.error('UIBuilder:', t.component.name + ' - ' + config.name + (config.path ? ' ({0})'.format(config.path) : ''), e);
+		console.error(ERR, t.component.name + ' - ' + config.name + (config.path ? ' ({0})'.format(config.path) : ''), e);
 	};
 
 	IP.clone = function(val) {
@@ -575,9 +576,9 @@
 	IP.output = function(name, fn) {
 
 		var t = this;
-		var output = (t.component.outputs || EMPTYARRAY).findItem('id', name);
+		var output = (t.outputs || t.component.outputs || EMPTYARRAY).findItem('id', name);
 		if (!output) {
-			console.error('UI Builder: Output "{0}" not found in the "{1}" component'.format(name, t.component.name));
+			console.error(ERR, 'Output "{0}" not found in the "{1}" component'.format(name, t.component.name));
 			return;
 		}
 
@@ -931,7 +932,7 @@
 						if (Builder.components[key])
 							t.app.pending.push({ name: key, fn: Builder.components[key], local: true });
 						else
-							console.error('UI Builder: The component "{0}" not found.'.format(key));
+							console.error(ERR, 'The component "{0}" not found.'.format(key));
 						next();
 						return;
 					}
@@ -1001,13 +1002,13 @@
 						AJAX('GET ' + source + (Builder.cachecomponents ? ' <{0}>'.format(Builder.cachecomponents == true ? 'session' : Builder.cachecomponents) : ''), function(response, err) {
 
 							if (err) {
-								console.error('UI Builder:', url, err);
+								console.error(ERR, url, err);
 								next();
 								return;
 							}
 
 							if (ERROR(response)) {
-								console.error('UI Builder:', url, response);
+								console.error(ERR, url, response);
 								next();
 								return;
 							}
@@ -1273,7 +1274,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.21;
+	Builder.version = 1.22;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
@@ -1398,7 +1399,7 @@
 		var com = self.components[obj.component];
 
 		if (!com) {
-			console.error('UI Builder: The component "{0}" not found'.format(obj.component));
+			console.error(ERR, 'The component "{0}" not found'.format(obj.component));
 			return;
 		}
 
@@ -1642,7 +1643,7 @@
 
 			var tmp = self.components[com];
 			if (!tmp) {
-				console.error('UI Builder: The component "{0}" not found'.format(com));
+				console.error(ERR, 'The component "{0}" not found'.format(com));
 				return;
 			}
 
@@ -1844,7 +1845,7 @@
 							app.zindex = 1;
 					}
 
-					var arr = com.inputs;
+					var arr = instance.inputs || com.inputs;
 					var name = instance.config.name || com.name;
 
 					app.list && app.list.push({ id: instance.id, componentid: com.id, name: name, icon: com.icon, color: com.color });
@@ -1854,7 +1855,7 @@
 							app.inputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + (arr.length > 1 ? (': ' + m.name) : ''), componentid: com.id, component: com.name, input: m.name, icon: com.icon, color: com.color, note: m.note, schema: m.schema });
 					}
 
-					arr = com.outputs;
+					arr = instance.outputs || com.outputs;
 					if (arr && arr.length) {
 						for (var m of arr)
 							app.outputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + (arr.length > 1 ? (': ' + m.name) : ''), componentid: com.id, component: com.name, output: m.name, icon: com.icon, color: com.color, note: m.note, schema: m.schema });
@@ -1966,7 +1967,7 @@
 						if (Builder.components[key])
 							app.pending.push({ name: key, fn: Builder.components[key], local: true });
 						else
-							console.error('UI Builder: The component "{0}" not found.'.format(key));
+							console.error(ERR, 'The component "{0}" not found.'.format(key));
 						next();
 						return;
 					}
@@ -2039,19 +2040,19 @@
 						AJAX('GET ' + tmp + (Builder.cachecomponents ? ' <{0}>'.format(Builder.cachecomponents == true ? 'session' : Builder.cachecomponents) : ''), function(response, err) {
 
 							if (err) {
-								console.error('UI Builder:', tmp, err);
+								console.error(ERR, tmp, err);
 								next();
 								return;
 							}
 
 							if (ERROR(response)) {
-								console.error('UI Builder:', tmp, response);
+								console.error(ERR, tmp, response);
 								next();
 								return;
 							}
 
 							if (!response) {
-								console.error('UI Builder:', tmp, 'empty file');
+								console.error(ERR, tmp, 'empty file');
 								next();
 								return;
 							}

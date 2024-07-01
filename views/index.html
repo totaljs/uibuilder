@@ -565,8 +565,9 @@
 			for (var key in paths2)
 				paths.push({ id: key, name: '<span class="badge badge-small mr5 badge-purple">@(path)</span><span class="monospace">{0}</span>'.format(key) });
 
-			SET('#paths2', paths);
+			com.emit('settings', config);
 
+			SET('#paths2', paths);
 			SET('settingsform.id', com.id);
 			SET('settingsform.componentid', componentid);
 			SET('settingsform.' + componentid + ' @reset', config);

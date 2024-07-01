@@ -2,34 +2,40 @@
 	{
 		"id": "app",
 		"name": "Web app",
-		"image": "/img/app.png"
+		"image": "/img/app.png",
+		"template": "/templates/app.json"
 	},
 	{
 		"id": "dashboard",
 		"name": "Dashboard",
-		"image": "/img/dashboard.png"
+		"image": "/img/dashboard.png",
+		"template": "/templates/dashboard.json"
 	},
 	{
 		"id": "flowboard",
 		"name": "Flowboard",
 		"image": "/img/flowboard.png",
-		"disabled": false
+		"disabled": false,
+		"template": "/templates/flowboard.json"
 	},
 	{
 		"id": "part",
 		"name": "Part",
-		"image": "/img/part.png"
+		"image": "/img/part.png",
+		"template": "/templates/part.json"
 	},
 	{
 		"id": "mobile",
 		"name": "Mobile app",
 		"image": "/img/mobile.png",
-		"disabled": true
+		"disabled": true,
+		"template": "/templates/mobile.json"
 	},
 	{
 		"id": "hmi",
 		"name": "HMI panel",
 		"image": "/img/hmi.png",
-		"disabled": true
+		"disabled": true,
+		"template": "/templates/html.json"
 	}
 ]

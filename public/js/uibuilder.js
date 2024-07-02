@@ -2059,10 +2059,13 @@
 
 							// List of components
 							if (typeof(response) === 'object') {
+
 								var origintmp = parseorigin(tmp);
+
 								for (var key2 in response) {
 
 									var urltmp = response[key2];
+
 									if (urltmp.charAt(0) === '/')
 										urltmp = origintmp + urltmp;
 
@@ -2071,6 +2074,7 @@
 										list.push(key2);
 									}
 								}
+
 								next();
 								return;
 							}

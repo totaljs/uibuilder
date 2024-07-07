@@ -1274,7 +1274,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.22;
+	Builder.version = 1.23;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
@@ -1303,10 +1303,19 @@
 
 		rebuildercsstimeout && clearTimeout(rebuildercsstimeout);
 
+		if (meta == null && typeof(id) === 'string') {
+			meta = id;
+			id = null;
+		}
+
 		if (typeof(meta) === 'string') {
 			var obj = {};
-			obj.id = id;
-			obj.cls = 'uibuilder_' + HASH(obj.id).toString(36);
+
+			if (id) {
+				obj.id = id;
+				obj.cls = 'uibuilder_' + HASH(obj.id).toString(36);
+			}
+
 			var parsed = Builder.parsehtml(meta.substring(0, 7) === 'base64 ' ? decodeURIComponent(atob(meta.substring(7))) : meta);
 			new Function('exports', parsed.js.replace(REG_CLASS, obj.cls))(obj);
 			meta = obj;
@@ -1316,9 +1325,20 @@
 
 			if (parsed.html)
 				meta.html = parsed.html;
+
+		} else if (typeof(id) === 'function') {
+			meta = {};
+			id(meta);
+			id = meta.id;
+		} else if (typeof(meta) === 'function') {
+			var fn = meta;
+			meta = { id: id };
+			fn(meta);
+			id = meta.id;
 		}
 
-		meta.id = id;
+		if (!meta.id)
+			meta.id = id;
 
 		if (!meta.cls)
 			meta.cls = 'uibuilder_' + HASH(meta.id).toString(36);
@@ -1670,6 +1690,9 @@
 	}
 
 	Builder.build = function(target, meta, callback) {
+
+		if (typeof(meta) === 'string')
+			meta = PARSE(meta);
 
 		if (Builder.loader) {
 			setTimeout(Builder.build, 100, target, meta, callback);

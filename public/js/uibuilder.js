@@ -184,6 +184,142 @@
 		instance.state[noemitkey] = count === 0;
 	};
 
+	customElements.define('uibuilder-app', class extends HTMLElement {
+
+		constructor() {
+			super();
+			setTimeout(() => this.compile(), 1);
+		}
+
+		compile() {
+
+			var meta = {};
+			var t = this;
+			var indexer = 0;
+
+			meta.id = t.getAttribute('uid') || '';
+
+			if (!meta.id)
+				meta.id = Date.now().toString(36) + GUID(5);
+
+			meta.name = t.getAttribute('name') || '';
+			meta.css = t.getAttribute('css') || undefined;
+			meta.version = t.getAttribute('version') || '1';
+			meta.icon = t.getAttribute('icon') || undefined;
+			meta.args = (t.getAttribute('args') || '').parseConfig();
+			meta.children = [];
+			meta.components = {};
+
+			var load = function(children, parent, isroot) {
+
+				var containers = [];
+				var bricks = [];
+
+				for (let child of parent.children) {
+					switch (child.tagName) {
+						case 'UIBUILDER-CONTAINER':
+							containers.push(child);
+							break;
+						case 'UIBUILDER-BRICK':
+							let com = child.$uibuilderbrick = {};
+							com.id = child.getAttribute('uid') || ('instance' + (indexer++));
+							com.component = child.getAttribute('name') || child.getAttribute('component');
+
+							if (!com.component) {
+								W.console && W.console.warn(ERR, 'Invalid brick declaration.', child);
+								continue;
+							}
+
+							com.config = (child.getAttribute('config') || '').parseConfig();
+							com.x = (child.getAttribute('x') || '');
+							com.x = com.x ? com.x.parseInt() : undefined;
+							com.y = (child.getAttribute('y') || '');
+							com.y = com.y ? com.y.parseInt() : undefined;
+							com.zindex = (child.getAttribute('zindex') || '');
+							com.zindex = com.zindex ? com.zindex.parseInt() : undefined;
+							com.children = [];
+							com.iscontainer = child.parentNode.tagName === 'UIBUILDER-CONTAINER';
+
+							for (let m of child.children) {
+								if (m.tagName === 'SCRIPT') {
+									let cfg = PARSE(m.innerHTML);
+									if (cfg) {
+										for (let key in cfg)
+											com.config[key] = cfg[key];
+									}
+								}
+							}
+
+							let path = child.getAttribute('path');
+							if (path)
+								com.config.path = path;
+
+							bricks.push(child);
+
+							let source = meta.components[com.component];
+							if (!meta.components[com.component])
+								meta.components[com.component] = child.getAttribute('source') || '@';
+
+							break;
+					}
+				}
+
+				if (isroot && !containers.length) {
+					let arr = [];
+					children.push(arr);
+					children = arr;
+				}
+
+				for (let child of bricks) {
+
+					let com = child.$uibuilderbrick;
+					children.push(com);
+
+					if (child.children.length) {
+						let arr = com.children;
+						if (!com.iscontainer) {
+							arr = [];
+							com.children.push(arr);
+						}
+
+						load(arr, child);
+					}
+				}
+
+				for (let child of containers) {
+					let arr = [];
+					children.push(arr);
+					load(arr, child);
+				}
+
+			};
+
+			load(meta.children, t, true);
+
+			UIBuilder.build(t, meta, function(app) {
+				var onload = t.getAttribute('load');
+				if (onload) {
+					onload = GET(onload);
+					if (onload && typeof(onload) === 'function')
+						onload(app);
+				}
+			});
+		}
+
+	});
+
+	customElements.define('uibuilder-brick', class extends HTMLElement {
+		constructor() {
+			super();
+		}
+	});
+
+	customElements.define('uibuilder-container', class extends HTMLElement {
+		constructor() {
+			super();
+		}
+	});
+
 	customElements.define('uibuilder-component', class extends HTMLElement {
 
 		constructor() {
@@ -1216,12 +1352,19 @@
 					key = key.substring(4);
 					val = key.indexOf('.') === -1 ? data : self.read(data, key.substring(1));
 				}
+				// query
 			} else if (key.substring(0, 5) === 'query') {
 				key = key.substring(5);
 				if (key.indexOf('.') === -1)
 					return QUERIFY(self.query).substring(1);
 				else
 					val = self.query[key.substring(1)];
+			} else if (key.substring(0, 6) === 'config') {
+				key = key.substring(6);
+				if (key.indexOf('.') === -1)
+					return QUERIFY(self.config).substring(1);
+				else
+					val = self.config[key.substring(1)];
 			}
 
 			if (val == null)

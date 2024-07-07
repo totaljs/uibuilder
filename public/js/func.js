@@ -151,3 +151,71 @@ FUNC.placeholder = function(options) {
 	return builder.join('');
 };
 
+FUNC.htmlify = function(data) {
+
+	var builder = [];
+	var tapp = Tangular.compile('<uibuilder-app{{ if name }} name="{{ name }}"{{ fi }}{{ if css }} css="{{ css | raw }}"{{ fi }}{{ if uid }} uid="{{ id }}"{{ fi }}>');
+	var tbrick = Tangular.compile('<uibuilder-brick name="{{ component }}"{{ if config.path }} path="{{ config.path }}"{{ fi }}{{ if source }} source="{{ source }}"{{ fi }}{{ if config2 }} config="{{ config2 | raw }}"{{ fi }}{{ if x }} x="{{ x }}"{{ fi }}{{ if y }} y="{{ y }}"{{ fi }}{{ if zindex }} zindex="{{ zindex }}"{{ fi }} uid="{{ id }}">');
+
+	data.css = data.css.replace(/\n/g, '').replace(/\t/g, ' ');
+
+	var tabs = function(count, text) {
+		let str = '';
+		for (let i = 0; i < count; i++)
+			str += '  ';
+		let lines = text.split('\n');
+		for (let i = 0; i < lines.length; i++)
+			lines[i] = str + lines[i];
+		text = lines.join('\n');
+		return str + text;
+	};
+
+	var serialize = function(builder, children, count) {
+		for (let arr of children) {
+			builder.push(tabs(count, '<uibuilder-container>'));
+			let subcount = count + 1;
+			for (let item of arr) {
+
+				item.source = data.components[item.component];
+				item.path = item.config ? item.config.path : null;
+
+				var iscomplicated = false;
+
+				item.config2 = [];
+
+				for (let key in item.config) {
+					let cfg = item.config[key];
+					let type = typeof(cfg);
+					if (type === 'object') {
+						iscomplicated = true;
+						break;
+					} else if (type === 'string' && (cfg.includes('"') || cfg.includes(':'))) {
+						iscomplicated = true;
+						break;
+					}
+
+					if (cfg != '' && cfg != null)
+						item.config2.push(key + ':' + cfg);
+
+				}
+
+				if (!iscomplicated)
+					item.config2 = item.config2.join(';');
+
+				builder.push(tabs(subcount, tbrick(item)));
+
+				if (iscomplicated)
+					builder.push(tabs(subcount + 1, ('<scr' + 'ipt type="application/json">{0}</scr' + 'ipt>').format(JSON.stringify(item.config))));
+
+				serialize(builder, item.children, subcount + 1);
+				builder.push(tabs(subcount, '</uibuilder-brick>'));
+			}
+			builder.push(tabs(count, '</uibuilder-container>'));
+		}
+	};
+
+	builder.push(tabs(0, tapp(data)));
+	serialize(builder, data.children, 1);
+	builder.push(tabs(0, '</uibuilder-app>'));
+	return builder.join('\n');
+};

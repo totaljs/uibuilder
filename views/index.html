@@ -773,7 +773,7 @@
 			}
 		}
 
-		function uibuilder_publish() {
+		function uibuilder_publish(element) {
 
 			cms_hide();
 
@@ -793,6 +793,8 @@
 				return;
 			}
 
+			var type = '';
+
 			var compile = function() {
 				uibuilder_compile(function(meta) {
 					var data = meta.editor;
@@ -807,7 +809,18 @@
 					if (app.schema.editor && app.schema.editor.publish) {
 						AJAX('POST ' + data.publish + ' urlencoded', { data: JSON.stringify(meta) }, ERROR(ASETTER('notify/success @hideloading', '@(Done, published!)')));
 					} else {
-						SETTER('filesaver/save', meta.name + '_render.json', JSON.stringify(meta, null, '\t'));
+						if (!type || type === 'download') {
+							SETTER('filesaver/save', meta.name + '_render.json', JSON.stringify(meta, null, '\t'));
+						} else if (type === 'html') {
+							AJAX('GET /render.txt', function(response) {
+								response = response.replace('UIBUILDERDATA', JSON.stringify(meta));
+								SETTER('filesaver/save', meta.name + '_render.html', response);
+							});
+						} else if (type === 'htmlify') {
+							SETTER('clipboard/copy', FUNC.htmlify(meta));
+							SETTER('notify/success', '@(Copied.)');
+						}
+
 						SETTER('loading/hide', 1000);
 					}
 				});
@@ -815,8 +828,29 @@
 
 			if (app.schema.editor.autopublish)
 				compile();
-			else
-				SETTER('approve/show', '@(Are you sure you want to publish design?)', '"ti ti-check-circle" @(PUBLISH)', compile);
+			else {
+
+				var next = () => SETTER('approve/show', '@(Are you sure you want to publish current design?)', '"ti ti-check-circle" @(PUBLISH)', compile);
+
+				if (!element || (app.schema.editor && app.schema.editor.publish)) {
+					next();
+					return;
+				}
+
+				var opt = {};
+				opt.element = element;
+				opt.items = [];
+				opt.items.push({ id: 'html', name: '@(Download HTML)', icon: 'ti ti-html5' });
+				opt.items.push({ id: 'download', name: '@(Download JSON)', icon: 'ti ti-download' });
+				opt.items.push('-');
+				opt.items.push({ id: 'htmlify', name: '@(Copy as HTML elements)', icon: 'ti ti-copy' });
+				opt.callback = function(selected) {
+					type = selected.id;
+					next();
+				};
+
+				SETTER('menu/show', opt);
+			}
 		}
 
 		function uibuilder_settings() {
@@ -1477,24 +1511,43 @@
 			SET('common.form', 'formschema');
 		}
 
-		function uibuilder_download() {
+		function uibuilder_download(element) {
 
 			cms_hide();
 
-			var meta = CLONE(app.schema);
-			var data = app.stringify();
+			let opt = {};
+			opt.element = element;
+			opt.align = 'right';
+			opt.items = [];
+			opt.items.push({ id: 'copy', name: '@(Copy to clipboard)', icon: 'ti ti-copy' });
+			opt.items.push({ id: 'download', name: '@(Download)', icon: 'ti ti-download' });
+			opt.callback = function(selected) {
 
-			for (var key in meta.components) {
-				var url = meta.components[key];
-				if (url.charAt(0) === '@')
-					delete meta.components[key];
-			}
+				var meta = CLONE(app.schema);
+				var data = app.stringify();
 
-			meta.children = data.children;
-			meta.inputs = app.inputs;
-			meta.outputs = app.outputs;
-			SETTER('filesaver/save', meta.name + '_editor.json', JSON.stringify(meta, null, '\t'));
-			SETTER('loading/hide', 1000);
+				for (var key in meta.components) {
+					var url = meta.components[key];
+					if (url.charAt(0) === '@')
+						delete meta.components[key];
+				}
+
+				meta.children = data.children;
+				meta.inputs = app.inputs;
+				meta.outputs = app.outputs;
+
+				if (selected.id === 'download') {
+					SETTER('filesaver/save', meta.name + '_editor.json', JSON.stringify(meta, null, '\t'));
+				} else {
+					SETTER('clipboard/copy', JSON.stringify(meta, null, '\t'));
+					SETTER('notify/success', '@(Copied.)');
+				}
+
+				SETTER('loading/hide', 1000);
+			};
+
+			SETTER('menu/show', opt);
+
 		}
 
 		function uibuilder_drop_check() {

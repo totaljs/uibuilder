@@ -24,6 +24,9 @@
 			setTimeout(function() {
 				var schema = PARSE(model.body);
 				if (schema) {
+					// unload all apps
+					for (let key in UIBuilder.apps)
+						UIBuilder.apps[key].remove();
 					UIBuilder.data = schema;
 					uibuilder_redraw();
 				} else

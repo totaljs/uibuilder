@@ -942,7 +942,7 @@
 		if (Builder.editor) {
 			for (var item of t.app.instances)
 				item.events.refresh && item.emit('refresh', { type: 'configure', item: t });
-			t.app.refreshio();
+			t.app.clean();
 		}
 
 		return t;

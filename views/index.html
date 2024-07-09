@@ -392,7 +392,7 @@
 				// It's part of UI builder in +1.16
 				for (var item of app.instances)
 					item.events.refresh && item.emit('refresh', { type: 'configure', item: instance });
-				app.refreshio();
+				app.clean();
 			}
 
 			hide();

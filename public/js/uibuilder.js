@@ -1587,6 +1587,9 @@
 		if (!com.config)
 			com.config = {};
 
+		if (!obj.id)
+			obj.id = Builder.makeid(com);
+
 		instance.id = obj.id;
 		instance.args = self.args;
 		instance.newbie = newbie || obj.newbie;

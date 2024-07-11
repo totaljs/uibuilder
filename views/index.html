@@ -607,12 +607,12 @@
 
 			var meta = app.stringify(instance.element).children;
 
-			meta.id = 'cid' + Date.now().toString(36);
+			meta.id = UIBuilder.makeid(instance.component);
 
 			var updateid = function(children) {
 				for (var item of children) {
 					for (var m of item) {
-						m.id = 'cid' + Math.random().toString(36).substring(2).substring(0, 8);
+						m.id = UIBuilder.makeid(typeof(m.component) === 'string' ? app.components[m.component] : m.component);
 						updateid(m.children);
 					}
 				}

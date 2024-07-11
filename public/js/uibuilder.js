@@ -1810,7 +1810,7 @@
 				return;
 			}
 
-			com = { id: 'cid' + Date.now().toString(36), component: com, children: [], config: com.config || {}, gap: com.gap != false };
+			com = { id: Builder.makeid(tmp), component: com, children: [], config: com.config || {}, gap: com.gap != false };
 		}
 
 		extendmeta && COPY(extendmeta, com);
@@ -2845,5 +2845,8 @@
 	}
 
 	Builder.edit = app_edit;
+	Builder.makeid = function(com) {
+		return 'cid' + Math.random().toString(36).substring(2).substring(0, 8);
+	};
 
 })(W.UIBuilder = {});

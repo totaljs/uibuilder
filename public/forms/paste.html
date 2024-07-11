@@ -27,13 +27,13 @@
 
 			var instance = model.instance;
 
-			meta.children.id = 'cid' + Date.now().toString(36);
+			meta.children.id = UIBuilder.makeid(instance.component);
 			meta.children.newbie = true;
 
 			var updateid = function(children) {
 				for (var item of children) {
 					for (var m of item) {
-						m.id = 'cid' + Math.random().toString(36).substring(2).substring(0, 8);
+						m.id = UIBuilder.makeid(app.components[m.component]);
 						m.newbie = true;
 						updateid(m.children);
 					}

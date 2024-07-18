@@ -240,6 +240,9 @@
 							com.children = [];
 							com.iscontainer = child.parentNode.tagName === 'UIBUILDER-CONTAINER';
 
+							com.gap = child.getAttribute('gap');
+							com.gap = !(com.gap === '0' || com.gap === 'false');
+
 							for (let m of child.children) {
 								if (m.tagName === 'SCRIPT') {
 									let cfg = PARSE(m.innerHTML);
@@ -257,7 +260,7 @@
 							bricks.push(child);
 
 							let source = meta.components[com.component];
-							if (!meta.components[com.component])
+							if (!source)
 								meta.components[com.component] = child.getAttribute('source') || '@';
 
 							break;
@@ -2029,6 +2032,7 @@
 						for (var m of arr)
 							app.outputs.push({ id: instance.id + '_' + m.id, ref: m.id, name: name + (arr.length > 1 ? (': ' + m.name) : ''), componentid: com.id, component: com.name, output: m.name, icon: com.icon, color: com.color, note: m.note, schema: m.schema });
 					}
+
 				}
 			}
 

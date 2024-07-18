@@ -208,7 +208,7 @@
 				err = err[0].error || err[0].message;
 			else
 				err = err.toString();
-			SETTER('notify/warning', err || 'Unexpected error');
+			SETTER('notify/warning @hideloading', Thelpers.encode(err) || 'Unexpected error');
 		});
 
 		function settings_reload(form) {

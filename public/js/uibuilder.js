@@ -217,9 +217,11 @@
 
 				for (let child of parent.children) {
 					switch (child.tagName) {
+
 						case 'UIBUILDER-CONTAINER':
 							containers.push(child);
 							break;
+
 						case 'UIBUILDER-BRICK':
 							let com = child.$uibuilderbrick = {};
 							com.id = child.getAttribute('uid') || ('instance' + (indexer++));
@@ -237,9 +239,9 @@
 							com.y = com.y ? com.y.parseInt() : undefined;
 							com.zindex = (child.getAttribute('zindex') || '');
 							com.zindex = com.zindex ? com.zindex.parseInt() : undefined;
+							com.attrs = (child.getAttribute('zindex') || '').parseConfig();
 							com.children = [];
 							com.iscontainer = child.parentNode.tagName === 'UIBUILDER-CONTAINER';
-
 							com.gap = child.getAttribute('gap');
 							com.gap = !(com.gap === '0' || com.gap === 'false');
 
@@ -1420,7 +1422,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.23;
+	Builder.version = 1.24;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
@@ -1574,6 +1576,9 @@
 
 		div.classList.add('ui_' + com.id);
 
+		if (!obj.attrs)
+			obj.attrs = {};
+
 		obj.gap && div.classList.add('UI_gap');
 
 		if (com.floating) {
@@ -1680,6 +1685,10 @@
 		}
 
 		com.make && com.make(instance, instance.config, instance.element, instance.component.cls, Builder.editor);
+		obj.controller && obj.controller.emit('child', instance);
+
+		if (instance.events.child)
+			obj.controller = instance;
 
 		Builder.events.make && Builder.emit('make', instance);
 
@@ -1699,8 +1708,10 @@
 				var container = containers.findItem('index', i);
 				if (container) {
 					var arr = obj.children[i];
-					for (var o of arr)
+					for (var o of arr) {
+						o.controller = obj.controller;
 						self.compile(container.element, o, i);
+					}
 				}
 			}
 
@@ -1729,8 +1740,10 @@
 					var container = containers.findItem('index', i);
 					if (container) {
 						var arr = children[i];
-						for (var o of arr)
+						for (var o of arr) {
+							o.controller = obj.controller;
 							self.compile(container.element, o, i);
+						}
 					}
 				}
 			}
@@ -2548,7 +2561,7 @@
 			if (!tmp.length)
 				return;
 
-			var instance = openeditor.instance;
+			// var instance = openeditor.instance;
 			openeditor && openeditor.close();
 
 			var content = tmp.text();
@@ -2786,6 +2799,7 @@
 			item.id = el.getAttribute('data-id');
 			item.component = com.component.id;
 			item.config = CLONE(com.config);
+			item.attrs = com.meta.attrs || {};
 
 			if (!components[com.component.id]) {
 				var comdeclaration = self.schema.components[com.component.id];

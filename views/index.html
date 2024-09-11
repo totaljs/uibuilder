@@ -35,6 +35,7 @@
 
 	<ui-component name="datepicker" config="today:@(Today);days:@(Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday);clear:@(Clear);months:@(January,February,March,April,May,Juny,July,August,September,October,November,December)"></ui-component>
 	<ui-component name="windows" path="common.windows" config="zindex:30"></ui-component>
+	<ui-component name="mainprogress" path="common.progress"></ui-component>
 	<ui-component name="markdown"></ui-component>
 	<ui-component name="dropfiles" class="hidden" config="check:uibuilder_drop_check;exec:uibuilder_drop">@(Drop .json schema or .html component file)</ui-component>
 	<ui-component name="exec"></ui-component>
@@ -180,6 +181,7 @@
 		UIBuilder.editor = true;
 		UIBuilder.origin = location.origin;
 
+		common.progress = 0;
 		common.windows = [];
 		common.components = [];
 		common.iframeapps = [];
@@ -1838,6 +1840,10 @@
 				if (cms && cms.element)
 					cms_selected(cms.element, 'scroll');
 			});
+		});
+
+		UIBuilder.on('loading', function(app, percentage) {
+			SET('*progress', percentage);
 		});
 
 	</script>

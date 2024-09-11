@@ -2134,15 +2134,13 @@
 				next();
 			} else {
 				Builder.cache[url] = 1;
-
 				if (url.charAt(0) === '/')
 					url = (Builder.origin || '') + url;
-
 				IMPORT(url, next);
 			}
 		}, function() {
 			var list = Object.keys(meta.components);
-			list.wait(function(key, next) {
+			list.wait(function(key, next, indexer) {
 
 				var fn = meta.components[key];
 
@@ -2174,6 +2172,7 @@
 					}
 
 					if (ext === 'base64') {
+						Builder.emit('loading', app, (indexer / list.length) * 95);
 						// A component
 						try {
 							var obj = {};
@@ -2265,6 +2264,8 @@
 								return;
 							}
 
+							Builder.emit('loading', app, (indexer / list.length) * 95);
+
 							var parsed = Builder.parsehtml(response);
 
 							try {
@@ -2331,7 +2332,9 @@
 			}, function() {
 
 				var items = app.pending.splice(0);
-				items.wait(function(item, next) {
+				items.wait(function(item, next, index) {
+
+					Builder.emit('loading', app, 95 + ((index / items.length) * 5));
 
 					var obj = null;
 
@@ -2368,6 +2371,7 @@
 
 				}, function() {
 
+					Builder.emit('loading', app, 100);
 					meta.css && css.unshift(meta.css.replace(REG_CLASS, app.class));
 					CSS(css, app.class);
 

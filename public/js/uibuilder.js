@@ -1222,10 +1222,10 @@
 									}
 								}
 
-								if (obj.render === 'auto')
+								if (obj.render && obj.render.toLowerCase().trim() === 'auto')
 									obj.render = source.replace('editor.html', 'render.html');
 
-								if (obj.settings === 'auto')
+								if (obj.settings && obj.settings.toLowerCase().trim() === 'auto')
 									obj.settings = source.replace('editor.html', 'settings.html');
 
 								pending.push({ name: key, fn: obj });
@@ -2309,10 +2309,10 @@
 									}
 								}
 
-								if (obj.render === 'auto')
+								if (obj.render && obj.render.toLowerCase().trim() === 'auto')
 									obj.render = tmp.replace('editor.html', 'render.html');
 
-								if (obj.settings === 'auto')
+								if (obj.settings && obj.settings.toLowerCase().trim() === 'auto')
 									obj.settings = tmp.replace('editor.html', 'settings.html');
 
 								app.pending.push({ name: key, fn: obj });

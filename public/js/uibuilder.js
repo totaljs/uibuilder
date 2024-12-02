@@ -1519,6 +1519,7 @@
 			});
 		} else {
 			rebuildercsstimeout && clearTimeout(rebuildercsstimeout);
+			rebuildercsstimeout = setTimeout(rebuildcss, 2);
 			Builder.components[id] = meta;
 			callback && callback(null, meta);
 		}

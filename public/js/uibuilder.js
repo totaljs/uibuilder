@@ -3,6 +3,9 @@
 	var REG_CLASS = /CLASS/g;
 	var ERR = 'UIBuilder:';
 
+	// v20 STYLE(), v19 CSS()
+	var CSS = W.STYLE ? W.STYLE : W.CSS;
+
 	// Internal "component" configuration keys:
 	// config.name {String} a component readable name for human
 	// config.path {String} a path for storing of data
@@ -1162,6 +1165,7 @@
 								for (var key2 in response) {
 
 									var urltmp = response[key2];
+
 									if (urltmp.charAt(0) === '/')
 										urltmp = origintmp + urltmp;
 

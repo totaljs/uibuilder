@@ -1426,7 +1426,7 @@
 		Builder.emit('settings', t);
 	};
 
-	Builder.version = 1.25;
+	Builder.version = 1.26;
 	Builder.selectors = { component: '.UI_component', components: '.UI_components' };
 	Builder.current = 'default';
 	Builder.events = {};
@@ -1884,7 +1884,7 @@
 		var container = $(root);
 
 		container.attrd('id', meta.id);
-		container.aclass('UI_app invisible');
+		container.aclass('UI_app invisible ' + (Builder.editor ? 'UI_editor' : 'UI_render'));
 		container.empty();
 
 		// if (meta.css)
